@@ -4,7 +4,7 @@ High Performance low power small area Enterprise level CPU core
 
 ## License
 
-The Intensivate CPU Core is available under a dual-licensing model.
+Intensivate-owned material in this repository is available under a dual-licensing model. Third-party material is not — see [Third-party components](#third-party-components).
 
 ### Non-commercial source license
 
@@ -17,6 +17,12 @@ are licensed under the **Intensivate Non-Commercial Hardware Source License v1.0
 The license permits research, education, personal experimentation, other non-commercial uses, and the limited commercial-entity evaluation described in the license. It expressly covers Chisel source and derived/generated representations such as FIRRTL, MLIR/CIRCT, Verilog/SystemVerilog, synthesized netlists, FPGA bitstreams, physical-design data, and hardware prototypes.
 
 See [`LICENSE.md`](LICENSE.md) for the complete terms.
+
+### Third-party components
+
+This repository is **mixed-license**. The Intensivate license covers Intensivate-original files only. Substantial parts of the tree derive from the Rocket Chip generator and related projects and remain under their own upstream licenses — BSD 3-Clause (UC Regents), Apache 2.0 (SiFive, ChipsAlliance), Mulan PSL v2 (XiangShan-derived), MIT (DRAMsim3), among others. Intensivate modifications made inside a third-party file are contributed under that file's existing license, not under the Intensivate license.
+
+License texts are in [`LICENSES/`](LICENSES/); the full attribution inventory is in [`NOTICE.md`](NOTICE.md).
 
 ### Commercial licensing
 
