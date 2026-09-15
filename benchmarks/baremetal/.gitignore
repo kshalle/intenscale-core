@@ -1,0 +1,36 @@
+# Build products.  Every binary here is produced by `make` from sources in
+# this tree; nothing built is tracked.  The two environments differ only in
+# the name: <port>.riscv is bare metal, <port>-linux.riscv is the static
+# Linux build.
+*.riscv
+*.riscv.dump
+*.o
+.bm-config-*
+build/
+
+# Machine-local toolchain paths.  common/bm-site.mk.example is the tracked
+# template; the real file names directories on one developer's machine.
+common/bm-site.mk
+
+# Staged or generated at build time by the generators in this tree
+# (mkgen.sh, mkstage.py, mkheaders.sh, mkinput.py, mkwords.awk).
+xlisp/init.lsp
+perl-perl4/perly.c
+perl-perl4/perly.h
+perl-perl4/workload/words-*.txt
+libcint/gen/
+gcc-cc1/gen/
+gcc-cc1/workload/input-*.i
+gcc-cc1/gcc-cc1-out.s
+
+# Written by a benchmark run / by the emulator
+selftest/selftest.out
+bsmbench/mesons.out
+bsmbench/err_0
+dramsim3epoch.json
+
+# RTL run artifacts
+*/rtl*.log
+*/dramsim3epoch.json
+*/mesons.out
+*/err_0

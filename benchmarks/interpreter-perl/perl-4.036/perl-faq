@@ -1,0 +1,1508 @@
+Xref: alchemy comp.lang.perl:9756 news.answers:1332
+Path: alchemy!sun4nl!mcsun!uunet!think.com!sdd.hp.com!swrinde!mips!darwin.sura.net!convex!convex!tchrist
+From: tchrist@convex.COM (Tom Christiansen)
+Newsgroups: comp.lang.perl,news.answers
+Subject: comp.lang.perl FAQ
+Summary: perl FAQ for May (+June?) 92
+Keywords: perl FAQ
+Message-ID: <1992May8.001927.2934@news.eng.convex.com>
+Date: 8 May 92 00:19:27 GMT
+Expires: Wed, 1 Jul 1992 10:00:00 GMT
+Sender: usenet@news.eng.convex.com (news access account)
+Reply-To: tchrist@convex.COM (Tom Christiansen)
+Followup-To: comp.lang.perl
+Organization: CONVEX Realtime Development, Colorado Springs, CO
+Lines: 1486
+Approved: news-answers-request@MIT.Edu
+Originator: tchrist@pixel.convex.com
+Nntp-Posting-Host: pixel.convex.com
+X-Disclaimer: This message was written by a user at CONVEX Computer
+              Corp. The opinions expressed are those of the user and
+              not necessarily those of CONVEX.
+
+Archive-Name: perl-faq/faq
+
+[Last changed: $Date: 92/05/07 19:12:27 $ by $Author: tchrist $]
+
+The current perl version is 4.019 (version 4, patchlevel 19).
+
+This article contains answers to some of the most frequently asked questions
+in comp.lang.perl.  They're all good questions, but they come up often enough
+that substantial net bandwidth can be saved by looking here first before
+asking.  Before posting a question, you really should consult the Perl man
+page; there's a lot of information packed in there.
+
+Some questions in this group aren't really about Perl, but rather about
+system-specific issues.  You might also consult the Most Frequently Asked
+Questions list in comp.unix.questions for answers to this type of question.
+
+This list is maintained by Tom Christiansen, and is archived on convex.com
+[130.168.1.1] in the file pub/perl/info/faq.  If you have any suggested
+additions or corrections to this article, please send them to Tom at
+either <tchrist@convex.com> or <convex!tchrist>.  Special thanks to Larry
+Wall for initially reviewing this list for accuracy and especially for
+writing and releasing Perl in the first place.
+
+
+List of Questions:
+
+    1)   What is Perl?
+    2)   Where can I get Perl?
+    3)   How can I get Perl via UUCP?
+    4)   Where can I get more documentation and examples for Perl?
+    5)   Are archives of comp.lang.perl available?
+    6)   How do I get Perl to run on machine FOO?
+    7)   What are all these $@%<> signs and how do I know when to use them?
+    8)   Why don't backticks work as they do in shells?  
+    9)   How come Perl operators have different precedence than C operators?
+    10)  How come my converted awk/sed/sh script runs more slowly in Perl?
+    11)  There's an a2p and an s2p; why isn't there a p2c (perl-to-C)?
+    12)  Where can I get undump for my machine?
+    13)  How can I call my system's unique C functions from Perl?
+    14)  Where do I get the include files to do ioctl() or syscall()?
+    15)  Why doesn't "local($foo) = <FILE>;" work right?
+    16)  How can I detect keyboard input without reading it?
+    17)  How can I make an array of arrays or other recursive data types?
+    18)  How can I quote a variable to use in a regexp?
+    19)  Why do setuid Perl scripts complain about kernel problems?
+    20)  How do I open a pipe both to and from a command?
+    21)  How can I change the first N letters of a string?
+    22)  How can I manipulate fixed-record-length files?
+    23)  How can I make a file handle local to a subroutine?
+    24)  How can I extract just the unique elements of an array?
+    25)  How can I call alarm() from Perl?
+    26)  How can I test whether an array contains a certain element?
+    27)  How can I do an atexit() or setjmp()/longjmp() in Perl?
+    28)  Why doesn't Perl interpret my octal data octally?
+    29)  Where can I get a perl-mode for emacs?
+    30)  How can I use Perl interactively?
+    31)  How do I sort an associative array by value instead of by key?
+    32)  How can I capture STDERR from an external command?
+    33)  Why doesn't open return an error when a pipe open fails?
+    34)  How can I use curses with perl?
+    35)  How can I compare two date strings?
+    36)  What's the fastest way to code up task X in perl?
+    37)  How can I know how many entries are in an associative array?
+
+To skip ahead to a particular question, such as question 17, you can
+search for the regular expression "^17)".  Most pagers (more or less) 
+do this with the command /^17) followed by a carriage return.
+
+
+1)  What is Perl?
+
+    A programming language, by Larry Wall <lwall@netlabs.com>.
+
+    Here's the beginning of the description from the man page:
+
+    Perl is an interpreted language optimized for scanning arbitrary text
+    files, extracting information from those text files, and printing reports
+    based on that information.  It's also a good language for many system
+    management tasks.  The language is intended to be practical (easy to use,
+    efficient, complete) rather than beautiful (tiny, elegant, minimal).  It
+    combines (in the author's opinion, anyway) some of the best features of C,
+    sed, awk, and sh, so people familiar with those languages should have
+    little difficulty with it.  (Language historians will also note some
+    vestiges of csh, Pascal, and even BASIC-PLUS.)  Expression syntax
+    corresponds quite closely to C expression syntax.  Unlike most Unix
+    utilities, Perl does not arbitrarily limit the size of your data--if
+    you've got the memory, Perl can slurp in your whole file as a single
+    string.  Recursion is of unlimited depth.  And the hash tables used by
+    associative arrays grow as necessary to prevent degraded performance.
+    Perl uses sophisticated pattern matching techniques to scan large amounts
+    of data very quickly.  Although optimized for scanning text, Perl can also
+    deal with binary data, and can make dbm files look like associative arrays
+    (where dbm is available).  Setuid Perl scripts are safer than C programs
+    through a dataflow tracing mechanism which prevents many stupid security
+    holes.  If you have a problem that would ordinarily use sed or awk or sh,
+    but it exceeds their capabilities or must run a little faster, and you
+    don't want to write the silly thing in C, then Perl may be for you.  There
+    are also translators to turn your sed and awk scripts into Perl scripts.
+
+
+2)  Where can I get Perl?
+
+    From any comp.sources.misc archive.   Initial sources  were posted to
+    Volume 18, Issues 19-54 at patchlevel 3.  The Patches 4-10 were posted
+    to Volume 20, Issues 56-62.
+
+    These machines, at the very least, definitely have it available for
+    anonymous FTP:
+
+	ftp.uu.net    			137.39.1.2
+	archive.cis.ohio-state.edu  	128.146.8.52
+	jpl-devvax.jpl.nasa.gov 	128.149.1.143
+
+
+    If you are in Europe, you might using the following site.  This
+    information thanks to "Henk P. Penning" <henkp@cs.ruu.nl>:
+
+    FTP: Perl stuff is in the PERL directory on archive.cs.ruu.nl (131.211.80.5)
+
+    Email: Send a message to 'mail-server@cs.ruu.nl' containing:
+	 begin
+	 path your_email_address
+	 send help
+	 send PERL/INDEX
+	 end
+    The path-line may be omitted if your message contains a normal From:-line.
+    You will receive a help-file and an index of the directory that contains
+    the Perl stuff.
+
+
+3)  How can I get Perl via UUCP?
+
+    You can get it from the site osu-cis; here is the appropriate info,
+    thanks to J Greely <jgreely@cis.ohio-state.edu> or <osu-cis!jgreely>.
+
+    E-mail contact:
+	    osu-cis!uucp
+    Get these two files first:
+	    osu-cis!~/GNU.how-to-get.
+	    osu-cis!~/ls-lR.Z
+    Current Perl distribution:
+	    osu-cis!~/perl/4.0/kits@10/perl.kitXX.Z (XX=01-37)
+    How to reach osu-cis via uucp(L.sys/Systems file lines):
+    #
+    # Direct Trailblazer
+    #
+    osu-cis Any ACU 19200 1-614-292-5112 in:--in:--in: Uanon
+    #
+    # Direct V.32 (MNP 4)
+    # dead, dead, dead...sigh.
+    #
+    #osu-cis Any ACU 9600 1-614-292-1153 in:--in:--in: Uanon
+    #
+    # Micom port selector, at 1200, 2400, or 9600 bps.
+    # Replace ##'s below with 12, 24, or 96 (both speed and phone number).
+    #
+    osu-cis Any ACU ##00 1-614-292-31## "" \r\c Name? osu-cis nected \c GO \d\r\d\r\d\r in:--in:--in:
+     Uanon
+
+    Modify as appropriate for your site, of course, to deal with your
+    local telephone system.  There are no limitations concerning the hours
+    of the day you may call.
+
+    Another possibility is to use UUNET, although they charge you
+    for it.  You have been duly warned.  Here's the advert:
+
+	       Anonymous Access to UUNET's Source Archives
+
+			     1-900-GOT-SRCS
+
+	 UUNET now provides access to its extensive collection of UNIX
+    related sources to non- subscribers.  By  calling  1-900-468-7727
+    and  using the login "uucp" with no password, anyone may uucp any
+    of UUNET's on line source collection.  Callers will be charged 40
+    cents  per  minute.   The charges will appear on their next tele-
+    phone bill.
+
+	 The  file  uunet!/info/help  contains  instructions.   The  file
+    uunet!/index//ls-lR.Z contains a complete list of the files available
+    and is updated daily.  Files ending in Z need to be uncompressed
+    before being used.   The file uunet!~/compress.tar is a tar
+    archive containing the C sources for the uncompress program.
+
+	 This service provides a  cost  effective  way  of  obtaining
+    current  releases  of sources without having to maintain accounts
+    with UUNET or some other service.  All modems  connected  to  the
+    900  number  are  Telebit T2500 modems.  These modems support all
+    standard modem speeds including PEP, V.32 (9600), V.22bis (2400),
+    Bell  212a  (1200), and Bell 103 (300).  Using PEP or V.32, a 1.5
+    megabyte file such as the GNU C compiler would cost $10  in  con-
+    nect  charges.   The  entire  55  megabyte X Window system V11 R4
+    would cost only $370 in connect time.  These costs are less  than
+    the  official  tape  distribution fees and they are available now
+    via modem.
+
+		      UUNET Communications Services
+		   3110 Fairview Park Drive, Suite 570
+			 Falls Church, VA 22042
+			 +1 703 876 5050 (voice)
+			  +1 703 876 5059 (fax)
+			    info@uunet.uu.net
+
+
+
+4)  Where can I get more documentation and examples for Perl?
+
+    If you've been dismayed by the ~75-page Perl man page (or is that man
+    treatise?) you should look to ``the Camel Book'', written by Larry and
+    Randal L. Schwartz <merlyn@iwarp.intel.com>, published as a Nutshell
+    Handbook by O'Reilly & Associates and entitled _Programming Perl_.
+    Besides serving as a reference guide for Perl, it also contains
+    tutorial material, is a great source of examples and cookbook
+    procedures, as well as wit and wisdom, tricks and traps, pranks and
+    pitfalls.  The code examples contained therein are available via
+    anonymous FTP from ftp.uu.net in /published/oreilly/nutshell/perl/perl.tar.Z
+    for your retrieval.  Corrections and additions to the book can be
+    found in the Perl man page right before the BUGS section under the
+    heading ERRATA AND ADDENDA.
+
+    If you can't find the book in your local technical bookstore, the book
+    may be ordered directly from O'Reilly by calling 1-800-998-9938 if in
+    North America and 1-707-829-0515.  Autographed copies are available
+    from TECHbooks by calling 1-503-646-8257 or mailing info@techbook.com.  
+    Cost is ~30$US for the regular version, 40$US for the autographed one.
+
+    The book's ISBN is 0-937175-64-1.
+
+    For other examples of Perl scripts, look in the Perl source directory in
+    the eg subdirectory.  You can also find a good deal of them on 
+    tut.cis.ohio-state.edu in the pub/perl/scripts/ subdirectory.
+
+    Another source for examples, currently only for anonymous FTP, is on
+    convex.com [130.168.1.1].  This contains, amongst other things,
+    a copy of the newsgroup up through Aug 91, a text retrieval database
+    for the newsgroup, a rather old and short troff version of Tom Christiansen's
+    perl tutorial (this was the version presented at Washington DC USENIX),
+    and quite a few of Tom's scripts.  You can look at the INDEX file
+    in /pub/perl/INDEX for a list of what's in that directory.  In the
+    future, monthly updates of all the newsgroup's articles will be 
+    placed there, and the by-subject indexing into subfolders will be
+    completed.
+
+    Larry Wall has published a 3-part article on perl in Unix World
+    (August through October of 1991), and Rob Kolstad also had a
+    3-parter in Unix Review (May through July of 1990).
+
+    A nice reference guide by Johan Vromans <jv@mh.nl> is also available;
+    It is distributed in LaTeX (source) and PostScript (ready to
+    print) forms. Obsolete versions may still be available in TeX and troff
+    forms, although these don't print as nicely. The official kit
+    includes both LaTeX and PostScript forms, and can be FTP'd from
+    archive.cs.ruu.nl [131.211.80.5], file DOC/perlref-4.010.2.1.tar.Z.
+    The reference guide comes with the O'Reilly book in a nice, glossy
+    card format.
+
+    Additionally, USENIX and SUG have been sponsoring tutorials of varying
+    lengths on Perl at their system administration and general
+    conferences, taught by Tom Christiansen <tchrist@convex.com> and/or
+    Rob Kolstad <kolstad@usenix.org>; you might consider attending one of
+    these.  Special cameo appearances by these folks may also be
+    negotiated; send us mail if your organization is interested in having
+    a Perl class taught.
+
+    You should definitely read the USENET comp.lang.perl newsgroup for all
+    sorts of discussions regarding the language, bugs, features, history,
+    humor, and trivia.  In this respect, it functions both as a comp.lang.*
+    style newsgroup and also as a user group for the language; in fact,
+    there's a mailing list called ``perl-users'' that is bidirectionally
+    gatewayed to the newsgroup.  Larry Wall is a very frequent poster here, as
+    well as many (if not most) of the other seasoned Perl programmers.  It's
+    the best place for the very latest information on Perl.
+
+
+5)  Are archives of comp.lang.perl available?
+
+    Yes, although they're poorly organized.  You can get them from
+    the host betwixt.cs.caltech.edu (131.215.128.4) in the directory  
+    /pub/comp.lang.perl.  Perhaps by next month you'll be able to 
+    get them from uunet as well.  It contains these things:
+
+    comp.lang.perl.tar.Z  -- the 5M tarchive in MH/news format
+    archives/             -- the unpacked 5M tarchive
+    unviewed/             -- new comp.lang.perl messages since 4-Feb or 5-Feb.
+
+    These are currently stored in news- or MH-style format; there are
+    subdirectories named things like "arrays", "programs", "taint", and
+    "emacs".  Unfortunately, only the first ~1600 or so messages have been
+    so categorized, and we're now up to almost 5000.  Furthermore, even
+    this categorization was haphazardly done and contains errors.
+
+    A more sophisticated query and retrieval mechanism is desirable.
+    Preferably one that allows you to retrieve article using a fast-access
+    indices, keyed on at least author, date, subject, thread (as in "trn")
+    and probably keywords.  Right now, the MH pick command works for this,
+    but it is very slow to select on 5000 articles.
+
+    If you're serious about this, your best bet is probably to retrieve
+    the compressed tarchive and play with what you get.  Any suggestions
+    how to better sort this all out are extremely welcome.
+
+
+6)  How do I get Perl to run on machine FOO?
+
+    Perl comes with an elaborate auto-configuration script that allows Perl
+    to be painlessly ported to a wide variety of platforms, including many
+    non-UNIX ones.  Amiga and MS-DOS binaries are available on jpl-devvax for
+    anonymous FTP.  Try to bring Perl up on your machine, and if you have
+    problems, examine the README file carefully, and if all else fails,
+    post to comp.lang.perl; probably someone out there has run into your
+    problem and will be able to help you.
+
+    In particular, since they're so often asked about, here's some information 
+    for the MacIntosh from Matthias Ulrich Neeracher <neeri@iis.ethz.ch>:
+
+	A port of Perl to the Apple Macintosh is available by anonymous
+	ftp to rascal.ics.utexas.edu from the file
+	~ftp/mac/programming/Perl_402_MPW_CPT_bin .
+
+	The file is 1.1M and must be transferred in BINARY mode. Please
+	be considerate of RASCAL's users during CDT working hours.
+	(And, no, there is no way to get it by email).
+
+	For European users, the file should soon appear on lth.se.
+
+	To make optimal use of all the features of this port, you
+	should have MPW, ToolServer, and 5M of memory. There is also a
+	standalone version included, but it's currently of very limited
+	usefulness.
+
+	This package contains all of the sources for compilation with
+	MPW C 3.2
+
+    And here's some VMS information from Rao V. Akella 
+    <rao@moose.cccs.umn.edu>:  (this appears to be an old port)
+
+	You can pick up Perl for VMS (version 3.0.1.1 patchlevel 4) via
+	anonymous ftp from unixd1.cis.pitt.edu [130.49.253.1] in the
+	software/vms/perl subdirectory (there are two files there:
+	perl-pl18.bck and perl-pl4.bck).
+
+    And here is a recent version for MS-DOS from Budi Rahard 
+    <rahard@ee.UManitoba.CA>, who says:
+
+	I am collecting MS-DOS Perl(s) in eeserv.ee.umanitoba.ca directory
+	/pub/msdos-perl.  Currently I received two versions of Perl v. 4
+	pl. 10.  (Tommy Thorn <tthorn@daimi.aau.dk> and Len reed
+	<holos0!lbr@gatech.edu>)
+
+    Please contact the porters directly in case of questions about
+    these ports.
+
+7)  What are all these $@*%<> signs and how do I know when to use them?
+
+    Those are type specifiers: $ for scalar values, @ for indexed arrays,
+    and % for hashed arrays.  The * means all types of that symbol name
+    and are sometimes used like pointers; the <> are used for inputting a
+    record from a filehandle.  See question 17 for more on pointers.
+
+    Always make sure to use a $ for single values and @ for multiple ones.
+    Thus element 2 of the @foo array is accessed as $foo[2], not @foo[2],
+    which is a list of length one (not a scalar), and is a fairly common
+    novice mistake.  Sometimes you can get by with @foo[2], but it's
+    not really doing what you think it's doing for the reason you think
+    it's doing it, which means one of these days, you'll shoot yourself
+    in the foot.  Just always say $foo[2] and you'll be happier.
+
+    This may seem confusing, but try to think of it this way:  you use the
+    character of the type which you *want back*.  You could use @foo[1..3] for
+    a slice of three elements of @foo, or even @foo{'a','b',c'} for a slice of
+    of %foo.  This is the same as using ($foo[1], $foo[2], $foo[3]) and
+    ($foo{'a'}, $foo{'b'}, $foo{'c'}) respectively.  In fact, you can even use
+    lists to subscript arrays and pull out more lists, like @foo[@bar] or
+    @foo{@bar}, where @bar is in both cases presumably a list of subscripts.
+
+    While there are a few places where you don't actually need these type
+    specifiers, except for files, you should always use them.  Note that
+    <FILE> is NOT the type specifier for files; it's the equivalent of awk's
+    getline function, that is, it reads a line from the handle FILE.  When
+    doing open, close, and other operations besides the getline function on
+    files, do NOT use the brackets.
+
+    Beware of saying:
+	$foo = BAR;
+    Which wil be interpreted as 
+	$foo = 'BAR';
+    and not as 
+	$foo = <BAR>;
+    If you always quote your strings, you'll avoid this trap.
+
+    Normally, files are manipulated something like this (with appropriate
+    error checking added if it were production code):
+
+	open (FILE, ">/tmp/foo.$$"); print FILE "string\n"; close FILE;
+
+    If instead of a filehandle, you use a normal scalar variable with file
+    manipulation functions, this is considered an indirect reference to a
+    filehandle.  For example,
+
+	$foo = "TEST01";
+	open($foo, "file");
+
+    After the open, these two while loops are equivalent:
+
+	while (<$foo>) {}
+	while (<TEST01>) {}
+
+    as are these two statements:
+	
+	close $foo;
+	close TEST01;
+
+    but NOT to this:
+
+	while (<$TEST01>) {} # error
+		^
+		^ note spurious dollar sign
+
+    This is another common novice mistake; often it's assumed that
+
+	open($foo, "output.$$");
+
+    will fill in the value of $foo, which was previously undefined.  
+    This just isn't so -- you must set $foo to be the name of a valid
+    filehandle before you attempt to open it.
+
+
+8)  Why don't backticks work as they do in shells?  
+
+    Because backticks do not interpolate within double quotes
+    in Perl as they do in shells.  
+    
+    Let's look at two common mistakes:
+
+      1) $foo = "$bar is `wc $file`";
+
+    This should have been:
+
+	 $foo = "$bar is " . `wc $file`;
+
+    But you'll have an extra newline you might not expect.  This
+    does not work as expected:
+
+      2)  $back = `pwd`; chdir($somewhere); chdir($back);
+
+    Because backticks do not automatically eat trailing or embedded
+    newlines.  The chop() function will remove the last character from
+    a string.  This should have been:
+
+	  chop($back = `pwd`); chdir($somewhere); chdir($back);
+
+    You should also be aware that while in the shells, embedding
+    single quotes will protect variables, in Perl, you'll need 
+    to escape the dollar signs.
+
+	Shell: foo=`cmd 'safe $dollar'`
+	Perl:  $foo=`cmd 'safe \$dollar'`;
+	
+
+9)  How come Perl operators have different precedence than C operators?
+
+    Actually, they don't; all C operators have the same precedence in Perl as
+    they do in C.  The problem is with a class of functions called list
+    operators, e.g. print, chdir, exec, system, and so on.  These are somewhat
+    bizarre in that they have different precedence depending on whether you
+    look on the left or right of them.  Basically, they gobble up all things
+    on their right.  For example,
+
+	unlink $foo, "bar", @names, "others";
+
+    will unlink all those file names.  A common mistake is to write:
+
+	unlink "a_file" || die "snafu";
+
+    The problem is that this gets interpreted as
+
+	unlink("a_file" || die "snafu");
+
+    To avoid this problem, you can always make them look like function calls
+    or use an extra level of parentheses:
+
+	(unlink "a_file") || die "snafu";
+	unlink("a_file")  || die "snafu";
+
+    See the Perl man page's section on Precedence for more gory details.
+
+
+10) How come my converted awk/sed/sh script runs more slowly in Perl?
+
+    The natural way to program in those languages may not make for the fastest
+    Perl code.  Notably, the awk-to-perl translator produces sub-optimal code;
+    see the a2p man page for tweaks you can make.
+
+    Two of Perl's strongest points are its associative arrays and its regular
+    expressions.  They can dramatically speed up your code when applied
+    properly.  Recasting your code to use them can help alot.
+
+    How complex are your regexps?  Deeply nested sub-expressions with {n,m} or
+    * operators can take a very long time to compute.  Don't use ()'s unless
+    you really need them.  Anchor your string to the front if you can.
+
+    Something like this:
+	next unless /^.*%.*$/; 
+    runs more slowly than the equivalent:
+	next unless /%/;
+
+    Note that this:
+	next if /Mon/;
+	next if /Tue/;
+	next if /Wed/;
+	next if /Thu/;
+	next if /Fri/;
+    runs faster than this:
+	next if /Mon/ || /Tue/ || /Wed/ || /Thu/ || /Fri/;
+    which in turn runs faster than this:
+	next if /Mon|Tue|Wed|Thu|Fri/;
+    which runs *much* faster than:
+	next if /(Mon|Tue|Wed|Thu|Fri)/;
+
+    There's no need to use /^.*foo.*$/ when /foo/ will do.
+
+    Remember that a printf costs more than a simple print.
+
+    Don't split() every line if you don't have to.
+
+    Another thing to look at is your loops.  Are you iterating through 
+    indexed arrays rather than just putting everything into a hashed 
+    array?  For example,
+
+	@list = ('abc', 'def', 'ghi', 'jkl', 'mno', 'pqr', 'stv');
+
+	for $i ($[ .. $#list) {
+	    if ($pattern eq $list[$i]) { $found++; } 
+	} 
+
+    First of all, it would be faster to use Perl's foreach mechanism
+    instead of using subscripts:
+
+	foreach $elt (@list) {
+	    if ($pattern eq $elt) { $found++; } 
+	} 
+
+    Better yet, this could be sped up dramatically by placing the whole
+    thing in an associative array like this:
+
+	%list = ('abc', 1, 'def', 1, 'ghi', 1, 'jkl', 1, 
+		 'mno', 1, 'pqr', 1, 'stv', 1 );
+	$found += $list{$pattern};
+    
+    (but put the %list assignment outside of your input loop.)
+
+    You should also look at variables in regular expressions, which is
+    expensive.  If the variable to be interpolated doesn't change over the
+    life of the process, use the /o modifier to tell Perl to compile the
+    regexp only once, like this:
+
+	for $i (1..100) {
+	    if (/$foo/o) {
+		do some_func($i);
+	    } 
+	} 
+
+    Finally, if you have a bunch of patterns in a list that you'd like to 
+    compare against, instead of doing this:
+
+	@pats = ('_get.*', 'bogus', '_read', '.*exit', '_write');
+	foreach $pat (@pats) {
+	    if ( $name =~ /^$pat$/ ) {
+		do some_fun();
+		last;
+	    }
+	}
+
+    If you build your code and then eval it, it will be much faster.
+    For example:
+
+	@pats = ('_get.*', 'bogus', '_read', '.*exit', '_write');
+	$code = <<EOS
+		while () { 
+		    study;
+EOS
+	foreach $pat (@pats) {
+	    $code .= <<EOS
+		if ( /^$pat\$/ ) {
+		    do some_fun();
+		    next;
+		}
+EOS
+	}
+	$code .= "}\n";
+	print $code if $debugging;
+	eval $code;
+
+
+11) There's an a2p and an s2p; why isn't there a p2c (perl-to-C)?
+
+    Because the Pascal people would be upset that we stole their name. :-)
+
+    The dynamic nature of Perl's do and eval operators (and remember that
+    constructs like s/$mac_donald/$mac_gregor/eieio count as an eval) would
+    make this very difficult.  To fully support them, you would have to put
+    the whole Perl interpreter into each compiled version for those scripts
+    using them.  This is what undump does right now, if your machine has it.
+    If what you're doing will be faster in C than in Perl, maybe it should
+    have been written in C in the first place.  For things that ought to be
+    written in Perl, the interpreter will be just about as fast, because the
+    pattern matching routines won't work any faster linked into a C program.
+    Even in the case of simple Perl programs that don't do any fancy evals, the
+    major gain would be in compiling the control flow tests, with the rest
+    still being a maze of twisty, turny subroutine calls.  Since these are not
+    usually the major bottleneck in the program, there's not as much to be
+    gained via compilation as one might think.
+
+
+12) Where can I get undump for my machine?
+
+    The undump program comes from the TeX distribution.  If you have TeX, then
+    you may have a working undump.  If you don't, and you can't get one,
+    *AND* you have a GNU emacs working on your machine that can clone itself,
+    then you might try taking its unexec() function and compiling Perl with
+    -DUNEXEC, which will make Perl call unexec() instead of abort().  You'll
+    have to add unexec.o to the objects line in the Makefile.  If you succeed,
+    post to comp.lang.perl about your experience so others can benefit from it.
+
+
+13) How can I call my system's unique C functions from Perl?
+
+    If these are system calls and you have the syscall() function, then
+    you're probably in luck -- see the next question.  For arbitrary
+    library functions, it's not quite so straight-forward.  While you
+    can't have a C main and link in Perl routines, if you're
+    determined, you can extend Perl by linking in your own C routines.
+    See the usub/ subdirectory in the Perl distribution kit for an example
+    of doing this to build a Perl that understands curses functions.  It's
+    neither particularly easy nor overly-documented, but it is feasible.
+
+
+14) Where do I get the include files to do ioctl() or syscall()?
+
+    These are generated from your system's C include files using the h2ph
+    script (once called makelib) from the Perl source directory.  This will
+    make files containing subroutine definitions, like &SYS_getitimer, which
+    you can use as arguments to your function.
+
+    You might also look at the h2pl subdirectory in the Perl source for how to
+    convert these to forms like $SYS_getitimer; there are both advantages and
+    disadvantages to this.  Read the notes in that directory for details.  
+   
+    In both cases, you may well have to fiddle with it to make these work; it
+    depends how funny-looking your system's C include files happen to be.
+
+    If you're trying to get at C structures, then you might take a look 
+    at using c2ph, which uses debugger "stab" entries generated
+    by your BSD or GNU C compiler to produce perl definitions for the 
+    data structures.  c2ph comes with the perl distribution.  On an SCO 
+    system, GCC only has COFF debugging support by default, so you'll
+    have to build GCC 2.1 with DBX_DEBUGGING_INFO defined, and use
+    -gstabs to get c2ph to work there.
+
+    See the file /pub/perl/info/ch2ph on convex.com via anon ftp 
+    for more traps and tips on this process.
+
+
+15) Why doesn't "local($foo) = <FILE>;" work right?
+
+    Well, it does.  The thing to remember is that local() provides an array
+    context, an that the <FILE> syntax in an array context will read all the
+    lines in a file.  To work around this, use:
+
+	local($foo);
+	$foo = <FILE>;
+
+    You can use the scalar() operator to cast the expression into a scalar
+    context:
+
+	local($foo) = scalar(<FILE>);
+
+
+16) How can I detect keyboard input without reading it?
+
+    You might check out the Frequently Asked Questions list in comp.unix.* for
+    things like this: the answer is essentially the same.  It's very system
+    dependent.  Here's one solution that works on BSD systems:
+
+	sub key_ready {
+	    local($rin, $nfd);
+	    vec($rin, fileno(STDIN), 1) = 1;
+	    return $nfd = select($rin,undef,undef,0);
+	}
+
+    A closely related question is how to input a single character from the
+    keyboard.  Again, this is a system dependent operation.  The following 
+    code that may or may not help you:
+
+	$BSD = -f '/vmunix';
+	if ($BSD) {
+	    system "stty cbreak </dev/tty >/dev/tty 2>&1";
+	}
+	else {
+	    system "stty", 'cbreak',
+	    system "stty", 'eol', '^A'; # note: real control A
+	}
+
+	$key = getc(STDIN);
+
+	if ($BSD) {
+	    system "stty -cbreak </dev/tty >/dev/tty 2>&1";
+	}
+	else {
+	    system "stty", 'icanon';
+	    system "stty", 'eol', '^@'; # ascii null
+	}
+	print "\n";
+
+    You could also handle the stty operations yourself for speed if you're
+    going to be doing a lot of them.  This code works to toggle cbreak
+    and echo modes on a BSD system:
+
+    sub set_cbreak { # &set_cbreak(1) or &set_cbreak(0)
+	local($on) = $_[0];
+	local($sgttyb,@ary);
+	require 'sys/ioctl.pl';
+	$sgttyb_t   = 'C4 S' unless $sgttyb_t;
+
+	ioctl(STDIN,$TIOCGETP,$sgttyb) || die "Can't ioctl TIOCGETP: $!";
+
+	@ary = unpack($sgttyb_t,$sgttyb);
+	if ($on) {
+	    $ary[4] |= $CBREAK;
+	    $ary[4] &= ~$ECHO;
+	} else {
+	    $ary[4] &= ~$CBREAK;
+	    $ary[4] |= $ECHO;
+	}
+	$sgttyb = pack($sgttyb_t,@ary);
+
+	ioctl(STDIN,&TIOCSETP,$sgttyb) || die "Can't ioctl TIOCSETP: $!";
+    }
+
+    Note that this is one of the few times you actually want to use the
+    getc() function; it's in general way too expensive to call for normal
+    I/O.  Normally, you just use the <FILE> syntax, or perhaps the read()
+    or sysread() functions.
+
+    For perspectives on more portable solutions, use anon ftp to retrieve
+    the file /pub/perl/info/keypress from convex.com.
+
+
+17) How can I make an array of arrays or other recursive data types?
+
+    Remember that Perl isn't about nested data structures, but rather flat
+    ones, so if you're trying to do this, you may be going about it the
+    wrong way.  You might try parallel arrays with common subscripts.
+
+    But if you're bound and determined, you can use the multi-dimensional
+    array emulation of $a{'x','y','z'}, or you can make an array of names
+    of arrays and eval it.
+
+    For example, if @name contains a list of names of arrays, you can 
+    get at a the j-th element of the i-th array like so:
+
+	$ary = $name[$i];
+	$val = eval "\$$ary[$j]";
+
+    or in one line
+
+	$val = eval "\$$name[$i][\$j]";
+
+    You could also use the type-globbing syntax to make an array of *name
+    values, which will be more efficient than eval.  Here @name hold
+    a list of pointers, which we'll have to dereference through a temporary
+    variable.
+
+    For example:
+
+	{ local(*ary) = $name[$i]; $val = $ary[$j]; }
+
+    In fact, you can use this method to make arbitrarily nested data
+    structures.  You really have to want to do this kind of thing
+    badly to go this far, however, as it is notationally cumbersome.
+
+    Let's assume you just simply *have* to have an array of arrays of
+    arrays.  What you do is make an array of pointers to arrays of
+    pointers, where pointers are *name values described above.  You
+    initialize the outermost array normally, and then you build up your
+    pointers from there.  For example:
+
+	@w = ( 'ww' .. 'xx' );
+	@x = ( 'xx' .. 'yy' );
+	@y = ( 'yy' .. 'zz' );
+	@z = ( 'zz' .. 'zzz' );
+
+	@ww = reverse @w;
+	@xx = reverse @x;
+	@yy = reverse @y;
+	@zz = reverse @z;
+
+    Now make a couple of array of pointers to these:
+
+	@A = ( *w, *x, *y, *z );
+	@B = ( *ww, *xx, *yy, *zz );
+
+    And finally make an array of pointers to these arrays:
+
+	@AAA = ( *A, *B );
+
+    To access an element, such as AAA[i][j][k], you must do this:
+
+	local(*foo) = $AAA[$i];
+	local(*bar) = $foo[$j];
+	$answer = $bar[$k];
+
+    Similar manipulations on associative arrays are also feasible.
+
+    You could take a look at recurse.pl package posted by Felix Lee
+    <flee@cs.psu.edu>, which lets you simulate vectors and tables (lists and
+    associative arrays) by using type glob references and some pretty serious
+    wizardry.
+
+    In C, you're used to creating recursive datatypes for operations
+    like recursive decent parsing or tree traversal.  In Perl, these
+    algorithms are best implemented using associative arrays.  Take an
+    array called %parent, and build up pointers such that $parent{$person}
+    is the name of that person's parent.  Make sure you remember that
+    $parent{'adam'} is 'adam'. :-) With a little care, this approach can
+    be used to implement general graph traversal algorithms as well.
+
+
+18) How can I quote a variable to use in a regexp?
+
+    From the manual:
+
+	$pattern =~ s/(\W)/\\$1/g;
+
+    Now you can freely use /$pattern/ without fear of any unexpected
+    meta-characters in it throwing off the search.  If you don't know
+    whether a pattern is valid or not, enclose it in an eval to avoid
+    a fatal run-time error.
+
+
+19) Why do setuid Perl scripts complain about kernel problems?
+
+    This message:
+
+    YOU HAVEN'T DISABLED SET-ID SCRIPTS IN THE KERNEL YET!
+    FIX YOUR KERNEL, PUT A C WRAPPER AROUND THIS SCRIPT, OR USE -u AND UNDUMP!
+
+    is triggered because setuid scripts are inherently insecure due to a
+    kernel bug.  If your system has fixed this bug, you can compile Perl
+    so that it knows this.  Otherwise, create a setuid C program that just
+    execs Perl with the full name of the script.  
+
+
+20) How do I open a pipe both to and from a command?
+
+    In general, this is a dangerous move because you can find yourself in a
+    deadlock situation.  It's better to put one end of the pipe to a file.
+    For example:
+
+	# first write some_cmd's input into a_file, then 
+	open(CMD, "some_cmd its_args < a_file |");
+	while (<CMD>) {
+
+	# or else the other way; run the cmd
+	open(CMD, "| some_cmd its_args > a_file");
+	while ($condition) {
+	    print CMD "some output\n";
+	    # other code deleted
+	} 
+	close CMD || warn "cmd exited $?";
+
+	# now read the file
+	open(FILE,"a_file");
+	while (<FILE>) {
+
+    If you have ptys, you could arrange to run the command on a pty and
+    avoid the deadlock problem.  See the chat2.pl package in the
+    distributed library for ways to do this.
+
+    At the risk of deadlock, it is theoretically possible to use a
+    fork, two pipe calls, and an exec to manually set up the two-way
+    pipe.  (BSD system may use socketpair() in place of the two pipes,
+    but this is not as portable.)
+
+    Here's one example of this that assumes it's going to talk to
+    something like adb, both writing to it and reading from it.  This
+    is presumably safe because you "know" that commands like adb will
+    read a line at a time and output a line at a time.  Programs like
+    sort that read their entire input stream first, however, are quite
+    apt to cause deadlock.
+
+    Use this way:
+
+	require 'open2.pl';
+	$child = &open2(RDR,WTR,"some cmd to run and its args");
+
+    Unqualified filehandles will be interpreted in their caller's package,
+    although &open2 lives in its open package (to protect its state data).
+    It returns the child process's pid if successful, and generally 
+    dies if unsuccessful.  You may wish to change the dies to warnings,
+    or trap the call in an eval.  You should also flush STDOUT before
+    calling this.
+
+    # &open2: tom christiansen, <tchrist@convex.com>
+    #
+    # usage: $pid = &open2('rdr', 'wtr', 'some cmd and args');
+    #
+    # spawn the given $cmd and connect $rdr for
+    # reading and $wtr for writing.  return pid
+    # of child, or 0 on failure.  
+    # 
+    # WARNING: this is dangerous, as you may block forever
+    # unless you are very careful.  
+    # 
+    # $wtr is left unbuffered.
+    # 
+    # abort program if
+    #	rdr or wtr are null
+    # 	pipe or fork or exec fails
+
+    package open2;
+    $fh = 'FHOPEN000';  # package static in case called more than once
+
+    sub main'open2 {
+	local($kidpid);
+	local($dad_rdr, $dad_wtr, $cmd) = @_;
+
+	$dad_rdr ne '' 		|| die "open2: rdr should not be null";
+	$dad_wtr ne '' 		|| die "open2: wtr should not be null";
+
+	# force unqualified filehandles into callers' package
+	local($package) = caller;
+	$dad_rdr =~ s/^[^']+$/$package'$&/;
+	$dad_wtr =~ s/^[^']+$/$package'$&/;
+
+	local($kid_rdr) = ++$fh;
+	local($kid_wtr) = ++$fh;
+
+	pipe($dad_rdr, $kid_wtr) 	|| die "open2: pipe 1 failed: $!";
+	pipe($kid_rdr, $dad_wtr) 	|| die "open2: pipe 2 failed: $!";
+
+	if (($kidpid = fork) < 0) {
+	    die "open2: fork failed: $!";
+	} elsif ($kidpid == 0) {
+	    close $dad_rdr; close $dad_wtr;
+	    open(STDIN,  ">&$kid_rdr");
+	    open(STDOUT, ">&$kid_wtr");
+	    print STDERR "execing $cmd\n";
+	    exec $cmd;
+	    die "open2: exec of $cmd failed";   
+	} 
+	close $kid_rdr; close $kid_wtr;
+	select((select($dad_wtr), $| = 1)[0]); # unbuffer pipe
+	$kidpid;
+    }
+    1; # so require is happy
+
+
+21) How can I change the first N letters of a string?
+
+    Remember that the substr() function produces an lvalue, that is, it may be
+    assigned to.  Therefore, to change the first character to an S, you could
+    do this:
+
+	substr($var,0,1) = 'S';
+
+    This assumes that $[ is 0;  for a library routine where you can't know $[,
+    you should use this instead:
+
+	substr($var,$[,1) = 'S';
+
+    While it would be slower, you could in this case use a substitute:
+
+	$var =~ s/^./S/;
+    
+    But this won't work if the string is empty or its first character is a
+    newline, which "." will never match.  So you could use this instead:
+
+	$var =~ s/^[^\0]?/S/;
+
+    To do things like translation of the first part of a string, use substr,
+    as in:
+
+	substr($var, $[, 10) =~ tr/a-z/A-Z/;
+
+    If you don't know then length of what to translate, something like
+    this works:
+
+	/^(\S+)/ && substr($_,$[,length($1)) =~ tr/a-z/A-Z/;
+    
+    For some things it's convenient to use the /e switch of the 
+    substitute operator:
+
+	s/^(\S+)/($tmp = $1) =~ tr#a-z#A-Z#, $tmp/e
+
+    although in this case, it runs more slowly than does the previous example.
+
+
+22) How can I manipulate fixed-record-length files?
+
+    The most efficient way is using pack and unpack.  This is faster than
+    using substr.  Here is a sample chunk of code to break up and put back
+    together again some fixed-format input lines, in this case, from ps.
+
+	# sample input line:
+	#   15158 p5  T      0:00 perl /mnt/tchrist/scripts/now-what
+	$ps_t = 'A6 A4 A7 A5 A*';
+	open(PS, "ps|");
+	$_ = <PS>; print;
+	while (<PS>) {
+	    ($pid, $tt, $stat, $time, $command) = unpack($ps_t, $_);
+	    for $var ('pid', 'tt', 'stat', 'time', 'command' ) {
+		print "$var: <", eval "\$$var", ">\n";
+	    }
+	    print 'line=', pack($ps_t, $pid, $tt, $stat, $time, $command),  "\n";
+	}
+
+
+23) How can I make a file handle local to a subroutine?
+
+    You use the type-globbing *VAR notation.  Here is some code to cat an
+    include file, calling itself recursively on nested local include files
+    (i.e. those with #include "file", not #include <file>):
+
+	sub cat_include {
+	    local($name) = @_;
+	    local(*FILE);
+	    local($_);
+
+	    warn "<INCLUDING $name>\n";
+	    if (!open (FILE, $name)) {
+		warn "can't open $name: $!\n";
+		return;
+	    }
+	    while (<FILE>) {
+		if (/^#\s*include "([^"]*)"/) {
+		    &cat_include($1);
+		} else {
+		    print;
+		}
+	    }
+	    close FILE;
+	}
+
+
+24) How can I extract just the unique elements of an array?
+
+    There are several possible ways, depending on whether the
+    array is ordered and you wish to preserve the ordering.
+
+    a) If @in is sorted, and you want @out to be sorted:
+
+	$prev = 'nonesuch';
+	@out = grep($_ ne $prev && (($prev) = $_), @in);
+
+       This is nice in that it doesn't use much extra memory, 
+       simulating uniq's behavior of removing only adjacent
+       duplicates.
+
+    b) If you don't know whether @in is sorted:
+
+	undef %saw;
+	@out = grep(!$saw{$_}++, @in);
+
+    c) Like (b), but @in contains only small integers:
+
+	@out = grep(!$saw[$_]++, @in);
+
+    d) A way to do (b) without any loops or greps:
+
+	undef %saw;
+	@saw{@in} = ();
+	@out = sort keys %saw;  # remove sort if undesired
+
+    e) Like (d), but @in contains only small positive integers:
+
+	undef @ary;
+	@ary[@in] = @in;
+	@out = sort @ary;
+
+
+25) How can I call alarm() from Perl?
+
+    It's available as a built-in as of version 3.038.  If you 
+    want finer granularity than 1 second and have itimers 
+    and syscall() on your system, you can use this.  
+
+    It takes a floating-point number representing how long
+    to delay until you get the SIGALRM, and returns a floating-
+    point number representing how much time was left in the
+    old timer, if any.  Note that the C function uses integers,
+    but this one doesn't mind fractional numbers.
+
+    # alarm; send me a SIGALRM in this many seconds (fractions ok)
+    # tom christiansen <tchrist@convex.com>
+    sub alarm {
+	local($ticks) = @_;
+	local($in_timer,$out_timer);
+	local($isecs, $iusecs, $secs, $usecs);
+
+	local($SYS_setitimer) = 83; # require syscall.ph
+	local($ITIMER_REAL) = 0;    # require sys/time.ph
+	local($itimer_t) = 'L4';    # confirm with sys/time.h
+
+	$secs = int($ticks);
+	$usecs = ($ticks - $secs) * 1e6;
+
+	$out_timer = pack($itimer_t,0,0,0,0);
+	$in_timer  = pack($itimer_t,0,0,$secs,$usecs);
+
+	syscall($SYS_setitimer, $ITIMER_REAL, $in_timer, $out_timer)
+	    && die "alarm: setitimer syscall failed: $!";
+
+	($isecs, $iusecs, $secs, $usecs) = unpack($itimer_t,$out_timer);
+	return $secs + ($usecs/1e6);
+    }
+
+
+26) How can I test whether an array contains a certain element?
+
+    There are several ways to approach this.  If you are going to make this
+    query many times and the values are arbitrary strings, the fastest way is
+    probably to invert the original array and keep an associative array around
+    whose keys are the first array's values.
+
+	@blues = ('turquoise', 'teal', 'lapis lazuli');
+	undef %is_blue;
+	grep ($is_blue{$_}++, @blues);
+
+    Now you can check whether $is_blue{$some_color}.  It might have been a
+    good idea to keep the blues all in an assoc array in the first place.
+
+    If the values are all small integers, you could use a simple
+    indexed array.  This kind of an array will take up less
+    space:
+
+	@primes = (2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31);
+	undef @is_tiny_prime;
+	grep($is_tiny_prime[$_]++, @primes);
+
+    Now you check whether $is_tiny_prime[$some_number].
+
+    If the values in question are integers, but instead of strings,
+    you can save quite a lot of space by using bit strings instead:
+
+	@articles = ( 1..10, 150..2000, 2017 );
+	undef $read;
+	grep (vec($read,$_,1) = 1, @articles);
+    
+    Now check whether vec($read,$n,1) is true for some $n.
+
+
+27) How can I do an atexit() or setjmp()/longjmp() in Perl?
+
+    Perl's exception-handling mechanism is its eval operator.  You 
+    can use eval as setjmp, and die as longjmp.  Here's an example
+    of Larry's for timed-out input, which in C is often implemented
+    using setjmp and longjmp:
+
+	  $SIG{'ALRM'} = 'TIMEOUT';
+	  sub TIMEOUT { die "restart input\n"; }
+
+	  do {
+	      eval '&realcode';
+	  } while $@ =~ /^restart input/;
+
+	  sub realcode {
+	      alarm 15;
+	      $ans = <STDIN>;
+	  }
+
+   Here's an example of Tom's for doing atexit() handling:
+
+	sub atexit { push(@_exit_subs, @_); }
+
+	sub _cleanup { unlink $tmp; }
+
+	&atexit('_cleanup');
+
+	eval <<'End_Of_Eval';  $here = __LINE__;
+	# as much code here as you want
+	End_Of_Eval
+
+	$oops = $@;  # save error message
+
+	# now call his stuff
+	for (@_exit_subs) {  do $_(); }
+
+	$oops && ($oops =~ s/\(eval\) line (\d+)/$0 .
+	    " line " . ($1+$here)/e, die $oops);
+
+    You can register your own routines via the &atexit function now.  You
+    might also want to use the &realcode method of Larry's rather than
+    embedding all your code in the here-is document.  Make sure to leave
+    via die rather than exit, or write your own &exit routine and call
+    that instead.   In general, it's better for nested routines to exit
+    via die rather than exit for just this reason.
+
+    Eval is also quite useful for testing for system dependent features,
+    like symlinks, or using a user-input regexp that might otherwise
+    blowup on you.
+
+
+28) Why doesn't Perl interpret my octal data octally?
+
+    Perl only understands octal and hex numbers as such when they occur
+    as constants in your program.  If they are read in from somewhere
+    and assigned, then no automatic conversion takes place.  You must
+    explicitly use oct() or hex() if you want this kind of thing to happen.
+    Actually, oct() knows to interpret both hex and octal numbers, while
+    hex only converts hexadecimal ones.  For example:
+
+	{
+	    print "What mode would you like? ";
+	    $mode = <STDIN>;
+	    $mode = oct($mode);
+	    unless ($mode) {
+		print "You can't really want mode 0!\n";
+		redo;
+	    } 
+	    chmod $mode, $file;
+	} 
+
+    Without the octal conversion, a requested mode of 755 would turn 
+    into 01363, yielding bizarre file permissions of --wxrw--wt.
+
+    If you want something that handles decimal, octal and hex input, 
+    you could follow the suggestion in the man page and use:
+
+	$val = oct($val) if $val =~ /^0/;
+
+29) Where can I get a perl-mode for emacs?
+
+    In the perl4.0 source directory, you'll find a directory called
+    "emacs", which contains several files that should help you.
+
+30) How can I use Perl interactively?
+    
+    The easiest way to do this is to run Perl under its debugger.
+    If you have no program to debug, you can invoke the debugger
+    on an `empty' program like this:
+
+    	perl -de 0
+
+    Now you can type in any legal Perl code, and it will be immediately
+    evaluated.  You can also examine the symbol table, check variable
+    values, and if you want to, set breakpoints and do the other things
+    you can do in a symbolic debugger.
+
+31) How do I sort an associative array by value instead of by key?
+
+    You have to declare a sort subroutine to do this.  Let's assume
+    you want an ASCII sort on the values of the associative array %ary.
+    You could do so this way:
+
+	foreach $key (sort by_value keys %ary) {
+	    print $key, '=', $ary{$key}, "\n";
+	} 
+	sub by_value { $ary{$a} cmp $ary{$b}; }
+
+    If you wanted a descending numeric sort, you could do this:
+
+	sub by_value { $ary{$b} <=> $ary{$a}; }
+
+    If you wanted a function that didn't have the array name hard-wired
+    into it, you could so this:
+
+	foreach $key (&sort_by_value(*ary)) {
+	    print $key, '=', $ary{$key}, "\n";
+	} 
+	sub sort_by_value {
+	    local(*x) = @_;
+	    sub _by_value { $x{$a} cmp $x{$b}; } 
+	    sort _by_value keys %x;
+	} 
+
+    If you want neither an alphabetic nor a numeric sort, then you'll 
+    have to code in your own logic instead of relying on the built-in
+    signed comparison operators "cmp" and "<=>".
+
+    Note that if you're sorting on just a part of the value, such as a
+    piece you might extract via split, unpack, pattern-matching, or
+    substr, then rather than performing that operation inside your sort
+    routine on each call to it, it is significantly more efficient to
+    build a parallel array of just those portions you're sorting on, sort
+    the indices of this parallel array, and then to subscript your original
+    array using the newly sorted indices.  This method works on both
+    regular and associative arrays, since both @ary[@idx] and @ary{@idx}
+    make sense.  See page 245 in the Camel Book on "Sorting an Array by a
+    Computable Field" for a simple example of this.
+
+
+32) How can I capture STDERR from an external command?
+
+    There are three basic ways of running external commands:
+
+	system $cmd;
+	$output = `$cmd`;
+	open (PIPE, "cmd |");
+
+    In the first case, both STDOUT and STDERR will go the same place as
+    the script's versions of these, unless redirected.  You can always put
+    them where you want them and then read them back when the system
+    returns.  In the second and third case, you are reading the STDOUT
+    *only* of your command.  If you would like to have merged STDOUT and
+    STDERR, you can use shell file-descriptor redirection to dup STDERR to
+    STDOUT:
+
+	$output = `$cmd 2>&1`;
+	open (PIPE, "cmd 2>&1 |");
+
+    Another possibility is to run STDERR into a file and read the file 
+    later, as in 
+
+	$output = `$cmd 2>some_file`;
+	open (PIPE, "cmd 2>some_file |");
+    
+    Here's a way to read from both of them and know which descriptor
+    you got each line from.  The trick is to pipe only STDERR through
+    sed, which then marks each of its lines, and then sends that
+    back into a merged STDOUT/STDERR stream, from which your Perl program
+    then reads a line at a time:
+
+        open (CMD, 
+          "3>&1 (cmd args 2>&1 1>&3 3>&- | sed 's/^/STDERR:/' 3>&-) 3>&- |");
+
+        while (<CMD>) {
+          if (s/^STDERR://)  {
+              print "line from stderr: ", $_;
+          } else {
+              print "line from stdout: ", $_;
+          }
+        }
+
+
+33) Why doesn't open return an error when a pipe open fails?
+
+    These statements:
+
+	open(TOPIPE, "|bogus_command") || die ...
+	open(FROMPIPE, "bogus_command|") || die ...
+
+    will not fail just for lack of the bogus_command.  They'll only
+    fail if the fork to run them fails, which is seldom at best. 
+
+    If you're writing to the TOPIPE, you'll get a SIGPIPE if the child
+    exits prematurely or doesn't run.  If you are reading from the
+    FROMPIPE, you need to check the close() to see what happened.
+
+    If you want an answer sooner than pipe buffering might otherwise
+    afford you, you can do something like this:
+
+	$kid = open (PIPE, "bogus_command |");   # XXX: check defined($kid)
+	(kill 0, $kid) || die "bogus_command failed";
+
+    This works fine if bogus_command doesn't have shell metas in it, but
+    if it does, the shell may well not have exited before the kill 0.  You
+    could always introduce a delay:
+
+	$kid = open (PIPE, "bogus_command </dev/null |");
+	sleep 1;
+	(kill 0, $kid) || die "bogus_command failed";
+
+    but this is sometimes undesirable, and in any event does not guarantee
+    correct behavior.  But it seems slightly better than nothing.
+
+    Similar tricks can be played with writable pipes if you don't wish to
+    catch the SIGPIPE.
+
+
+34) How can I use curses with perl?
+
+    One way is to build a curseperl binary by linking in your C curses
+    library as described in the usub subdirectory of the perl sources.
+    This requires a bit of work, but it will be reasonably fast since it's
+    all in C (assuming you consider curses reasonably fast. :-)  Programs
+    written using this method require the modified curseperl, not vanilla
+    perl, to run.
+
+    Another possiblity is to use Henk Penning's cterm package, a curses
+    emulation library written in perl.  cterm is actually a separate
+    program with which you communicate via a pipe.  It is available from
+    archive.cs.ruu.nl [131.211.80.5] via anonymous ftp in the directory
+    pub/PERL.  You may also acquire the package via email in compressed,
+    uuencoded form by sending a message to mail-server@cs.ruu.nl
+    containing these lines:
+
+	begin
+	send PERL/cterm.shar.Z
+	end
+
+    See question #2 for more information on how to get retrieve
+    other items of interest from the mail server there.
+
+
+35) How can I compare two date strings?
+
+    If the dates are in an easily parsed, predetermined format, then you
+    can break them up into their component parts and call &timelocal from
+    the distributed perl library.  If the date strings are in arbitrary
+    formats, however, it's probably easier to use the getdate program
+    from the Cnews distribution, since it accepts a wide variety of dates.
+    Note that in either case the return values you will really be
+    comparing will be the total time in seconds as return by time().
+   
+    Here's a getdate function for perl that's not very efficient; you 
+    can do better this by sending it many dates at once or modifying
+    getdate to behave better on a pipe.  Beware the hardcoded pathname.
+
+	sub getdate {
+	    local($_) = shift;
+
+	    s/-(\d{4})$/+$1/ || s/\+(\d{4})$/-$1/; 
+		# getdate has broken timezone sign reversal!
+
+	    $_ = `/usr/local/lib/news/newsbin/getdate '$_'`;
+	    chop;
+	    $_;
+	} 
+
+
+36) What's the fastest way to code up task X in perl?
+
+    Because Perl so lends itself to a variety of different approaches
+    for any given task, a common question is which is the fastest way
+    to code a given task.  Since some approaches can be dramatically
+    more efficient that others, it's sometimes worth knowing which is
+    best.  Unfortunately, the implementation that first comes to mind,
+    perhaps as a direct translation from C or the shell, often yields
+    suboptimal performance.  Not all approaches have the same results
+    across different hardware and software platforms.  Furthermore,
+    legibility must sometimes be sacrificed for speed.
+
+    While an experienced perl programmer can sometimes eye-ball the code
+    and make an educated guess regarding which way would be fastest,
+    surprises can still occur.  So, in the spirit of perl programming
+    being an empirical science, the best way to find out which of several
+    different methods runs the fastest is simply to code them all up and
+    time them. For example:
+
+	$COUNT = 10_000; $| = 1;
+
+	print "method 1: ";
+
+	    ($u, $s) = times;
+	    for ($i = 0; $i < $COUNT; $i++) {
+		# code for method 1
+	    }
+	    ($nu, $ns) = times;
+	    printf "%8.4fu %8.4fs\n", ($nu - $u), ($ns - $s);
+
+	print "method 2: ";
+
+	    ($u, $s) = times;
+	    for ($i = 0; $i < $COUNT; $i++) {
+		# code for method 2
+	    }
+	    ($nu, $ns) = times;
+	    printf "%8.4fu %8.4fs\n", ($nu - $u), ($ns - $s);
+
+    For more specific tips, see the section on Efficiency in the
+    ``Other Oddments'' chapter at the end of the Camel Book.
+
+
+37) How can I know how many entries are in an associative array?
+
+    While the number of elements in a @foobar array is simply @foobar when
+    used in a scalar, you can't figure out how many elements are in an
+    associative array in an analogous fashion.  That's because %foobar in
+    a scalar context returns the ratio (as a string) of number of buckets
+    filled versus the number allocated.  For example, scalar(%ENV) might
+    return "20/32".  While perl could in theory keep a count, this would
+    break down on associative arrays that have been bound to dbm files.
+
+    However, while you can't get a count this way, one thing you *can* use
+    it for is to determine whether there are any elements whatsoever in
+    the array, since "if (%table)" is guaranteed to be false if nothing
+    has ever been stored in it.  
+
+    So you either have to keep your own count around and increments
+    it every time you store a new key in the array, or else do it
+    on the fly when you really care, perhaps like this:
+
+	$count++ while each %ENV;
+
+    This preceding method will be faster than extracting the
+    keys into a temporary array to count them.

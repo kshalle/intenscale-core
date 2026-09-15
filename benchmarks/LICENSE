@@ -1,0 +1,44 @@
+Licensing for benchmarks/
+=========================
+
+This directory contains two kinds of material, licensed differently.
+
+1. Work by Intensivate, Inc. -- the harness, the port glue, the workloads,
+   the build and run scripts, and the documentation -- is licensed
+   under the BSD 2-Clause licence.  Those files carry
+
+       SPDX-License-Identifier: BSD-2-Clause
+
+   and the text is in LICENSES/BSD-2-Clause.txt.
+
+   A permissive licence is deliberate: this suite links Intensivate code
+   together with GPL-licensed programs (GCC 2.5.8, Perl 4.036), and a
+   GPL-incompatible licence would make the resulting binaries
+   non-redistributable.
+
+2. Vendored third-party software keeps its own licence.  Each tree is
+   byte-identical to its upstream release apart from removed version-control
+   metadata, and each carries its own licence file:
+
+       compiler-gcc/gcc-2.5.8           GPL-2.0-only
+       interpreter-perl/perl-4.036      GPL-1.0-or-later OR Artistic-1.0
+       interpreter-xlisp/xlisp-plus     MIT
+       lattice-bsmbench/BSMBench        BSD-3-Clause plus a citation requirement
+       qchem-libcint/libcint            Apache-2.0
+       weather-miniweather/miniWeather  BSD-2-Clause
+
+   A few files we wrote are derivatives of GPL-licensed upstreams and carry
+   those upstreams' terms rather than BSD-2; they say so in their headers.
+
+Read next:
+
+    LICENSE-AUDIT.md   file-by-file position, third-party notices found
+                       inside the upstream trees, and open items
+    NOTICE.md          attributions, and the obligations that follow a
+                       published performance figure -- BSMBench's citation
+                       requirement in particular
+    LICENSES/          verbatim licence texts
+    REUSE.toml         declarations for files that cannot carry a header
+
+All workloads are original to this suite; no third-party benchmark suite's
+material is included.  See PROVENANCE.md.

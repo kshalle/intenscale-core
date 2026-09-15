@@ -1,0 +1,21 @@
+GLB_T = 64
+GLB_X = 32
+GLB_Y = 32
+GLB_Z = 32
+NP_T = NPT
+NP_X = NPX
+NP_Y = NPY
+NP_Z = NPZ
+
+seed = 12345
+
+//Benchmark parameters
+bench:nfields = NFIELDS
+bench:niters = 30
+bench:bg_flops = BGFLOPS
+bench:reference_unit = 2
+bench:dphi:nflops = DFLOPS
+bench:sqnorm:nflops = SFLOPS
+bench:mad:nflops = MFLOPS
+bench:mass = MASS
+bench:test_set = SET
