@@ -86,6 +86,56 @@ Two things to know when reading a run:
   a line-buffered console can cost more than the benchmark.  `BM_RTL=1`
   buffers it in 8 KiB chunks (`setvbuf` in `common/bm_main.c`).
 
+### Running it outside the tree this suite was developed in
+
+**No emulator ships with this suite**, and none can: it is a ~16 MB binary
+built from a different repository, from elaborated Verilog that is not here.
+Everything above assumes a rocket-chip checkout with a built emulator sitting
+somewhere above `benchmarks/`, which is true in the tree this was developed in
+and is not true in a standalone clone of this repository.
+
+`scripts/run-verilator.sh` locates that checkout by walking up from its own
+directory looking for `i-rocket-chip` or `open_source/i-rocket-chip` -- by
+walking rather than by counting `../`, because the suite has been moved once
+already and a hard-coded depth breaks silently when it is.  With nothing to
+find, the walk reaches `/`, and the script stops with:
+
+    no emulator: set BM_EMULATOR
+
+That is the expected message in a fresh clone, not a broken script.  Spike
+needs none of this: `make run` works anywhere the bare-metal toolchain is
+installed, and spike is where the measurements come from anyway (see
+"Summary").
+
+To run on RTL from a clone, supply the emulator yourself.  Either point
+`ROCKET` at a rocket-chip checkout laid out the way the script expects:
+
+    ROCKET=/path/to/rocket-chip \
+      scripts/run-verilator.sh xlisp/xlisp.riscv -b < xlisp/workload/xlisp-bench-tiny.lsp
+
+or name the pieces individually, which is the better route when your emulator
+was built somewhere else:
+
+    BM_EMULATOR=/path/to/emulator-freechips.rocketchip.system-<Config> \
+    BM_FESVR_LIB=/path/to/riscv-tools/lib \
+    BM_DRAMSIM3=/path/to/DRAMSIM3/configs/DDR4_8Gb_x8_3200.ini \
+      scripts/run-verilator.sh xlisp/xlisp.riscv -b < xlisp/workload/xlisp-bench-tiny.lsp
+
+`BM_FESVR_LIB` is not optional: the emulator links `libfesvr.so` dynamically
+and records no rpath, so without it the run dies at load time rather than
+with a useful message.  `BM_DRAMSIM3` matters only when the emulator's
+compiled-in config path does not resolve on your machine; passing it is
+harmless either way.
+
+**Expect a stock emulator to fail on anything that does console I/O.**  The
+two MSHR watchdogs described under "The MSHR watchdog, and the patched
+emulator" fire after 16,384 cycles, and one HTIF round trip is about nine
+times that, so a stock build asserts partway through -- on the emulator, not
+in the benchmark.  `emulator-relaxed-watchdog` is a local patch to generated
+Verilog in the Intensivate tree and is not something a clone inherits.  If you
+hit it, that section gives the one-line Chisel fix and the two alternatives,
+all of which need re-elaboration through sbt.
+
 ### Measured rates and costs
 
 | | |
