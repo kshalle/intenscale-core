@@ -1,0 +1,97 @@
+target/
+project/target
+*.swp
+*~
+.addons-dont-touch
+/lib/
+riscv-tests/*/*.riscv
+riscv-tests/*/*.dump
+riscv-tests/isa/*-p-*
+riscv-tests/isa/*-v-*
+
+# Generated build outputs
+/bootrom.hex
+chisel3/lib/
+
+# Local toolchain install ($RISCV, per set_env.sh)
+/riscv-tools/
+
+# riscv-tests ./configure output
+riscv-tests/Makefile
+riscv-tests/config.log
+riscv-tests/config.status
+
+# DRAMsim3 per-epoch statistics (simulator output, written wherever a run starts)
+dramsim3epoch.json
+
+# ---------------------------------------------------------------------------
+# Core development tree -- present in the working directory, NOT published.
+#
+# This repository publishes benchmarks/ and the root licensing documents only;
+# see NOTICE.md, "What This Repository Currently Contains".  The Rocket Chip
+# derivative that the benchmarks are built and run against lives alongside it
+# in the same working directory and must stay out of the release until it has
+# had the file-by-file licence review that benchmarks/ received.  It carries
+# third-party code under several licences -- UC Berkeley BSD, SiFive, Apache
+# 2.0, MIT, and Mulan PSL v2 (XiangShan / Peng Cheng Laboratory, and Axelera
+# AI's DiffTest) -- plus patches against GPL-2 projects and prebuilt jars.
+#
+# Every rule below is anchored with a leading "/" so it matches only at the
+# repository root.  Without the anchor, "src/", "scripts/", "Makefile" and
+# "LICENSE" would also shadow tracked files inside benchmarks/.
+#
+# When the core is published, delete this block rather than un-ignoring a
+# directory at a time.
+# ---------------------------------------------------------------------------
+
+# RTL, generators and their vendored dependencies
+/src/
+/chisel3/
+/firrtl/
+/hardfloat/
+/macros/
+/api-config-chipsalliance/
+/DRAMSIM3/
+
+# Simulation, test and build infrastructure
+/emulator/
+/vsim/
+/bootrom/
+/riscv-tests/
+/torture/
+/regression/
+/scripts/
+/patches/
+/project/
+
+# Root-level core build files
+/build.sbt
+/Makefile
+/Makefrag
+/ivydependencies.json
+/mkJunit.py
+/set_env.sh
+/riscv-tools.hash
+/sbt-launch.jar
+
+# Prebuilt third-party jars (binaries, shipped without source)
+*.jar
+
+# GitHub templates belonging to the upstream core project
+/.github/
+
+# Licence texts for the core's third-party dependencies.  These ship with the
+# core, not with benchmarks/.  LICENSES/LicenseRef-Intensivate-NC-1.0.txt is
+# tracked and deliberately not listed here.
+/LICENSE
+/LICENSE.Apache2
+/LICENSE.Berkeley
+/LICENSE.jtag
+/LICENSE.MulanPSL2
+/LICENSE.SiFive
+/NOTICE
+/LICENSES/Apache-2.0.txt
+/LICENSES/BSD-3-Clause.txt
+/LICENSES/LicenseRef-chisel-jtag.txt
+/LICENSES/LicenseRef-SiFive-Apache-2.0.txt
+/LICENSES/MulanPSL-2.0.txt
