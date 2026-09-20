@@ -118,12 +118,12 @@ reason the harness licence needs deciding rather than defaulting.
    (GCC 2.5.8, Perl 4.036), and a GPL-incompatible licence would make the
    resulting binaries non-redistributable.  A non-commercial term would also
    work against the third-party benchmarking a public suite invites.
-2. **SPDX headers applied** to 53 files, following
-   `license-package-internal/SOURCE-HEADER.md`'s form with this suite's
-   licence in place of the core's.  Every file we wrote that can carry a
-   comment does; the one that cannot (`baremetal/selftest/input.txt`, a
-   fixture whose exact bytes are what the test checks) is declared in
-   `REUSE.toml`.
+2. **SPDX headers applied** to the 49 files under `baremetal/` that can
+   carry a comment, in the form `SPDX-FileCopyrightText` above
+   `SPDX-License-Identifier`, with this suite's licence in place of the
+   core's.  Every file we wrote that can carry a comment does; the one that
+   cannot (`baremetal/selftest/input.txt`, a fixture whose exact bytes are
+   what the test checks) is declared in `REUSE.toml`.
 3. **`perl-perl4/config.h` carries perl's terms**
    (`GPL-1.0-or-later OR Artistic-1.0`), and `mkconfig.py` now emits that
    notice, so regenerating the file cannot silently drop it.
@@ -145,7 +145,7 @@ reason the harness licence needs deciding rather than defaulting.
 
 ## 6. Still open
 
-- **IP counsel review**, per `license-package-internal/RELEASE-CHECKLIST.md`.
+- **IP counsel review**, per Intensivate's internal release checklist.
   The item that most deserves their attention is the **BSMBench citation
   clause**: not a standard OSI term, and it creates an obligation on published
   figures rather than on redistribution.  (The other item raised here
