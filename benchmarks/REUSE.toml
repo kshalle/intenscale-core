@@ -27,6 +27,12 @@ SPDX-License-Identifier = "BSD-2-Clause"
 # own licence files travel with them; these entries let a REUSE run pass
 # without touching a single upstream byte.
 [[annotations]]
+# GPL-2.0-only covers the whole tree, including libgcc1.c and libgcc2.c: those
+# carry the same GPL plus the runtime-library special exception, which is not a
+# separate SPDX licence and so needs no separate annotation.  They are not LGPL.
+# LICENSES/LGPL-2.0-only.txt is kept because the unmodified upstream release
+# ships gcc-2.5.8/COPYING.LIB; no source here is under it, so a REUSE run will
+# report it as an unused licence.  That report is expected.
 path = "compiler-gcc/gcc-2.5.8/**"
 SPDX-FileCopyrightText = "1987-1994 Free Software Foundation, Inc."
 SPDX-License-Identifier = "GPL-2.0-only"

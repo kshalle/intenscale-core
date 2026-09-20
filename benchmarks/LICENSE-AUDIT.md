@@ -15,7 +15,7 @@ Each tree is byte-identical to the upstream release except for the removal of
 
 | Tree | SPDX | Licence file in tree | Verified |
 |---|---|---|---|
-| `compiler-gcc/gcc-2.5.8` | `GPL-2.0-only` | `COPYING`, `COPYING.LIB` (LGPL, runtime lib) | yes |
+| `compiler-gcc/gcc-2.5.8` | `GPL-2.0-only` | `COPYING`; also `COPYING.LIB` (the Library GPL, shipped by upstream but covering no source in this tree) | yes |
 | `interpreter-perl/perl-4.036` | `GPL-1.0-or-later OR Artistic-1.0` | `Copying`, `Artistic` | yes |
 | `interpreter-xlisp/xlisp-plus` | `MIT` | `LICENSE.txt` | yes |
 | `lattice-bsmbench/BSMBench` | `LicenseRef-BSMBench-BSD-3-Clause-plus-citation` | `LICENSE` | yes |

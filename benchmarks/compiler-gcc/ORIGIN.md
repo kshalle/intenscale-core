@@ -16,8 +16,14 @@ emitting SPARC assembly.
 
 ## Licence
 
-**GPL-2.0-only.**  Full text in `gcc-2.5.8/COPYING`; the runtime library
-carries `gcc-2.5.8/COPYING.LIB` (LGPL).  Redistribution is unrestricted
+**GPL-2.0-only.**  Full text in `gcc-2.5.8/COPYING`.  The runtime library
+sources `libgcc1.c` and `libgcc2.c` are under that same GPL with the
+runtime-library **special exception**, which provides that linking them into
+an executable compiled with GCC does not by itself place that executable
+under the GPL; they are not LGPL.  The upstream release also ships
+`gcc-2.5.8/COPYING.LIB` (the Library GPL), which covers no source in this
+tree and is retained only as part of the unmodified release.
+Redistribution is unrestricted
 provided the licence text and notices stay intact and recipients can obtain
 the corresponding source — which vendoring the complete tree accomplishes.
 

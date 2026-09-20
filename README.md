@@ -20,7 +20,7 @@ No file in this repository is currently under the Intensivate Non-Commercial lic
 
 | Component | License |
 |---|---|
-| GNU CC 2.5.8 | **GPL-2.0-only** (runtime library LGPL) |
+| GNU CC 2.5.8 | **GPL-2.0-only** (runtime library: same GPL with the runtime-library special exception) |
 | Perl 4.036 | **GPL-1.0-or-later OR Artistic-1.0** |
 | XLISP-PLUS | MIT |
 | BSMBench 1.0 | BSD-3-Clause **plus a citation requirement** |

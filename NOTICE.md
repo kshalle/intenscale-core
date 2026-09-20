@@ -67,7 +67,7 @@ This product includes software developed by third parties, as set out below. Eac
 
 | Component | Copyright holder | License | Vendored at |
 |---|---|---|---|
-| GNU CC 2.5.8 | Free Software Foundation, Inc. | **GPL-2.0-only**; runtime library LGPL | `benchmarks/compiler-gcc/gcc-2.5.8` |
+| GNU CC 2.5.8 | Free Software Foundation, Inc. | **GPL-2.0-only**; runtime library under the same GPL with the runtime-library special exception | `benchmarks/compiler-gcc/gcc-2.5.8` |
 | Perl 4.036 | Larry Wall | **GPL-1.0-or-later OR Artistic-1.0**, at the recipient's option | `benchmarks/interpreter-perl/perl-4.036` |
 | XLISP-PLUS | David Michael Betz; Luke Tierney; Hewlett-Packard Company; and others | MIT | `benchmarks/interpreter-xlisp/xlisp-plus` |
 | BSMBench 1.0 | Claudio Pica; Agostino Patella; Antonio Rago; Luigi Del Debbio; Biagio Lucini; Edward Bennett | BSD 3-Clause **with an additional citation requirement** | `benchmarks/lattice-bsmbench/BSMBench` |
@@ -76,9 +76,11 @@ This product includes software developed by third parties, as set out below. Eac
 
 Full copyright statements, contributor credits and the per-tree provenance record are in `benchmarks/NOTICE.md` and `benchmarks/PROVENANCE.md`.
 
-### GPL and LGPL material is present
+### GPL material is present
 
-This repository vendors GPL-licensed source. GNU CC 2.5.8 is licensed under the GNU General Public License, version 2 only, with its runtime library under the LGPL. Perl 4.036 is licensed under the GNU General Public License version 1 or later, or the Artistic License, at the recipient's option.
+This repository vendors GPL-licensed source. GNU CC 2.5.8 is licensed under the GNU General Public License, version 2 only. Perl 4.036 is licensed under the GNU General Public License version 1 or later, or the Artistic License, at the recipient's option.
+
+GCC's runtime library sources (`libgcc1.c`, `libgcc2.c`) are under that same GPL with the **runtime-library special exception**, which provides that linking them into an executable compiled with GCC does not by itself place that executable under the GPL. They are **not** LGPL. The upstream GCC release also ships `COPYING.LIB`, but no source in the vendored tree is licensed under it.
 
 Those trees are vendored **unmodified**, as upstream releases, and are separate works from Intensivate's BSD 2-Clause harness. Anyone redistributing this repository, or a product derived from it, must satisfy the obligations of those licenses for those trees — including the corresponding-source obligation for any distributed binary built from them.
 

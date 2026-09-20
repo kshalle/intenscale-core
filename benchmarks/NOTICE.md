@@ -7,10 +7,15 @@ file-by-file position is in [`LICENSE-AUDIT.md`](LICENSE-AUDIT.md).
 ## Third-party software included
 
 **GNU CC 2.5.8** — Copyright (C) 1987-1994 Free Software Foundation, Inc.
-Licensed under the GNU General Public License, version 2 (`GPL-2.0-only`);
-the runtime library under the LGPL.  Contributions credited in the sources
-include floating-point emulation contributed by Stephen L. Moshier.
-Vendored at `compiler-gcc/gcc-2.5.8`.
+Licensed under the GNU General Public License, version 2 (`GPL-2.0-only`).
+The runtime library sources `libgcc1.c` and `libgcc2.c` are under the same
+GPL with the runtime-library **special exception**: linking them into an
+executable compiled with GCC does not by itself place that executable under
+the GPL.  They are not LGPL.  The upstream release also ships `COPYING.LIB`
+(the Library GPL); no source in this tree is licensed under it, and it is
+retained only because it is part of the unmodified upstream release.
+Contributions credited in the sources include floating-point emulation
+contributed by Stephen L. Moshier.  Vendored at `compiler-gcc/gcc-2.5.8`.
 
 **Perl 4.036** — Copyright (C) 1989-1994 Larry Wall.  Licensed under the GNU
 General Public License version 1 or later, or the Artistic License, at the
