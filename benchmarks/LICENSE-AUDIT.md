@@ -22,6 +22,31 @@ Each tree is byte-identical to the upstream release except for the removal of
 | `qchem-libcint/libcint` | `Apache-2.0` | `LICENSE`, `AUTHORS` | yes |
 | `weather-miniweather/miniWeather` | `BSD-2-Clause` | `LICENSE` | yes |
 
+### Verified against upstream, 2026-09-20
+
+The "byte-identical" claim above was re-checked by refetching each upstream and
+diffing it against the vendored tree, rather than by trusting the checksums
+recorded in the `ORIGIN.md` files.  All six pass.
+
+| Tree | Check | Result |
+|---|---|---|
+| `gcc-2.5.8` | SHA-256 of `gcc-2.5.8.tar.bz2` from gcc.gnu.org, then full diff | hash matches; **0 differences** |
+| `perl-4.036` | SHA-256 of `perl-4.036.tar.gz` from cpan.org, then full diff | hash matches; **0 differences** |
+| `BSMBench` | SHA-256 of `BSMBench-master.tar.gz` from gitlab.com, then full diff | hash matches; **0 differences** |
+| `xlisp-plus` | clone at `81bc021f`, then full diff | only `doc/XLISPPLUS3.{pdf,docx}` absent — the documented removal |
+| `libcint` | clone at `3d36c4f4`, then full diff | only `.github/` and the nine Rys-root tables absent (123 MB) — the documented removal; `src/roots_for_x0.dat` (75,385 bytes) correctly kept |
+| `miniWeather` | clone at `b001069e`, then full diff | only `documentation/intro_to_openacc.{pdf,pptx}` absent — the documented removal |
+
+All three recorded commits still exist upstream.  Not one file differs in
+content: every difference found is a deletion already recorded in the relevant
+`ORIGIN.md`, and nothing was added or edited.
+
+Two artefacts that look like differences but are not: `perl-4.036/t/perl` is a
+symlink to `../perl` that is broken in the upstream tarball itself and is
+equally broken here, so a dereferencing `diff` reports an error on both sides;
+and `perl-4.036/t/c` is a symlink to `TEST`.  Compare that tree with
+`diff --no-dereference`.
+
 Notes on two of them:
 
 - **`LICENSES/MIT.txt`** is XLISP-PLUS's own `LICENSE.txt`, which is the MIT
