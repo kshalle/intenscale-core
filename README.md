@@ -6,7 +6,7 @@ High Performance low power small area Enterprise level CPU core
 
 This repository contains the **Intensivate benchmark suite** under [`benchmarks/`](benchmarks/) and the **Intensivate CPU core** (a Rocket Chip derivative) under `src/`, `chisel3/`, `firrtl/`, `hardfloat/`, `macros/`, `api-config-chipsalliance/`, `DRAMSIM3/`, and the associated build, simulation and test infrastructure.
 
-Start at [`benchmarks/README.md`](benchmarks/README.md). The core has not yet received the file-by-file license review `benchmarks/` received; see [`NOTICE.md`](NOTICE.md) for what that means in practice.
+Start at [`benchmarks/README.md`](benchmarks/README.md). The core has its own file-by-file license review — [`CORE-LICENSE-AUDIT.md`](CORE-LICENSE-AUDIT.md) and [`CORE-PROVENANCE.md`](CORE-PROVENANCE.md) — but it is not as fully closed out as `benchmarks/`'s; see [`NOTICE.md`](NOTICE.md) and "Licensing of the CPU core" below for what that means in practice.
 
 ## License
 
