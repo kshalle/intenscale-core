@@ -90,6 +90,10 @@ Clause 3 of BSMBench's license is an affirmative obligation, not a notice-retent
 
 This reaches datasheets, marketing material and blog posts that quote numbers from the `bsmbench` port, not only academic papers. Whoever signs off on published performance figures needs to know.
 
+### No endorsement (BSMBench)
+
+Clause 4 of BSMBench's license: the names of its copyright holders and contributors may not be used to endorse or promote products derived from the software without specific prior written permission. Do not use their names in marketing material, product naming or press materials for anything built on this suite.
+
 ## Commercial Licensing
 
 Commercial licensing inquiries:

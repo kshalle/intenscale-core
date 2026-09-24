@@ -124,7 +124,7 @@ are `.gitignore`d and do not ship.
 | **Corresponding source** | GPL-2 (gcc), GPL-1+ (perl) | Satisfied by vendoring the complete upstream trees.  Keep them in the release; do not ship built binaries without the source |
 | **State changes** | Apache-2.0 §4(b) (libcint) | Satisfied.  Two modifications are stated in `qchem-libcint/ORIGIN.md`: removed `.git/`, and removed nine Rys-root data tables that nothing here compiles (122.6 MiB), with checksums for restoring them.  The port's own changes are additive and recorded in its `PORT-NOTES.md` |
 | **Retain notices** | all | Satisfied; no upstream licence, notice or copyright line has been altered anywhere |
-| **No endorsement** | BSD-3 (BSMBench) | Do not use the contributors' names to promote the release |
+| **No endorsement** | BSD-3 (BSMBench) | Do not use the contributors' names to promote the release.  Full text in `NOTICE.md` |
 
 ### On GPL scope
 
