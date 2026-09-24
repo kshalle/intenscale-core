@@ -1,0 +1,11 @@
+#=======================================================================
+# Makefrag for rv64in tests
+#-----------------------------------------------------------------------
+
+rv64in_sc_tests = \
+	cpy \
+
+rv64in_p_tests = $(addprefix rv64in-p-, $(rv64in_sc_tests))
+rv64in_v_tests = $(addprefix rv64in-v-, $(rv64in_sc_tests))
+
+spike_tests += $(rv64in_p_tests) $(rv64in_v_tests)

@@ -1,0 +1,100 @@
+# check RISCV environment variable
+ifndef RISCV
+$(error Please set environment variable RISCV. Please take a look at README)
+endif
+
+MODEL       ?= TestHarness
+PROJECT     ?= freechips.rocketchip.system
+CFG_PROJECT ?= $(PROJECT)
+CONFIG      ?= $(CFG_PROJECT).Inten1CoreConfig
+SIM_TARGET  ?= verilog_sim
+
+# TODO: For now must match rocketchip.Generator
+comma := ,
+space := $() $()
+splitConfigs := $(subst $(comma), ,$(CONFIG))
+configBases := $(foreach config,$(splitConfigs),$(lastword $(subst ., ,$(config))))
+
+# DRAMSIM3 ?= 1 builds/elaborates with the DRAMSim3 timing model (default,
+# matches existing behavior). DRAMSIM3=0 builds the older fixed-latency memory
+# model instead, with no DRAMSim3 library/config needed. DRAMSIM3_SUFFIX is
+# used (see emulator/Makefile) to give the DRAMSIM3=0 flow its own
+# generated-src/binaries instead of overwriting the default flow's -- kept out
+# of CONFIG_STR/long_name here since rocket-chip's Generator names its own
+# output files from -C/-T alone, with no notion of this flag.
+DRAMSIM3 ?= 1
+DRAMSIM3_SUFFIX := $(if $(filter 0,$(DRAMSIM3)),_nodramsim3,)
+# Passed to Chisel elaboration as a JVM system property (see SBT below) so
+# TestHarness.scala can pick the matching memory-model timing behavior.
+DRAMSIM3_PROP := $(if $(filter 0,$(DRAMSIM3)),false,true)
+
+CONFIG_STR := $(subst $(space),_,$(configBases))
+long_name = $(PROJECT).$(CONFIG_STR)
+
+VLSI_MEM_GEN ?= $(base_dir)/scripts/vlsi_mem_gen
+
+CXX ?= g++
+CXXFLAGS := -O1
+JVM_MEMORY ?= 32G
+
+EMPTY :=
+SPACE := $(EMPTY) $(EMPTY)
+COMMA := ,
+
+SBT ?= java -Xmx$(JVM_MEMORY) -Xss512M -XX:MaxPermSize=1G -DdramsimEnabled=$(DRAMSIM3_PROP) -jar $(base_dir)/sbt-launch.jar
+SHELL := /bin/bash
+
+FIRRTL_TRANSFORMS := \
+	firrtl.passes.InlineInstances \
+
+ROCKET_CLASS_DIRS ?= \
+	$(base_dir)/target/scala-2.12/classes \
+	$(base_dir)/chisel3/target/scala-2.12/classes \
+	$(base_dir)/chisel3/core/target/scala-2.12/classes \
+	$(base_dir)/chisel3/macros/target/scala-2.12/classes
+
+ROCKET_CLASSES ?= $(subst $(SPACE),:,$(ROCKET_CLASS_DIRS))
+FIRRTL_JAR ?= $(base_dir)/firrtl/utils/bin/firrtl.jar
+FIRRTL ?= java -Xmx$(JVM_MEMORY) -Xss512M -XX:MaxPermSize=1G -cp "$(FIRRTL_JAR)":"$(ROCKET_CLASSES)" firrtl.Driver
+
+# Build firrtl.jar and put it where chisel3 can find it.
+$(FIRRTL_JAR): $(shell find $(base_dir)/firrtl/src/main/scala -iname "*.scala")
+	$(MAKE) -C $(base_dir)/firrtl SBT="$(SBT)" root_dir=$(base_dir)/firrtl build-scala
+	touch $(FIRRTL_JAR)
+	mkdir -p $(base_dir)/lib
+	cp -p $(FIRRTL_JAR) $(base_dir)/lib
+# When chisel3 pr 448 is merged, the following extraneous copy may be removed.
+	mkdir -p $(base_dir)/chisel3/lib
+	cp -p $(FIRRTL_JAR) $(base_dir)/chisel3/lib
+
+src_path := src/main/scala
+resources := $(base_dir)/src/main/resources
+csrc := $(resources)/csrc
+vsrc := $(resources)/vsrc
+default_submodules := . hardfloat chisel3
+default_submodule_src_paths := $(foreach submodule,$(default_submodules) $(ROCKETCHIP_ADDONS),$(base_dir)/$(submodule)/$(src_path))
+other_src_paths := $(base_dir)/api-config-chipsalliance/design/craft/src
+chisel_srcs := $(foreach path,$(default_submodule_src_paths) $(other_src_paths),$(shell find $(path) -name "*.scala"))
+
+disasm := 2>
+which_disasm := $(shell which spike-dasm 2> /dev/null)
+ifneq ($(which_disasm),)
+	disasm := 3>&1 1>&2 2>&3 | $(which_disasm) $(DISASM_EXTENSION) >
+endif
+
+timeout_cycles = 100000000
+
+bootrom_img = $(base_dir)/bootrom/bootrom.img
+
+#--------------------------------------------------------------------
+# Build Tests
+#--------------------------------------------------------------------
+
+%.hex:
+	$(MAKE) -C $(dir $@) $(notdir $@)
+
+%.riscv.hex: %.riscv
+	$(MAKE) -C $(dir $@) $(notdir $@)
+
+clean-run-output:
+	rm -f $(output_dir)/{*.out,*.run,*.vpd}

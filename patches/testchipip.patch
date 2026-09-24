@@ -1,0 +1,361 @@
+diff --git a/src/main/resources/testchipip/bootrom/bootrom.S b/src/main/resources/testchipip/bootrom/bootrom.S
+index cdb1b3e..04b55e7 100644
+--- a/src/main/resources/testchipip/bootrom/bootrom.S
++++ b/src/main/resources/testchipip/bootrom/bootrom.S
+@@ -13,8 +13,8 @@ interrupt_loop: // trigger MSIP interrupts for other harts so that they also boo
+   sw a3, 0(a2)
+   addi a2, a2, 4
+   lw a3, -4(a2)
+-  bnez a3, interrupt_loop
+-  j boot_core_hart0
++  beqz a3, boot_core_hart0
++  j delay_interrupt_loop
+ 
+ // this boot ROM doesn't know about any boot devices, so it just spins,
+ // waiting for the serial interface to load the program and interrupt it
+@@ -28,13 +28,15 @@ _hang: // reset vector
+   csrw mideleg, zero // no delegation
+   csrs mstatus, a0   // set MIE in mstatus CSR
+ wfi_loop: // wait for MSIP interrupt to start program execution
++  li t0, 0x80000fff
++  csrw 0xf, t0
+   wfi
+   j wfi_loop
+ 
+ // other harts must wait until MSIP of hart 0 is cleared to continue
+ boot_core:
+   lw t0, 0(a1)       // load hart 0 MSIP
+-  bnez t0, boot_core // block until hart 0 clears own MSIP
++  bnez t0, delay_boot_core // block until hart 0 clears own MSIP
+   sll a0, a0, 2      // offset for hart MSIP
+   add a1, a0, a1
+ boot_core_hart0:   // begin executing code at DRAM_BASE
+@@ -47,4 +49,15 @@ boot_core_hart0:   // begin executing code at DRAM_BASE
+   csrc mstatus, a2
+   mret
+ 
++delay_boot_core:
++  li t0, 0x80000fff
++  csrw 0xf, t0
++  j boot_core
++
++
++delay_interrupt_loop:
++  li t0, 0x80000fff
++  csrw 0xf, t0
++  j interrupt_loop
++
+ _dtb:
+diff --git a/src/main/scala/BlockDevice.scala b/src/main/scala/BlockDevice.scala
+index 8091791..b67d90f 100644
+--- a/src/main/scala/BlockDevice.scala
++++ b/src/main/scala/BlockDevice.scala
+@@ -12,7 +12,17 @@ import freechips.rocketchip.tilelink._
+ import freechips.rocketchip.util.{ParameterizedBundle, DecoupledHelper, UIntIsOneOf}
+ import scala.math.max
+ 
+-case class BlockDeviceConfig(nTrackers: Int = 1)
++import freechips.rocketchip.config._
++import freechips.rocketchip.subsystem._
++import freechips.rocketchip.diplomacy._
++import freechips.rocketchip.interrupts._
++import freechips.rocketchip.rocket._
++import freechips.rocketchip.tilelink._
++import freechips.rocketchip.util._
++import freechips.rocketchip.tilelink._
++import freechips.rocketchip.rocket.constants._
++
++case class BlockDeviceConfig(nTrackers: Int = 8)
+ 
+ case object BlockDeviceKey extends Field[Option[BlockDeviceConfig]](None)
+ 
+@@ -443,8 +453,41 @@ trait CanHavePeripheryBlockDevice { this: BaseSubsystem =>
+       0x10015000, pbus.beatBytes))
+ 
+     pbus.toVariableWidthSlave(Some(portName))  { c.mmio }
+-    fbus.fromPort(Some(portName))() :=* c.mem
++    //fbus.fromPort(Some(portName))() :=* c.mem
+     ibus.fromSync := c.intnode
++
++    def skipMMIOY(x: TLClientParameters) = {
++      val dcacheMMIO =
++        (x.requestFifo) &&
++        x.sourceId.start % 2 == 1 && // 1 => dcache issues acquires from another master
++        x.nodePath.last.name == "dcache.node"
++      if (dcacheMMIO) None else Some(x)
++    }
++
++    def MMIOY(x: TLClientParameters) = {
++      val dcacheMMIO =
++        (!x.requestFifo) &&
++        x.sourceId.start % 2 == 1 && // 1 => dcache issues acquires from another master
++        x.nodePath.last.name == "dcache.node"
++      if (dcacheMMIO) None else Some(x)
++    }
++
++    val cacheXbarY   = LazyModule(new TLXbar)
++    val filtermmioY  =  LazyModule(new TLFilter(cfilter = MMIOY)(p))
++    cacheXbarY.node :=* c.mem
++
++    val IntenParamY = new IntenParamC()(p)
++    for (i <- 0 to IntenParamY.NUM_L2BANKS - 1){
++      val filtercacheX        =  LazyModule(new TLFilter(cfilter = skipMMIOY)(p))
++      if(IntenParamY.NUM_L2BANKS==1) {
++        l2l3xbar(i).node := filtercacheX.node := cacheXbarY.node
++      }
++      else {
++        l2l3xbar(i).node := TLFilter(TLFilter.mSelectIntersect(AddressSet(i * p(CacheBlockBytes), ~BigInt((IntenParamY.NUM_L2BANKS-1)*p(CacheBlockBytes)))))     := filtercacheX.node := cacheXbarY.node
++      }
++    }
++    sbus.fromPort(Some(portName))() := filtermmioY.node := cacheXbarY.node
++
+     c
+   }
+ }
+diff --git a/src/main/scala/Dromajo.scala b/src/main/scala/Dromajo.scala
+index 10b06a6..451f90d 100644
+--- a/src/main/scala/Dromajo.scala
++++ b/src/main/scala/Dromajo.scala
+@@ -46,7 +46,7 @@ object DromajoHelper {
+ /**
+  * Dromajo bridge to input instruction streams and check with Dromajo
+  */
+-class SimDromajoBridge(insnWidths: TracedInstructionWidths, numInsns: Int) extends Module
++class SimDromajoBridge(insnWidths: TracedInstructionWidths, numInsns: Int)(implicit p: Parameters) extends Module
+ {
+   val io = IO(new Bundle {
+     val trace = Input(new TileTraceIO(insnWidths, numInsns))
+@@ -63,7 +63,7 @@ class SimDromajoBridge(insnWidths: TracedInstructionWidths, numInsns: Int) exten
+   dromajo.io.hartid := 0.U
+   dromajo.io.pc := Cat(traces.map(t => UIntToAugmentedUInt(t.iaddr).sextTo(DromajoConstants.xLen)).reverse)
+   dromajo.io.inst := Cat(traces.map(t => t.insn.pad(DromajoConstants.instBits)).reverse)
+-  dromajo.io.wdata := Cat(traces.map(t => UIntToAugmentedUInt(t.wdata.get).sextTo(DromajoConstants.xLen)).reverse)
++  //dromajo.io.wdata := Cat(traces.map(t => UIntToAugmentedUInt(t.wdata.get).sextTo(DromajoConstants.xLen)).reverse)
+   dromajo.io.mstatus := 0.U // dromajo doesn't use mstatus currently
+   dromajo.io.check := ((1 << traces.size) - 1).U
+ 
+diff --git a/src/main/scala/SerialAdapter.scala b/src/main/scala/SerialAdapter.scala
+index 9955f71..bc659c9 100644
+--- a/src/main/scala/SerialAdapter.scala
++++ b/src/main/scala/SerialAdapter.scala
+@@ -9,6 +9,16 @@ import freechips.rocketchip.diplomacy._
+ import freechips.rocketchip.util._
+ import scala.math.min
+ 
++import freechips.rocketchip.config._
++import freechips.rocketchip.subsystem._
++import freechips.rocketchip.diplomacy._
++import freechips.rocketchip.interrupts._
++import freechips.rocketchip.rocket._
++import freechips.rocketchip.tilelink._
++import freechips.rocketchip.util._
++import freechips.rocketchip.tilelink._
++import freechips.rocketchip.rocket.constants._
++
+ case object SerialAdapter {
+   val SERIAL_IF_WIDTH = 32
+ 
+@@ -210,7 +220,40 @@ trait CanHavePeripherySerial extends HasPeripheryDebug { this: BaseSubsystem =>
+   private val portName = "serial-adapter"
+   val adapter = if (p(SerialKey)) {
+     val m = LazyModule(new SerialAdapter)
+-    fbus.fromPort(Some(portName))() := m.node
++    //fbus.fromPort(Some(portName))() := m.node
++
++    def skipMMIOX(x: TLClientParameters) = {
++      val dcacheMMIO =
++        (x.requestFifo) &&
++        x.sourceId.start % 2 == 1 && // 1 => dcache issues acquires from another master
++        x.nodePath.last.name == "dcache.node"
++      if (dcacheMMIO) None else Some(x)
++    }
++
++    def MMIOX(x: TLClientParameters) = {
++      val dcacheMMIO =
++        (!x.requestFifo) &&
++        x.sourceId.start % 2 == 1 && // 1 => dcache issues acquires from another master
++        x.nodePath.last.name == "dcache.node"
++      if (dcacheMMIO) None else Some(x)
++    }
++
++    val cacheXbarX   = LazyModule(new TLXbar)
++    val filtermmioX  =  LazyModule(new TLFilter(cfilter = MMIOX)(p))
++    cacheXbarX.node :=* m.node
++
++    val IntenParamX = new IntenParamC()(p)
++    for (i <- 0 to IntenParamX.NUM_L2BANKS - 1){
++      val filtercacheX        =  LazyModule(new TLFilter(cfilter = skipMMIOX)(p))
++      if(IntenParamX.NUM_L2BANKS==1) {
++        l2l3xbar(i).node := filtercacheX.node := cacheXbarX.node
++      }
++      else {
++        l2l3xbar(i).node := TLFilter(TLFilter.mSelectIntersect(AddressSet(i * p(CacheBlockBytes), ~BigInt((IntenParamX.NUM_L2BANKS-1)*p(CacheBlockBytes)))))     := filtercacheX.node := cacheXbarX.node
++      }
++    }
++    sbus.fromPort(Some(portName))() := filtermmioX.node := cacheXbarX.node
++
+     Some(m)
+   } else {
+     None
+diff --git a/src/main/scala/TraceIO.scala b/src/main/scala/TraceIO.scala
+index 1b0b25c..2e65fc1 100644
+--- a/src/main/scala/TraceIO.scala
++++ b/src/main/scala/TraceIO.scala
+@@ -3,7 +3,7 @@ package testchipip
+ import chisel3._
+ import chisel3.util._
+ 
+-import freechips.rocketchip.subsystem.{BaseSubsystem, HasTiles}
++import freechips.rocketchip.subsystem.{BaseSubsystem, HasL2macro}
+ import freechips.rocketchip.config.{Field, Config, Parameters}
+ import freechips.rocketchip.diplomacy.{LazyModule, AddressSet, LazyModuleImp, BundleBridgeNexus}
+ import freechips.rocketchip.tilelink.{TLRAM}
+@@ -22,29 +22,30 @@ case class TracedInstructionWidths(iaddr: Int, insn: Int, wdata: Option[Int], ca
+ 
+ object TracedInstructionWidths {
+   def apply(tI: ExtendedTracedInstruction): TracedInstructionWidths = {
+-    val wdataWidth = tI.wdata.map { w => w.getWidth }
+-    TracedInstructionWidths(tI.iaddr.getWidth, tI.insn.getWidth, wdataWidth, tI.cause.getWidth, tI.tval.getWidth)
++    //val wdataWidth = tI.wdata.map { w => w.getWidth }
++    TracedInstructionWidths(tI.iaddr.getWidth, tI.insn.getWidth, Some(0), tI.cause.getWidth, tI.tval.getWidth)
+   }
+ 
+   def apply(tI: TracedInstruction): TracedInstructionWidths =
+     TracedInstructionWidths(tI.iaddr.getWidth, tI.insn.getWidth, None, tI.cause.getWidth, tI.tval.getWidth)
+ }
+ 
+-class ExtendedTracedInstruction(val extended: Boolean = true)(implicit p: Parameters) extends TracedInstruction {
+-  val wdata = if (extended) Some(UInt(xLen.W)) else None
++class ExtendedTracedInstruction(val extended: Boolean = true) extends TracedInstruction {
++  override def cloneType = { new ExtendedTracedInstruction(extended).asInstanceOf[this.type] }
+ }
+ 
+ object ExtendedTracedInstruction {
+   def apply(tI: TracedInstruction): ExtendedTracedInstruction = {
+-    val temp = Wire(new ExtendedTracedInstruction(extended=false)(tI.p))
+-    temp.valid := tI.valid
++    val temp = Wire(new ExtendedTracedInstruction(extended=false))
++    temp := tI
++    /*temp.valid := tI.valid
+     temp.iaddr := tI.iaddr
+     temp.insn := tI.insn
+     temp.priv := tI.priv
+     temp.exception := tI.exception
+     temp.interrupt := tI.interrupt
+     temp.cause := tI.cause
+-    temp.tval := tI.tval
++    temp.tval := tI.tval*/
+ 
+     temp
+   }
+@@ -63,17 +64,9 @@ object ExtendedTracedInstruction {
+ // Parameters context that looks a lot like rocket. Thus, it remains useful to
+ // keep these classes around though they should probably be renamed. Better
+ // yet, TracedInstruction's dependency on Parameters should be removed upstream.
+-class DeclockedTracedInstruction(val widths: TracedInstructionWidths) extends Bundle {
+-  val valid = Bool()
+-  val iaddr = UInt(widths.iaddr.W)
+-  val insn = UInt(widths.insn.W)
+-  val wdata = widths.wdata.map { w => UInt(w.W) }
+-  val priv = UInt(3.W)
+-  val exception = Bool()
+-  val interrupt = Bool()
+-  val cause = UInt(widths.cause.W)
+-  val tval = UInt(widths.tval.W)
+-}
++class DeclockedTracedInstruction(val widths: TracedInstructionWidths) extends TracedInstruction {
++  override def cloneType = { new DeclockedTracedInstruction(widths).asInstanceOf[this.type] }
++ }
+ 
+ object DeclockedTracedInstruction {
+   def apply(tI: ExtendedTracedInstruction): DeclockedTracedInstruction =
+@@ -86,15 +79,7 @@ object DeclockedTracedInstruction {
+   def fromExtVec(clockedVec: Vec[ExtendedTracedInstruction]): Vec[DeclockedTracedInstruction] = {
+     val declockedVec = clockedVec.map(insn => Wire(DeclockedTracedInstruction(insn.cloneType)))
+     declockedVec.zip(clockedVec).foreach({ case (declocked, clocked) =>
+-      declocked.valid := clocked.valid
+-      declocked.iaddr := clocked.iaddr
+-      declocked.insn := clocked.insn
+-      declocked.wdata.zip(clocked.wdata).map { case (dc, c) => dc := c }
+-      declocked.priv := clocked.priv
+-      declocked.exception := clocked.exception
+-      declocked.interrupt := clocked.interrupt
+-      declocked.cause := clocked.cause
+-      declocked.tval := clocked.tval
++      declocked := clocked
+     })
+     VecInit(declockedVec)
+   }
+@@ -154,42 +139,41 @@ case class TracePortParams(
+ 
+ object TracePortKey extends Field[Option[TracePortParams]](None)
+ 
+-trait CanHaveTraceIO { this: HasTiles =>
++trait CanHaveTraceIO { this: HasL2macro =>
+   val module: CanHaveTraceIOModuleImp
+-
++  implicit val p: Parameters
+   // Bind all the trace nodes to a BB; we'll use this to generate the IO in the imp
+   val traceNexus = BundleBridgeNexus[Vec[TracedInstruction]]
+-  val tileTraceNodes = tiles.flatMap {
+-    case ext_tile: WithExtendedTraceport => None
+-    case tile => Some(tile)
+-  }.map { _.traceNode }
+-
+-  val extTraceNexus = BundleBridgeNexus[Vec[ExtendedTracedInstruction]]
+-  val extTileTraceNodes = tiles.flatMap {
+-    case ext_tile: WithExtendedTraceport => Some(ext_tile)
+-    case tile => None
+-  }.map { _.extTraceNode }
+-
++  // val tileTraceNodes = L2MacroTile.flatMap {
++  //   case ext_tile: WithExtendedTraceport => None
++  //   case L2MacroTile => Some(L2MacroTile)
++  // }.map {x => L2MacroTile(x).traceNode }
++
++  // val extTraceNexus = BundleBridgeNexus[Vec[ExtendedTracedInstruction]]
++  // val extTileTraceNodes = tiles.flatMap {
++  //   case ext_tile: WithExtendedTraceport => Some(ext_tile)
++  //   case tile => None
++  // }.map { _.extTraceNode }
++  traceNexus := L2MacroTile(0).traceNode
+   // Convert all instructions to extended type
+-  tileTraceNodes.foreach { traceNexus := _ }
+-  extTileTraceNodes.foreach { extTraceNexus := _ }
++  //tileTraceNodes.foreach { traceNexus := _ }
++  //extTileTraceNodes.foreach { extTraceNexus := _ }
+ }
+ 
+ trait CanHaveTraceIOModuleImp extends LazyModuleImp {
+-  val outer: CanHaveTraceIO with HasTiles
++  val outer: CanHaveTraceIO with HasL2macro
+ 
+   val traceIO = p(TracePortKey) map ( traceParams => {
+-    val extTraceSeqVec = (outer.traceNexus.in.map(_._1)).map(ExtendedTracedInstruction.fromVec(_)) ++ outer.extTraceNexus.in.map(_._1)
+-    val tio = IO(Output(TraceOutputTop(extTraceSeqVec)))
++  val extTraceSeqVec = (outer.traceNexus.in.map(_._1)).map(ExtendedTracedInstruction.fromVec(_)) //++ outer.extTraceNexus.in.map(_._1)
++  val tio = IO(Output(TraceOutputTop(extTraceSeqVec)))
+ 
+-    val tileInsts = ((outer.traceNexus.in) .map { case (tileTrace, _) => DeclockedTracedInstruction.fromVec(tileTrace) } ++
+-      (outer.extTraceNexus.in) .map { case (tileTrace, _) => DeclockedTracedInstruction.fromExtVec(tileTrace) })
++  val tileInsts = ((outer.traceNexus.in) .map { case (tileTrace, _) => DeclockedTracedInstruction.fromVec(tileTrace) }) //++ (outer.extTraceNexus.in) .map { case (tileTrace, _) => DeclockedTracedInstruction.fromExtVec(tileTrace) })
+ 
+     // Since clock & reset are not included with the traced instruction, plumb that out manually
+-    (tio.traces zip (outer.tiles zip tileInsts)).foreach { case (port, (tile, insts)) =>
+-      port.clock := tile.module.clock
+-      port.reset := tile.module.reset.asBool
+-      port.insns := insts
++    tio.traces.foreach { case (port) =>
++      port.clock := outer.L2MacroTile(0).module.clock
++      port.reset := outer.L2MacroTile(0).module.reset.asBool
++      port.insns := tileInsts(0)
+     }
+ 
+ 
+@@ -204,5 +188,5 @@ trait CanHaveTraceIOModuleImp extends LazyModuleImp {
+ 
+     tio
+   })
+-}
++  }
+

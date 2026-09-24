@@ -1,0 +1,12 @@
+*~
+*.o
+*.a
+*.log
+output/
+emulator-*
+generated-src
+generated-src-debug
+kernel
+kernel.hex
+verilator/
+dramsim3epoch.json

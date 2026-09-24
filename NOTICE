@@ -1,0 +1,15 @@
+This file has been superseded by NOTICE.md.
+
+See NOTICE.md for the current copyright, license and third-party
+attribution notices for this repository.
+
+The licensing statement previously carried here ("This product is
+licensed under the Apache License, Version 2.0") no longer describes
+this repository. Intensivate-owned files are licensed under the
+Intensivate Non-Commercial Hardware Source License v1.0; third-party
+components remain under their own licenses. See:
+
+  LICENSE.md   the Intensivate Non-Commercial Hardware Source License
+  NOTICE.md    copyright and third-party attribution notices
+  PATENTS.md   patent notice
+  LICENSES/    SPDX/REUSE license texts

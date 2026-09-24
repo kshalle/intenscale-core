@@ -8,11 +8,12 @@ All rights are reserved except for rights expressly granted under the applicable
 
 ## What This Repository Currently Contains
 
-As of this release, this repository contains the **Intensivate benchmark suite** under `benchmarks/` and nothing else. The CPU core sources are not yet published here.
+As of this release, this repository contains the **Intensivate benchmark suite** under `benchmarks/` and the **Intensivate CPU core** (a Rocket Chip derivative) under `src/`, `chisel3/`, `firrtl/`, `hardfloat/`, `macros/`, `api-config-chipsalliance/`, `DRAMSIM3/`, and the associated build, simulation and test infrastructure at the repository root.
 
 This matters for reading the rest of this notice, and for reading `LICENSE.md`:
 
-- **No file in this repository carries `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`.** The Intensivate Non-Commercial Hardware Source License is reproduced at `LICENSE.md` and `LICENSES/LicenseRef-Intensivate-NC-1.0.txt` because it is the license intended for the core sources when they are published. **It governs no file shipped today.**
+- **No file in this repository carries `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`.** The Intensivate Non-Commercial Hardware Source License is reproduced at `LICENSE.md` and `LICENSES/LicenseRef-Intensivate-NC-1.0.txt` because it is the license intended for the core sources once they carry that identifier. **It governs no file shipped today.**
+- **The core has not yet received the file-by-file license review that `benchmarks/` received.** Its third-party components — under UC Berkeley BSD, SiFive, Apache 2.0, MIT and Mulan PSL v2 (XiangShan / Peng Cheng Laboratory; Axelera AI's DiffTest) — ship with their own upstream license texts intact (`LICENSE`, `LICENSE.Apache2`, `LICENSE.Berkeley`, `LICENSE.jtag`, `LICENSE.MulanPSL2`, `LICENSE.SiFive`, and `LICENSES/`), but the core does not yet have a `LICENSE-AUDIT.md`, per-tree `ORIGIN.md` files, or per-file SPDX headers the way `benchmarks/` does. Treat the core's licensing position as provisional pending that review; see "Core third-party components" below for one item that review still needs to resolve.
 - Intensivate's own work in `benchmarks/` — the harness, the port glue, the workloads, the build and run scripts, and the documentation — is licensed under the **BSD 2-Clause** license, not under the Non-Commercial license. Those files carry `SPDX-License-Identifier: BSD-2-Clause`.
 - `COMMERCIAL-LICENSE.md` and `PATENTS.md` likewise describe terms attaching to the core. No commercial license is required for anything in this repository as it currently stands.
 
@@ -75,6 +76,12 @@ This product includes software developed by third parties, as set out below. Eac
 | miniWeather | National Center for Computational Sciences, Oak Ridge National Laboratory; NVIDIA Corporation | BSD 2-Clause | `benchmarks/weather-miniweather/miniWeather` |
 
 Full copyright statements, contributor credits and the per-tree provenance record are in `benchmarks/NOTICE.md` and `benchmarks/PROVENANCE.md`.
+
+### Core third-party components (audit pending)
+
+The core has not had the file-by-file review `benchmarks/` received; this is a preliminary note, not a completed audit.
+
+`torture/overnight/lib/mail.jar` is Oracle/Sun's `javax.mail`, used only by an offline test-reporting script. It is licensed under **CDDL 1.0** (confirmed from its bundled `META-INF/LICENSE.txt`), a license family not otherwise represented in this repository and for which no license text is currently reproduced under `LICENSES/`. Flagged here for the pending review to resolve.
 
 ### GPL material is present
 

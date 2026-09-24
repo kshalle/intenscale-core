@@ -1,0 +1,431 @@
+diff --git a/Makefile b/Makefile
+index 679f302a8b8b..21bccfd23f9e 100644
+--- a/Makefile
++++ b/Makefile
+@@ -481,6 +481,7 @@ KBUILD_CFLAGS   := -Wall -Wundef -Werror=strict-prototypes -Wno-trigraphs \
+ 		   -Werror=implicit-function-declaration -Werror=implicit-int \
+ 		   -Wno-format-security \
+ 		   -std=gnu89
++##KBUILD_CFLAGS   += -funroll-loops -mbranch-cost=10 -falign-labels=4 -march=rv64imafdc
+ KBUILD_CPPFLAGS := -D__KERNEL__
+ KBUILD_AFLAGS_KERNEL :=
+ KBUILD_CFLAGS_KERNEL :=
+diff --git a/arch/riscv/include/asm/csr.h b/arch/riscv/include/asm/csr.h
+index 8e18d2c64399..ec1472ebe58c 100644
+--- a/arch/riscv/include/asm/csr.h
++++ b/arch/riscv/include/asm/csr.h
+@@ -83,6 +83,7 @@
+ #define PMP_L			0x80
+ 
+ /* symbolic CSR names: */
++#define CSR_IDELAY		0xf
+ #define CSR_CYCLE		0xc00
+ #define CSR_TIME		0xc01
+ #define CSR_INSTRET		0xc02
+diff --git a/arch/riscv/include/asm/processor.h b/arch/riscv/include/asm/processor.h
+index 3ddb798264f1..b332e958399c 100644
+--- a/arch/riscv/include/asm/processor.h
++++ b/arch/riscv/include/asm/processor.h
+@@ -10,6 +10,8 @@
+ 
+ #include <asm/ptrace.h>
+ 
++#define MAX_RAND_DELAY 0x200
++
+ /*
+  * This decides where the kernel will search for a free chunk of vm
+  * space during mmap's.
+@@ -60,11 +62,7 @@ extern unsigned long get_wchan(struct task_struct *p);
+ 
+ static inline void cpu_relax(void)
+ {
+-#ifdef __riscv_muldiv
+-	int dummy;
+-	/* In lieu of a halt instruction, induce a long-latency stall. */
+-	__asm__ __volatile__ ("div %0, %0, zero" : "=r" (dummy));
+-#endif
++	csr_write(CSR_IDELAY, MAX_RAND_DELAY);
+ 	barrier();
+ }
+ 
+diff --git a/arch/riscv/include/asm/spinlock.h b/arch/riscv/include/asm/spinlock.h
+index f4f7fa1b7ca8..4fc2a90ac7f0 100644
+--- a/arch/riscv/include/asm/spinlock.h
++++ b/arch/riscv/include/asm/spinlock.h
+@@ -10,6 +10,7 @@
+ #include <linux/kernel.h>
+ #include <asm/current.h>
+ #include <asm/fence.h>
++#include <asm/processor.h>
+ 
+ /*
+  * Simple spin lock operations.  These provide no fairness guarantees.
+@@ -38,11 +39,24 @@ static inline int arch_spin_trylock(arch_spinlock_t *lock)
+ 	return !busy;
+ }
+ 
++static inline void arch_rand_delay(int fail_cntr)
++{
++	int random_delay = (fail_cntr << 6);
++
++	if(random_delay > MAX_RAND_DELAY) random_delay = MAX_RAND_DELAY;
++	csr_write(CSR_IDELAY, random_delay);
++}
++
+ static inline void arch_spin_lock(arch_spinlock_t *lock)
+ {
++	int fail_cntr = 0;
++
+ 	while (1) {
+-		if (arch_spin_is_locked(lock))
++		if (arch_spin_is_locked(lock)) {
++			arch_rand_delay(fail_cntr);
++			fail_cntr++;
+ 			continue;
++		}
+ 
+ 		if (arch_spin_trylock(lock))
+ 			break;
+@@ -54,31 +68,65 @@ static inline void arch_spin_lock(arch_spinlock_t *lock)
+ static inline void arch_read_lock(arch_rwlock_t *lock)
+ {
+ 	int tmp;
++	int fail_cntr = 0;
+ 
+-	__asm__ __volatile__(
+-		"1:	lr.w	%1, %0\n"
+-		"	bltz	%1, 1b\n"
+-		"	addi	%1, %1, 1\n"
+-		"	sc.w	%1, %1, %0\n"
+-		"	bnez	%1, 1b\n"
+-		RISCV_ACQUIRE_BARRIER
+-		: "+A" (lock->lock), "=&r" (tmp)
+-		:: "memory");
++	while (1) {
++		int success = 0;
++		__asm__ __volatile__(
++			"	li	%2, 0\n" // For some reason, GCC may ignore "int success = 0;", hence we need to do this initialization here.
++			"1:	lr.w	%1, %0\n"
++			"	bltz	%1, 1f\n"
++			"	addi	%1, %1, 1\n"
++			"	sc.w	%1, %1, %0\n"
++			"	bnez	%1, 1b\n"
++			"	li	%2, 1\n"
++			RISCV_ACQUIRE_BARRIER
++			"1:\n"
++			: "+A" (lock->lock), "=&r" (tmp), "+&r" (success)
++			:: "memory");
++
++		if(success)
++			break;
++
++		arch_rand_delay(fail_cntr);
++		fail_cntr++;
++	}
+ }
+ 
+ static inline void arch_write_lock(arch_rwlock_t *lock)
+ {
+ 	int tmp;
++	int fail_cntr = 0;
+ 
+-	__asm__ __volatile__(
+-		"1:	lr.w	%1, %0\n"
+-		"	bnez	%1, 1b\n"
+-		"	li	%1, -1\n"
+-		"	sc.w	%1, %1, %0\n"
+-		"	bnez	%1, 1b\n"
+-		RISCV_ACQUIRE_BARRIER
+-		: "+A" (lock->lock), "=&r" (tmp)
+-		:: "memory");
++	while (1) {
++		int success = 0;
++		__asm__ __volatile__(
++			"	li	%2, 0\n" // For some reason, GCC may ignore "int success = 0;", hence we need to do this initialization here.
++			"1:	lr.w	%1, %0\n"
++			"	bnez	%1, 1f\n"
++			"	li	%1, -1\n"
++			"	sc.w	%1, %1, %0\n"
++			"	bnez	%1, 1b\n"
++			"	li	%2, 1\n"
++			RISCV_ACQUIRE_BARRIER
++			"1:\n"
++			: "+A" (lock->lock), "=&r" (tmp), "=&r" (success)
++			:: "memory");
++
++		if (success)
++			break;
++
++		 /*
++		  * Just make sure that the LR will fail, so the probe bus
++		  * is no longer blocked.
++		  */
++		__asm__ __volatile__(
++			"lw x0, %0\n"
++			: "+A" (lock->lock) :: "memory");
++
++		arch_rand_delay(fail_cntr);
++		fail_cntr++;
++	}
+ }
+ 
+ static inline int arch_read_trylock(arch_rwlock_t *lock)
+diff --git a/arch/riscv/kernel/head.S b/arch/riscv/kernel/head.S
+index 98a406474e7d..451a91a16cab 100644
+--- a/arch/riscv/kernel/head.S
++++ b/arch/riscv/kernel/head.S
+@@ -258,8 +258,14 @@ clear_bss_done:
+ 	/* FIXME: We should WFI to save some energy here. */
+ 	REG_L sp, (a1)
+ 	REG_L tp, (a2)
+-	beqz sp, .Lwait_for_cpu_up
+-	beqz tp, .Lwait_for_cpu_up
++	beqz sp, .Lwait_for_cpu_upX
++	beqz tp, .Lwait_for_cpu_upX
++	j .Lwait_done
++.Lwait_for_cpu_upX:
++	li tp, 0xfff
++	csrw  CSR_IDELAY, tp
++	j .Lwait_for_cpu_up
++.Lwait_done:
+ 	fence
+ 
+ 	tail secondary_start_common
+diff --git a/arch/riscv/lib/uaccess.S b/arch/riscv/lib/uaccess.S
+index fceaeb18cc64..6ef38aa7b4c5 100644
+--- a/arch/riscv/lib/uaccess.S
++++ b/arch/riscv/lib/uaccess.S
+@@ -23,7 +23,8 @@ ENTRY(__asm_copy_from_user)
+ 	/* Use word-oriented copy only if low-order bits match */
+ 	andi t0, a0, SZREG-1
+ 	andi t1, a1, SZREG-1
+-	bne t0, t1, 2f
++	addi a4, a3, -((16*SZREG)-1)
++	bne t0, t1, 20f
+ 
+ 	addi t0, a1, SZREG-1
+ 	andi t1, a3, ~(SZREG-1)
+@@ -35,11 +36,55 @@ ENTRY(__asm_copy_from_user)
+ 	 */
+ 	bgeu t0, t1, 2f
+ 	bltu a1, t0, 4f
++	j 9f
++
++.balign 32
++8:
++	fixup REG_L, t2, 0*SZREG(a1), 10f
++	fixup REG_L, t3, 1*SZREG(a1), 10f
++	fixup REG_L, t4, 2*SZREG(a1), 10f
++	fixup REG_L, t5, 3*SZREG(a1), 10f
++	fixup REG_L, a2, 4*SZREG(a1), 10f
++	fixup REG_L, a5, 5*SZREG(a1), 10f
++	fixup REG_L, a6, 6*SZREG(a1), 10f
++	fixup REG_L, a7, 7*SZREG(a1), 10f
++	fixup REG_S, t2, 0*SZREG(a0), 10f
++	fixup REG_S, t3, 1*SZREG(a0), 10f
++	fixup REG_S, t4, 2*SZREG(a0), 10f
++	fixup REG_S, t5, 3*SZREG(a0), 10f
++	fixup REG_S, a2, 4*SZREG(a0), 10f
++	fixup REG_S, a5, 5*SZREG(a0), 10f
++	fixup REG_S, a6, 6*SZREG(a0), 10f
++	fixup REG_S, a7, 7*SZREG(a0), 10f
++
++	fixup REG_L, t2, 8*SZREG(a1), 10f
++	fixup REG_L, t3, 9*SZREG(a1), 10f
++	fixup REG_L, t4, 10*SZREG(a1), 10f
++	fixup REG_L, t5, 11*SZREG(a1), 10f
++	fixup REG_L, a2, 12*SZREG(a1), 10f
++	fixup REG_L, a5, 13*SZREG(a1), 10f
++	fixup REG_L, a6, 14*SZREG(a1), 10f
++	fixup REG_L, a7, 15*SZREG(a1), 10f
++	fixup REG_S, t2, 8*SZREG(a0), 10f
++	fixup REG_S, t3, 9*SZREG(a0), 10f
++	fixup REG_S, t4, 10*SZREG(a0), 10f
++	fixup REG_S, t5, 11*SZREG(a0), 10f
++	fixup REG_S, a2, 12*SZREG(a0), 10f
++	fixup REG_S, a5, 13*SZREG(a0), 10f
++	fixup REG_S, a6, 14*SZREG(a0), 10f
++	fixup REG_S, a7, 15*SZREG(a0), 10f
++	addi a1, a1, 16*SZREG
++	addi a0, a0, 16*SZREG
++9:
++	bltu a1, a4, 8b
++	j 11f
++
+ 1:
+ 	fixup REG_L, t2, (a1), 10f
+ 	fixup REG_S, t2, (a0), 10f
+ 	addi a1, a1, SZREG
+ 	addi a0, a0, SZREG
++11:
+ 	bltu a1, t1, 1b
+ 2:
+ 	bltu a1, a3, 5f
+@@ -55,14 +100,91 @@ ENTRY(__asm_copy_from_user)
+ 	addi a1, a1, 1
+ 	addi a0, a0, 1
+ 	bltu a1, t0, 4b
+-	j 1b
++	j 9b
+ 5: /* Edge case: remainder */
+ 	fixup lbu, t2, (a1), 10f
+ 	fixup sb, t2, (a0), 10f
+ 	addi a1, a1, 1
+ 	addi a0, a0, 1
++15:
+ 	bltu a1, a3, 5b
+ 	j 3b
++
++20:
++	beqz t1, 201f // If a1 is already aligned, jump directly fo the main loop preparation.
++	addi t0, a1, SZREG-1
++	andi t0, t0, ~(SZREG-1) // Set the upper limit to align a1
++	bltu t0, a3, 21f
++	j 15b
++
++#define WRITE_SHIFT(REG, OFF) \
++	sll a7, REG, a5;\
++	or t1, a7, t1;\
++	fixup REG_S, t1, OFF*SZREG(a0), 10f;\
++	srl t1, REG, a6;
++
++.balign 32
++23:
++	fixup REG_L, t2, 0*SZREG(a1), 10f
++	fixup REG_L, t3, 1*SZREG(a1), 10f
++	fixup REG_L, t4, 2*SZREG(a1), 10f
++	fixup REG_L, t5, 3*SZREG(a1), 10f
++	WRITE_SHIFT(t2, 0)
++	fixup REG_L, t2, 4*SZREG(a1), 10f
++	WRITE_SHIFT(t3, 1)
++	fixup REG_L, t3, 5*SZREG(a1), 10f
++	WRITE_SHIFT(t4, 2)
++	fixup REG_L, t4, 6*SZREG(a1), 10f
++	WRITE_SHIFT(t5, 3)
++	fixup REG_L, t5, 7*SZREG(a1), 10f
++	WRITE_SHIFT(t2, 4)
++	fixup REG_L, t2, 8*SZREG(a1), 10f
++	WRITE_SHIFT(t3, 5)
++	fixup REG_L, t3, 9*SZREG(a1), 10f
++	WRITE_SHIFT(t4, 6)
++	fixup REG_L, t4, 10*SZREG(a1), 10f
++	WRITE_SHIFT(t5, 7)
++	fixup REG_L, t5, 11*SZREG(a1), 10f
++	WRITE_SHIFT(t2, 8)
++	fixup REG_L, t2, 12*SZREG(a1), 10f
++	WRITE_SHIFT(t3, 9)
++	fixup REG_L, t3, 13*SZREG(a1), 10f
++	WRITE_SHIFT(t4, 10)
++	fixup REG_L, t4, 14*SZREG(a1), 10f
++	WRITE_SHIFT(t5, 11)
++	fixup REG_L, t5, 15*SZREG(a1), 10f
++	WRITE_SHIFT(t2, 12)
++	WRITE_SHIFT(t3, 13)
++	WRITE_SHIFT(t4, 14)
++	WRITE_SHIFT(t5, 15)
++	addi a1, a1, 16*SZREG
++	addi a0, a0, 16*SZREG
++	bltu a1, a4, 23b
++	srli a5, a5, 3
++	sub a1, a1, a5 // Remove the tail that we did not copy in the loop.
++	j 15b
++
++.balign 32
++21:
++	fixup lbu, t2, 0(a1), 10f
++	fixup sb, t2, 0(a0), 10f
++	addi a1, a1, 1
++	addi a0, a0, 1
++22:
++	bltu a1, t0, 21b
++201:
++	bgeu a1, a4, 15b
++	andi a5, a0, (SZREG-1)
++	andi a0, a0, ~(SZREG-1)
++	fixup REG_L, t1, 0*SZREG(a0), 10f
++	slli a5, a5, 3
++	li a6, (SZREG*8)
++	subw a6, a6, a5
++	li t2, -1
++	srl t2, t2, a6
++	and t1, t1, t2
++	j 23b
++
+ ENDPROC(__asm_copy_to_user)
+ ENDPROC(__asm_copy_from_user)
+ EXPORT_SYMBOL(__asm_copy_to_user)
+@@ -85,10 +207,37 @@ ENTRY(__clear_user)
+ 	 * t1: highest doubleword-aligned address in target region
+ 	 */
+ 	bgeu t0, t1, 2f
++	addi a4, a3, -((16*SZREG)-1)
+ 	bltu a0, t0, 4f
++	j 9f
++
++.balign 32
++8:
++	fixup REG_S, zero, 0*SZREG(a0), 10f
++	fixup REG_S, zero, 1*SZREG(a0), 10f
++	fixup REG_S, zero, 2*SZREG(a0), 10f
++	fixup REG_S, zero, 3*SZREG(a0), 10f
++	fixup REG_S, zero, 4*SZREG(a0), 10f
++	fixup REG_S, zero, 5*SZREG(a0), 10f
++	fixup REG_S, zero, 6*SZREG(a0), 10f
++	fixup REG_S, zero, 7*SZREG(a0), 10f
++	fixup REG_S, zero, 8*SZREG(a0), 10f
++	fixup REG_S, zero, 9*SZREG(a0), 10f
++	fixup REG_S, zero, 10*SZREG(a0), 10f
++	fixup REG_S, zero, 11*SZREG(a0), 10f
++	fixup REG_S, zero, 12*SZREG(a0), 10f
++	fixup REG_S, zero, 13*SZREG(a0), 10f
++	fixup REG_S, zero, 14*SZREG(a0), 10f
++	fixup REG_S, zero, 15*SZREG(a0), 10f
++	addi a0, a0, 16*SZREG
++9:
++	bltu a0, a4, 8b
++	j 11f
++
+ 1:
+ 	fixup REG_S, zero, (a0), 11f
+ 	addi a0, a0, SZREG
++11:
+ 	bltu a0, t1, 1b
+ 2:
+ 	bltu a0, a3, 5f
+@@ -102,7 +251,7 @@ ENTRY(__clear_user)
+ 	fixup sb, zero, (a0), 11f
+ 	addi a0, a0, 1
+ 	bltu a0, t0, 4b
+-	j 1b
++	j 9b
+ 5: /* Edge case: remainder */
+ 	fixup sb, zero, (a0), 11f
+ 	addi a0, a0, 1
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 9a2fbf98fd6f..c8407df7c278 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -5594,8 +5594,10 @@ static void do_sched_yield(void)
+ {
+ 	struct rq_flags rf;
+ 	struct rq *rq;
++	u64 nr_switchesOld;
+ 
+ 	rq = this_rq_lock_irq(&rf);
++	nr_switchesOld = rq->nr_switches;
+ 
+ 	schedstat_inc(rq->yld_count);
+ 	current->sched_class->yield_task(rq);
+@@ -5609,6 +5611,12 @@ static void do_sched_yield(void)
+ 	sched_preempt_enable_no_resched();
+ 
+ 	schedule();
++
++	// Check if no switch happen, so we add some delay.
++	if(rq->nr_switches == nr_switchesOld) {
++	  int largeDelay = 50000;
++	  __asm__ __volatile__ ("csrw   0xf, %0" : "+r" (largeDelay));
++	}
+ }
+ 
+ SYSCALL_DEFINE0(sched_yield)

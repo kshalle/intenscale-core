@@ -1,0 +1,64 @@
+diff --git a/src/main/scala/NIC.scala b/src/main/scala/NIC.scala
+index 1e167a3..b70e5c8 100644
+--- a/src/main/scala/NIC.scala
++++ b/src/main/scala/NIC.scala
+@@ -11,6 +11,16 @@ import freechips.rocketchip.util._
+ import testchipip.{StreamIO, StreamChannel, TLHelper}
+ import IceNetConsts._
+ 
++import freechips.rocketchip.config._
++import freechips.rocketchip.subsystem._
++import freechips.rocketchip.diplomacy._
++import freechips.rocketchip.interrupts._
++import freechips.rocketchip.rocket._
++import freechips.rocketchip.tilelink._
++import freechips.rocketchip.util._
++import freechips.rocketchip.tilelink._
++import freechips.rocketchip.rocket.constants._
++
+ case class NICConfig(
+   inBufFlits: Int  = 2 * ETH_STANDARD_MAX_BYTES / NET_IF_BYTES,
+   outBufFlits: Int = 2 * ETH_STANDARD_MAX_BYTES / NET_IF_BYTES,
+@@ -465,8 +475,41 @@ trait CanHavePeripheryIceNIC  { this: BaseSubsystem =>
+   val icenicOpt = p(NICKey).map { params =>
+     val icenic = LazyModule(new IceNIC(address, pbus.beatBytes))
+     pbus.toVariableWidthSlave(Some(portName)) { icenic.mmionode }
+-    fbus.fromPort(Some(portName))() :=* icenic.dmanode
++    //fbus.fromPort(Some(portName))() :=* icenic.dmanode
+     ibus.fromSync := icenic.intnode
++
++    def skipMMIOI(x: TLClientParameters) = {
++      val dcacheMMIO =
++        (x.requestFifo) &&
++        x.sourceId.start % 2 == 1 && // 1 => dcache issues acquires from another master
++        x.nodePath.last.name == "dcache.node"
++      if (dcacheMMIO) None else Some(x)
++    }
++
++    def MMIOI(x: TLClientParameters) = {
++      val dcacheMMIO =
++        (!x.requestFifo) &&
++        x.sourceId.start % 2 == 1 && // 1 => dcache issues acquires from another master
++        x.nodePath.last.name == "dcache.node"
++      if (dcacheMMIO) None else Some(x)
++    }
++
++    val cacheXbarI   = LazyModule(new TLXbar)
++    val filtermmioI  =  LazyModule(new TLFilter(cfilter = MMIOI)(p))
++    cacheXbarI.node :=* icenic.dmanode
++
++    val IntenParamI = new IntenParamC()(p)
++    for (i <- 0 to IntenParamI.NUM_L2BANKS - 1){
++      val filtercacheX        =  LazyModule(new TLFilter(cfilter = skipMMIOI)(p))
++      if(IntenParamI.NUM_L2BANKS==1) {
++        l2l3xbar(i).node := filtercacheX.node := cacheXbarI.node
++      }
++      else {
++        l2l3xbar(i).node := TLFilter(TLFilter.mSelectIntersect(AddressSet(i * p(CacheBlockBytes), ~BigInt((IntenParamI.NUM_L2BANKS-1)*p(CacheBlockBytes)))))     := filtercacheX.node := cacheXbarI.node
++      }
++    }
++    sbus.fromPort(Some(portName))() := filtermmioI.node := cacheXbarI.node
++
+     icenic
+   }
+ }

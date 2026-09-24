@@ -1,0 +1,14 @@
+diff --git a/target/riscv/csr.c b/target/riscv/csr.c
+index f767ad24be..ca51b7b370 100644
+--- a/target/riscv/csr.c
++++ b/target/riscv/csr.c
+@@ -902,6 +902,9 @@ static riscv_csr_operations csr_ops[CSR_TABLE_SIZE] = {
+     [CSR_MINSTRETH] =           { any,  read_instreth                       },
+ #endif
+ 
++    [0xb] =                     { any,  read_zero                           },
++    [0xf] =                     { any,  read_zero                           },
++
+     /* Machine Information Registers */
+     [CSR_MVENDORID] =           { any,  read_zero                           },
+     [CSR_MARCHID] =             { any,  read_zero                           },

@@ -1,0 +1,105 @@
+diff --git a/Makefile.in b/Makefile.in
+index 0268629..b8f0c55 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -85,7 +85,7 @@ VPATH := $(addprefix $(src_dir)/, $(sprojs_enabled))
+ CC            := @CC@
+ READELF       := @READELF@
+ OBJCOPY       := @OBJCOPY@
+-CFLAGS        := @CFLAGS@ $(CFLAGS) -DBBL_PAYLOAD=\"bbl_payload\" -DBBL_LOGO_FILE=\"bbl_logo_file\"
++CFLAGS        := @CFLAGS@ $(CFLAGS) -DBBL_PAYLOAD=\"bbl_payload\" -DBBL_LOGO_FILE=\"bbl_logo_file\" -D__riscv_compressed
+ BBL_PAYLOAD   := @BBL_PAYLOAD@
+ COMPILE       := $(CC) -MMD -MP $(CFLAGS) \
+                  $(sprojs_include)
+diff --git a/bbl/bbl.c b/bbl/bbl.c
+index 1b96a9d..48eaaea 100644
+--- a/bbl/bbl.c
++++ b/bbl/bbl.c
+@@ -36,6 +36,9 @@ void boot_other_hart(uintptr_t unused __attribute__((unused)))
+   do {
+     entry = entry_point;
+     mb();
++    if(!entry) {
++      asm volatile ("csrw  0xf, %0;" :: "r"(0xfff));
++    }
+   } while (!entry);
+ 
+   long hartid = read_csr(mhartid);
+diff --git a/machine/fdt.c b/machine/fdt.c
+index 061b19e..7107c3f 100644
+--- a/machine/fdt.c
++++ b/machine/fdt.c
+@@ -200,7 +200,7 @@ void query_mem(uintptr_t fdt)
+ ///////////////////////////////////////////// HART SCAN //////////////////////////////////////////
+ 
+ static uint32_t hart_phandles[MAX_HARTS];
+-uint64_t hart_mask;
++uint64_t hart_mask = 0;
+ 
+ struct hart_scan {
+   const struct fdt_scan_node *cpu;
+@@ -256,7 +256,7 @@ static void hart_done(const struct fdt_scan_node *node, void *extra)
+ 
+     if (scan->hart < MAX_HARTS) {
+       hart_phandles[scan->hart] = scan->phandle;
+-      hart_mask |= 1 << scan->hart;
++      hart_mask |= ((uint64_t)1) << scan->hart;
+       hls_init(scan->hart);
+     }
+   }
+diff --git a/machine/mentry.S b/machine/mentry.S
+index 41d7017..27e7dd7 100644
+--- a/machine/mentry.S
++++ b/machine/mentry.S
+@@ -267,6 +267,8 @@ do_reset:
+ .LmultiHart:
+ #if MAX_HARTS > 1
+   # wait for an IPI to signal that it's safe to boot
++  li a4, 0xfff
++  csrw  0xf, a4
+   wfi
+ 
+   # masked harts never start
+diff --git a/machine/minit.c b/machine/minit.c
+index 47433d1..043643b 100644
+--- a/machine/minit.c
++++ b/machine/minit.c
+@@ -132,6 +132,9 @@ static void hart_plic_init()
+ 
+ static void wake_harts()
+ {
++  // Wait for sometime before asserting the IPI.
++  asm volatile ("csrw  0xf, %0;" :: "r"(0xffff));
++
+   for (int hart = 0; hart < MAX_HARTS; ++hart)
+     if ((((~disabled_hart_mask & hart_mask) >> hart) & 1))
+       *OTHER_HLS(hart)->ipi = 1; // wakeup the hart
+diff --git a/machine/mtrap.c b/machine/mtrap.c
+index 778990f..6f2ca2b 100644
+--- a/machine/mtrap.c
++++ b/machine/mtrap.c
+@@ -123,8 +123,10 @@ static void send_ipi_many(uintptr_t* pmask, int event)
+   uint32_t incoming_ipi = 0;
+   for (uintptr_t i = 0, m = mask; m; i++, m >>= 1)
+     if (m & 1)
+-      while (*OTHER_HLS(i)->ipi)
++      while (*OTHER_HLS(i)->ipi) {
++        asm volatile ("csrw  0xf, %0;" :: "r"(0xff));
+         incoming_ipi |= atomic_swap(HLS()->ipi, 0);
++      }
+ 
+   // if we got an IPI, restore it; it will be taken after returning
+   if (incoming_ipi) {
+diff --git a/machine/mtrap.h b/machine/mtrap.h
+index eafdb14..d417798 100644
+--- a/machine/mtrap.h
++++ b/machine/mtrap.h
+@@ -4,7 +4,7 @@
+ #include "encoding.h"
+ 
+ #ifdef __riscv_atomic
+-# define MAX_HARTS 8 // arbitrary
++# define MAX_HARTS 32 // arbitrary
+ #else
+ # define MAX_HARTS 1
+ #endif

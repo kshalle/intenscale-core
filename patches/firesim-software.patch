@@ -1,0 +1,52 @@
+diff --git a/boards/firechip/base-workloads/br-base/linux-config b/boards/firechip/base-workloads/br-base/linux-config
+index 22efa66..91fe31b 100644
+--- a/boards/firechip/base-workloads/br-base/linux-config
++++ b/boards/firechip/base-workloads/br-base/linux-config
+@@ -102,3 +102,9 @@ CONFIG_DEBUG_INFO=y
+ CONFIG_DEBUG_FS=y
+ CONFIG_DEBUG_SECTION_MISMATCH=y
+ CONFIG_STACKTRACE=y
++
++#
++# Set the maximum supported number of cores.
++#
++CONFIG_NR_CPUS=32
++
+diff --git a/boards/firechip/base-workloads/fedora-base/linux-config b/boards/firechip/base-workloads/fedora-base/linux-config
+index 2b6b83f..0f8efd7 100644
+--- a/boards/firechip/base-workloads/fedora-base/linux-config
++++ b/boards/firechip/base-workloads/fedora-base/linux-config
+@@ -305,3 +305,8 @@ CONFIG_THIN_ARCHIVES=y
+ # CONFIG_VGASTATE is not set
+ # CONFIG_WQ_POWER_EFFICIENT_DEFAULT is not set
+ CONFIG_ZONE_DMA=y
++
++#
++# Set the maximum supported number of cores.
++#
++CONFIG_NR_CPUS=32
+diff --git a/riscv-linux b/riscv-linux
+--- a/riscv-linux
++++ b/riscv-linux
+@@ -1 +1 @@
+-Subproject commit 5f5fd87b36e21ed59b759b69eebfa1c74955cb37
++Subproject commit 5f5fd87b36e21ed59b759b69eebfa1c74955cb37-dirty
+diff --git a/riscv-pk b/riscv-pk
+--- a/riscv-pk
++++ b/riscv-pk
+@@ -1 +1 @@
+-Subproject commit cad3deb357d25773a22e2c346ef464d3d66dd37c
++Subproject commit cad3deb357d25773a22e2c346ef464d3d66dd37c-dirty
+diff --git a/wlutil/default-config.yaml b/wlutil/default-config.yaml
+index 839fb79..b4749a8 100644
+--- a/wlutil/default-config.yaml
++++ b/wlutil/default-config.yaml
+@@ -26,7 +26,7 @@ firesim-dir : null
+ 
+ # Default parallelism level to use in subcommands (mostly when calling 'make')
+ # '' means unbounded
+-jlevel : ''
++jlevel : '8'
+ 
+ # Number of extra bytes to leave free by default in filesystem images
+ rootfs-margin : '256MiB'
