@@ -33,7 +33,7 @@ License texts are in [`benchmarks/LICENSES/`](benchmarks/LICENSES/); the attribu
 
 ## Licensing of the CPU core
 
-The files below describe the terms that apply to core files carrying the identifier in this section — 21 files as of this release; see [`NOTICE.md`](NOTICE.md) for exactly which ones. The core as a whole has not yet received the file-by-file license review `benchmarks/` received.
+The files below describe the terms that apply to core files carrying the identifier in this section — 21 files as of this release; see [`NOTICE.md`](NOTICE.md) for exactly which ones. The core's third-party components are inventoried in [`CORE-LICENSE-AUDIT.md`](CORE-LICENSE-AUDIT.md) and [`CORE-PROVENANCE.md`](CORE-PROVENANCE.md); that audit is less complete than `benchmarks/`'s (no upstream commit is pinned for most components) and lists several open items still needing a decision from engineering or counsel.
 
 ### Non-commercial source license
 

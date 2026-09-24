@@ -13,7 +13,7 @@ As of this release, this repository contains the **Intensivate benchmark suite**
 This matters for reading the rest of this notice, and for reading `LICENSE.md`:
 
 - **A small number of files carry `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`.** The Intensivate Non-Commercial Hardware Source License is reproduced at `LICENSE.md` and `LICENSES/LicenseRef-Intensivate-NC-1.0.txt`. As of this release, 21 files carry that identifier and are governed by it: `set_env.sh`, `mkJunit.py`, three files under `vsim/`, and 16 Intensivate-original files under `src/` (in `subsystem/`, `rocket/`, `chisel3_compat/`, and `resources/`). Every other file in this repository is governed by whatever license its own header, its nearest `LICENSE` file, or (under `benchmarks/`) `REUSE.toml` states.
-- **The core has not yet received the file-by-file license review that `benchmarks/` received.** Its third-party components — under UC Berkeley BSD, SiFive, Apache 2.0, MIT and Mulan PSL v2 (XiangShan / Peng Cheng Laboratory; Axelera AI's DiffTest) — ship with their own upstream license texts intact (`LICENSE`, `LICENSE.Apache2`, `LICENSE.Berkeley`, `LICENSE.jtag`, `LICENSE.MulanPSL2`, `LICENSE.SiFive`, and `LICENSES/`), but the core does not yet have a `LICENSE-AUDIT.md`, per-tree `ORIGIN.md` files, or a complete per-file SPDX pass the way `benchmarks/` does. Treat the core's licensing position as provisional pending that review; see "Core third-party components" below for one item that review still needs to resolve.
+- **The core has a first-pass license audit, in [`CORE-LICENSE-AUDIT.md`](CORE-LICENSE-AUDIT.md) and [`CORE-PROVENANCE.md`](CORE-PROVENANCE.md), with per-component `ORIGIN.md` files for `src/`, `chisel3/`, `firrtl/`, `hardfloat/`, `api-config-chipsalliance/`, `DRAMSIM3/`, `riscv-tests/`, and `torture/`.** It is less complete than `benchmarks/`'s audit: no byte-for-byte upstream diff was performed, and almost none of the core's components have a recorded upstream commit or tag. `CORE-LICENSE-AUDIT.md` §5 lists the open items still needing a decision from engineering or counsel, including an undisclosed-modification question on four `rocket/` files, a missing external `difftest` dependency, and the GPL-2 patches in `patches/`. Treat the core's licensing position as provisional pending those items.
 - Intensivate's own work in `benchmarks/` — the harness, the port glue, the workloads, the build and run scripts, and the documentation — is licensed under the **BSD 2-Clause** license, not under the Non-Commercial license. Those files carry `SPDX-License-Identifier: BSD-2-Clause`.
 - `COMMERCIAL-LICENSE.md` and `PATENTS.md` likewise describe terms attaching to the core. No commercial license is required for anything in this repository as it currently stands.
 
@@ -77,11 +77,35 @@ This product includes software developed by third parties, as set out below. Eac
 
 Full copyright statements, contributor credits and the per-tree provenance record are in `benchmarks/NOTICE.md` and `benchmarks/PROVENANCE.md`.
 
-### Core third-party components (audit pending)
+### Core third-party components
 
-The core has not had the file-by-file review `benchmarks/` received; this is a preliminary note, not a completed audit.
+Full detail, evidence, and open items are in [`CORE-LICENSE-AUDIT.md`](CORE-LICENSE-AUDIT.md) and [`CORE-PROVENANCE.md`](CORE-PROVENANCE.md). Summary:
 
-`torture/overnight/lib/mail.jar` is Oracle/Sun's `javax.mail`, used only by an offline test-reporting script. It is licensed under **CDDL 1.0** (confirmed from its bundled `META-INF/LICENSE.txt`), a license family not otherwise represented in this repository and for which no license text is currently reproduced under `LICENSES/`. Flagged here for the pending review to resolve.
+| Component | Copyright holder | License | Path |
+|---|---|---|---|
+| Rocket Chip | SiFive, Inc.; The Regents of the University of California | Apache-2.0 (`LICENSE.SiFive`) and BSD-3-Clause (`LICENSE.Berkeley`), per file | `src/`, `macros/` |
+| rocket-chip-inclusive-cache | SiFive, Inc. | Same as Rocket Chip | `src/main/scala/cache/` |
+| chisel-jtag | The Regents of the University of California | `LicenseRef-chisel-jtag` (BSD-3-Clause-style) | `src/main/scala/jtag/` |
+| XiangShan / DiffTest | Institute of Computing Technology, CAS; Peng Cheng Laboratory; Axelera AI | Mulan PSL v2 | 11 files under `src/main/scala/{device,util,common}` and `src/main/resources/csrc/` |
+| chisel3 | The Regents of the University of California | BSD-3-Clause | `chisel3/` |
+| firrtl | The Regents of the University of California | BSD-3-Clause | `firrtl/` |
+| hardfloat | The Regents of the University of California | BSD-3-Clause | `hardfloat/` |
+| api-config-chipsalliance | SiFive, Inc. | Apache-2.0 | `api-config-chipsalliance/` |
+| DRAMSim3 | University of Maryland Memory-Systems Research | MIT | `DRAMSIM3/` |
+| SuperLU_MT_3.1 | The Regents of the University of California (LBNL) | BSD-3-Clause | `DRAMSIM3/ext/SuperLU_MT_3.1/` |
+| fmt | Victor Zverovich | BSD-2-Clause-style | `DRAMSIM3/ext/fmt/` |
+| nlohmann/json | Niels Lohmann | MIT | `DRAMSIM3/ext/headers/json.hpp` |
+| Catch2 | Two Blue Cubes Ltd | Boost Software License 1.0 | `DRAMSIM3/ext/headers/catch.hpp` |
+| inih / INIReader | Ben Hoyt | BSD-3-Clause | `DRAMSIM3/ext/headers/{INIReader.h,INIHLICENSE.txt}` |
+| args.hxx | Taylor C. Richberger | MIT-style | `DRAMSIM3/ext/headers/args.hxx` |
+| riscv-tests | The Regents of the University of California | BSD-3-Clause | `riscv-tests/` |
+| riscv-torture | Yunsup Lee; Henry Cook; The Regents of the University of California | BSD-3-Clause | `torture/` |
+| javax.mail | Oracle/Sun | CDDL 1.0 | `torture/overnight/lib/mail.jar` |
+
+`javax.mail`, used only by an offline test-reporting script, is licensed under
+**CDDL 1.0** — a license family not otherwise represented in this repository
+and for which no license text is currently reproduced under `LICENSES/`.
+Flagged in `CORE-LICENSE-AUDIT.md` §5 for resolution.
 
 ### GPL material is present
 
