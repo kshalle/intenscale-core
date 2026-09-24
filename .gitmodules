@@ -1,0 +1,9 @@
+[submodule "api-config-chipsalliance"]
+	path = api-config-chipsalliance
+	url = https://github.com/chipsalliance/api-config-chipsalliance.git
+[submodule "firrtl"]
+	path = firrtl
+	url = https://github.com/chipsalliance/firrtl.git
+[submodule "torture"]
+	path = torture
+	url = https://github.com/ucb-bar/riscv-torture.git

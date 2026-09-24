@@ -1,0 +1,326 @@
+# SPDX-FileCopyrightText: 2016-2026 Intensivate, Inc.
+# SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0
+#
+# Intensivate's modifications to DRAMSim3, extracted for licensing clarity.
+#
+# Base: https://github.com/OpenXiangShan/DRAMsim3.git, branch cosim-kmh,
+# commit 1d2a9bf ("Merge pull request #3 from OpenXiangShan/fix-clock").
+# Verified exact for every file this patch does not touch -- see
+# DRAMSIM3/ORIGIN.md.
+#
+# Not applied by patching at build time; already present directly in
+# DRAMSIM3/src/ and DRAMSIM3/scripts/. This file documents and licenses
+# the delta on its own terms, separate from the MIT base it sits on top
+# of. Not reverted from the live tree because emulator/Makefile actively
+# builds against configs/intenscore_DDR4_8Gb_x8_3200_1ch_2ra_16GB.ini,
+# which this patch adds -- reverting the live files without a verified
+# rebuild would risk silently breaking the build.
+#
+# Contents: adds an LPDDR5 protocol (DRAMProtocol enum, bankgroup_enable
+# config field, IsLP5() accessor, and the corresponding branch in
+# cosimulation.cc's protocol dispatch); retunes DDR4_8Gb_x8_3200.ini;
+# adds five new config files (two named intenscore_*.ini, plus an
+# LPDDR5 config and two DDR4 dual-rank/2Gb configs); extends
+# scripts/trace_gen.py with grouped-burst read/write traffic generation
+# (as opposed to the base's per-request random mix) and adds
+# scripts/latency-bw.py.
+#
+# Generated as: diff -ru <base's affected files> <vendored's affected files>
+
+Only in b/configs: DDR4_2Gb_x8_3200_dualrank.ini
+Only in b/configs: DDR4_2Gb_x8_3200.ini
+diff -ru a/configs/DDR4_8Gb_x8_3200.ini b/configs/DDR4_8Gb_x8_3200.ini
+--- a/configs/DDR4_8Gb_x8_3200.ini	2026-09-24 12:26:54.549063730 -0500
++++ b/configs/DDR4_8Gb_x8_3200.ini	2026-09-24 12:26:54.559644000 -0500
+@@ -10,10 +10,10 @@
+ [timing]
+ tCK = 0.63
+ AL = 0
+-CL = 22
++CL = 16
+ CWL = 16
+-tRCD = 22
+-tRP = 22
++tRCD = 18
++tRP = 18
+ tRAS = 52
+ tRFC = 560
+ tRFC2 = 416
+@@ -52,9 +52,9 @@
+ 
+ [system]
+ channel_size = 16384
+-channels = 1
++channels = 2
+ bus_width = 64
+-address_mapping = rochrababgco
++address_mapping = roracobabgch
+ queue_structure = PER_BANK
+ refresh_policy = RANK_LEVEL_STAGGERED
+ row_buf_policy = OPEN_PAGE
+@@ -64,4 +64,5 @@
+ [other]
+ epoch_period = 1587301
+ output_level = 1
+-
++cpu_freq = 7000
++dram_freq = 1600
+Only in b/configs: intenscore_DDR4_4Gb_x8_3200_2ch_2ra_16GB.ini
+Only in b/configs: intenscore_DDR4_8Gb_x8_3200_1ch_2ra_16GB.ini
+Only in b/configs: LPDDR5_16Gb_x8_6400.ini
+Only in b/scripts: latency-bw.py
+diff -ru a/scripts/trace_gen.py b/scripts/trace_gen.py
+--- a/scripts/trace_gen.py	2026-09-24 12:26:54.525555118 -0500
++++ b/scripts/trace_gen.py	2026-09-24 12:26:54.532554007 -0500
+@@ -5,15 +5,36 @@
+ import random
+ 
+ 
++def roundup(num):
++    """Round-half-up to an int (matches the reference AXI arrival-gate
++    testbench's rounding: fractional part >= 0.5 rounds up)."""
++    if num % 1 >= 0.5:
++        return int(num + 1)
++    else:
++        return int(num)
++
++
+ class Generator():
+     """
+-    Format agnostic address stream generator
++    Format agnostic address stream generator.
++
++    random-traffic (_rand_gen) picks read vs write per-request at random,
++    weighted by `ratio`. stream-traffic (_stream_gen) instead alternates
++    in grouped bursts -- a fixed READ_BURST_SIZE-request read burst,
++    followed by a write burst sized to match `ratio` (e.g. ratio=2/3, a
++    2:1 read:write mix, gives a 16-read/8-write burst pattern) -- since
++    linear/sequential benchmarks are conventionally driven with bursty
++    read/write phases rather than per-request switching.
+     """
+ 
+-    def __init__(self, stream_type, interarrival, ratio, gb):
++    READ_BURST_SIZE = 16
++
++    def __init__(self, stream_type, interarrival, ratio, gb,
++                 random_interarrival=False):
+         # convert to 0 ~ 1 for easier random generation
+         self._interval = interarrival
+-        self._ratio = ratio / (ratio + 1.0)
++        self._ratio = ratio #/ (ratio + 1.0)
++        self._random_interarrival = random_interarrival
+ 
+         self._gen = None
+ 
+@@ -21,6 +42,12 @@
+         self._last_clk = 0
+         self._last_rd_addr = random.randrange(self._range)
+         self._last_wr_addr = random.randrange(self._range)
++
++        self._read_burst_size, self._write_burst_size = self._burst_sizes(ratio)
++        self._burst_op = 'r' if self._read_burst_size > 0 else 'w'
++        self._burst_left = (self._read_burst_size if self._burst_op == 'r'
++                           else self._write_burst_size)
++
+         if stream_type == 'random':
+             self._gen = self._rand_gen
+         elif stream_type == 'stream':
+@@ -28,6 +55,18 @@
+         else:
+             self._gen = self._mix_gen
+ 
++    @classmethod
++    def _burst_sizes(cls, ratio):
++        """(read_burst, write_burst) request counts for the stream-traffic
++        burst pattern, sized so read_burst/write_burst == ratio/(1-ratio),
++        anchored to a fixed READ_BURST_SIZE-request read burst."""
++        if ratio >= 1.0:
++            return cls.READ_BURST_SIZE, 0
++        if ratio <= 0.0:
++            return 0, cls.READ_BURST_SIZE
++        write_burst = max(1, round(cls.READ_BURST_SIZE * (1.0 - ratio) / ratio))
++        return cls.READ_BURST_SIZE, write_burst
++
+     def _get_op(self):
+         if random.random() > self._ratio:
+             return 'w'
+@@ -40,7 +79,18 @@
+         return (op, addr)
+ 
+     def _stream_gen(self):
+-        op = self._get_op()
++        if self._write_burst_size == 0:
++            op = 'r'
++        elif self._read_burst_size == 0:
++            op = 'w'
++        else:
++            if self._burst_left <= 0:
++                self._burst_op = 'w' if self._burst_op == 'r' else 'r'
++                self._burst_left = (self._read_burst_size if self._burst_op == 'r'
++                                    else self._write_burst_size)
++            op = self._burst_op
++            self._burst_left -= 1
++
+         if op == 'r':
+             self._last_rd_addr += 64
+             return (op, self._last_rd_addr)
+@@ -56,7 +106,16 @@
+ 
+     def gen(self):
+         op, addr = self._gen()
+-        self._last_clk += self._interval
++        if self._random_interarrival:
++            # per-request draw, uniform in [1, roundup(2 * target_interarrival)],
++            # matching the reference axi_txn_arrival_gate testbench logic
++            if self._interval > 1:
++                interval = random.randint(1, roundup(2 * self._interval))
++            else:
++                interval = 1
++        else:
++            interval = self._interval
++        self._last_clk += interval
+         return (op, addr, self._last_clk)
+ 
+ 
+@@ -112,6 +171,9 @@
+                         help='Total number of requests.')
+     parser.add_argument('-g', '--gb', type=int, default=4,
+                         help='GBs of address space')
++    parser.add_argument('-R', '--random-interarrival', action='store_true',
++                        help='Draw each interarrival uniformly from '
++                        '[1, 2*interarrival) instead of a fixed interval')
+ 
+     args = parser.parse_args()
+ 
+@@ -149,7 +211,8 @@
+         fp = open(name, 'w')
+         files[f] = fp
+ 
+-    g = Generator(stream_type, args.interarrival, args.ratio, args.gb)
++    g = Generator(stream_type, args.interarrival, args.ratio, args.gb,
++                  args.random_interarrival)
+     for i in range(args.num_reqs):
+         op, addr, clk = g.gen()
+         for f in formats:
+diff -ru a/src/configuration.cc b/src/configuration.cc
+--- a/src/configuration.cc	2026-09-24 12:26:54.484457207 -0500
++++ b/src/configuration.cc	2026-09-24 12:26:54.489782276 -0500
+@@ -44,7 +44,19 @@
+ void Config::CalculateSize() {
+     // calculate rank and re-calculate channel_size
+     devices_per_rank = bus_width / device_width;
+-    int page_size = columns * device_width / 8;  // page size in bytes
++
++    // page size for LPDDR5 is dependent on the bank architecture and the device width. columns are fixed to 64 in LP5
++        // BG mode --> 4BG, 4BA, bankgroup_enable = true, BL16                   // x8 prefetch has 128b per column
++        // 16B mode -> 1BG, 16BA, bankgroup_enable = false, BL16, freq <= 400MHz // x8 prefetch has 128b per column
++        // 8B mode --> 1BG, 8BA, bankgroup_enable = false, BL32,                 // x8 prefetch has 256b per column
++        // x16 has 2 x8 bytes, hence double the banks of an x8 device            // x16 prefetch has double columns --> double page size
++    // the page size in DDRx protocols is dependent on device width and the number of columns
++    int page_size = 0;
++    if (IsLP5()) 
++        page_size = columns * (bankgroup_enable ? 128 : (banks_per_group == 16 ? 128 : 256)) * (device_width == 8 ? 1 : 2) / 8; // page size in bytes per device
++    else
++        page_size = columns * device_width / 8;  // page size in bytes
++
+     int megs_per_bank = page_size * (rows / 1024) / 1024;
+     int megs_per_rank = megs_per_bank * banks * devices_per_rank;
+ 
+@@ -67,8 +79,8 @@
+         {"DDR3", DRAMProtocol::DDR3},     {"DDR4", DRAMProtocol::DDR4},
+         {"GDDR5", DRAMProtocol::GDDR5},   {"GDDR5X", DRAMProtocol::GDDR5X},  {"GDDR6", DRAMProtocol::GDDR6},
+         {"LPDDR", DRAMProtocol::LPDDR},   {"LPDDR3", DRAMProtocol::LPDDR3},
+-        {"LPDDR4", DRAMProtocol::LPDDR4}, {"HBM", DRAMProtocol::HBM},
+-        {"HBM2", DRAMProtocol::HBM2},     {"HMC", DRAMProtocol::HMC}};
++        {"LPDDR4", DRAMProtocol::LPDDR4}, {"LPDDR5", DRAMProtocol::LPDDR5},
++        {"HBM", DRAMProtocol::HBM},       {"HBM2", DRAMProtocol::HBM2},      {"HMC", DRAMProtocol::HMC}};
+ 
+     if (protocol_pairs.find(protocol_str) == protocol_pairs.end()) {
+         std::cout << "Unkwown/Unsupported DRAM Protocol: " << protocol_str
+@@ -90,7 +102,7 @@
+         GetDRAMProtocol(reader.Get("dram_structure", "protocol", "DDR3"));
+     bankgroups = GetInteger("dram_structure", "bankgroups", 2);
+     banks_per_group = GetInteger("dram_structure", "banks_per_group", 2);
+-    bool bankgroup_enable =
++    bankgroup_enable =
+         reader.GetBoolean("dram_structure", "bankgroup_enable", true);
+     // GDDR5/6 can chose to enable/disable bankgroups
+     if (!bankgroup_enable) {  // aggregating all banks to one group
+@@ -135,6 +147,21 @@
+         burst_cycle = (BL == 0) ? 0 : BL / 2;
+         BL = (BL == 0) ? (IsHBM() ? 4 : 8) : BL;
+     }
++
++    // LPDDR5 has frequency ratio between CK (command clock) and WCK (Write Clock) which is not the case in DDRx protocols i.e
++    // The frequency ratio is 1:4 ck:wck in operation mode
++    // So burst cycles calculations should consider the frequency ratio.
++    // BL / (2 bits per clock (DDR) * 4 WCK clocks per CK clock (freq ratio))
++    if (IsLP5()) {
++        
++        // BL value check
++        if (BL != 16 && BL != 32) {
++            std::cerr << "Incompatible LPDDR5 BurstLength, BL should be 16 or 32" << std::endl;
++            AbruptExit(__FILE__, __LINE__);
++        }
++
++        burst_cycle = BL / (2 * 4);
++    }
+     // every protocol has a different definition of "column",
+     // in DDR3/4, each column is exactly device_width bits,
+     // but in GDDR5, a column is device_width * BL bits
+@@ -347,10 +374,14 @@
+ void Config::SetAddressMapping() {
+     // memory addresses are byte addressable, but each request comes with
+     // multiple bytes because of bus width, and burst length
++    // For LPDDR5, the shift bits adjust to the access granularity, and
++    // illimniates the lower bits of the address (Burst + Datapath), Keeping CS/ROW/BA/BG/COL
+     request_size_bytes = bus_width / 8 * BL;
+     shift_bits = LogBase2(request_size_bytes);
+     int col_low_bits = LogBase2(BL);
+-    int actual_col_bits = LogBase2(columns) - col_low_bits;
++
++    // LPDDR5 has columns bits already specifies the actual dram columns
++    int actual_col_bits = (IsLP5()) ? LogBase2(columns) : LogBase2(columns) - col_low_bits;
+ 
+     // has to strictly follow the order of chan, rank, bg, bank, row, col
+     std::map<std::string, int> field_widths;
+diff -ru a/src/configuration.h b/src/configuration.h
+--- a/src/configuration.h	2026-09-24 12:26:54.497653938 -0500
++++ b/src/configuration.h	2026-09-24 12:26:54.503954956 -0500
+@@ -18,6 +18,7 @@
+     LPDDR,
+     LPDDR3,
+     LPDDR4,
++    LPDDR5,
+     HBM,
+     HBM2,
+     HMC,
+@@ -43,6 +44,7 @@
+     int banks;
+     int bankgroups;
+     int banks_per_group;
++    bool bankgroup_enable;
+     int rows;
+     int columns;
+     int device_width;
+@@ -159,6 +161,8 @@
+     // yzy: add another function
+     bool IsDDR4() const { return (protocol == DRAMProtocol::DDR4); }
+ 
++    bool IsLP5() const { return (protocol == DRAMProtocol::LPDDR5); }
++
+     int ideal_memory_latency;
+ 
+ #ifdef THERMAL
+diff -ru a/src/cosimulation.cc b/src/cosimulation.cc
+--- a/src/cosimulation.cc	2026-09-24 12:26:54.508625602 -0500
++++ b/src/cosimulation.cc	2026-09-24 12:26:54.513458931 -0500
+@@ -18,7 +18,7 @@
+     }
+ 
+     const auto protocol = reader->Get("dram_structure", "protocol", "DDR3");
+-    if (protocol == "DDR4" or protocol == "DDR5" or protocol == "DDR3") {
++    if (protocol == "DDR4" or protocol == "DDR5" or protocol == "DDR3" or protocol == "LPDDR5") {
+         long cpu_freq_i = reader->GetInteger("other", "cpu_freq", 0);
+         long dram_freq_i = reader->GetInteger("other", "dram_freq", 0);
+         if (cpu_freq_i == 0 || dram_freq_i == 0) {

@@ -1,0 +1,51 @@
+# SPDX-FileCopyrightText: 2016-2026 Intensivate, Inc.
+# SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0
+#
+# Intensivate's modification to chisel3, extracted for licensing clarity.
+#
+# Base: https://github.com/chipsalliance/chisel.git, commit
+# 9f620e06bacc2882068adfd4972ec2e9a87ea723. Verified exact for every
+# other file in the tree -- this is the ONLY file that differs -- see
+# chisel3/ORIGIN.md.
+#
+# Not applied by patching at build time; already present directly in
+# chisel3/core/src/main/scala/chisel3/Reg.scala. Not reverted from the
+# live tree because nothing in this repo confirms it's safe to do so
+# without a verified rebuild.
+#
+# FLAG FOR ENGINEERING REVIEW, not just a licensing note: this changes
+# the no-init `Reg.apply[T](t: T)` overload to unconditionally build a
+# reset-to-zero register (DefRegInit with init = 0.U.asTypeOf(reg))
+# instead of the base's uninitialized DefReg. The docstring directly
+# above the affected code, in this same file, still reads "Construct a
+# `Reg` from a type template with no initialization value (reset is
+# ignored)" -- which this change makes false. Whether this was an
+# intentional design decision or an unintended side effect of other work
+# is not something this audit can determine; anyone relying on the
+# documented "reset is ignored" behavior for a no-init Reg anywhere in
+# this codebase is silently getting reset-to-zero instead.
+#
+# Generated as: diff -u <base's Reg.scala> <vendored's Reg.scala>
+
+--- /tmp/claude-1000/-home-alexnovickis-open-source-release-staging-intensivate-github-release/0cdc2ac1-2028-4061-a7cc-4acfbefe6f6d/scratchpad/c3-base/core/src/main/scala/chisel3/Reg.scala	2026-09-24 12:28:22.235836256 -0500
++++ /home/alexnovickis/open_source_release_staging_intensivate/github_release/intenscale-core/chisel3/core/src/main/scala/chisel3/Reg.scala	2026-08-26 07:12:10.262945089 -0500
+@@ -39,13 +39,16 @@
+       requireIsChiselType(t, "reg type")
+     }
+     val reg = t.cloneTypeFull
+-    val clock = Node(Builder.forcedClock)
++    val clock = Builder.forcedClock
++    val reset = Builder.forcedReset
++
++    val init = 0.U.asTypeOf(reg)
+ 
+     reg.bind(RegBinding(Builder.forcedUserModule))
+-    pushCommand(DefReg(sourceInfo, reg, clock))
++    requireIsHardware(init, "reg initializer")
++    pushCommand(DefRegInit(sourceInfo, reg, clock.ref, reset.ref, init.ref))
+     reg
+   }
+-
+ }
+ 
+ /** Utility for constructing one-cycle delayed versions of signals
