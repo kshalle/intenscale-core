@@ -4,15 +4,15 @@ High Performance low power small area Enterprise level CPU core
 
 ## What is in this repository today
 
-This repository currently contains the **Intensivate benchmark suite** under [`benchmarks/`](benchmarks/), and nothing else. The CPU core sources are not yet published here.
+This repository contains the **Intensivate benchmark suite** under [`benchmarks/`](benchmarks/) and the **Intensivate CPU core** (a Rocket Chip derivative) under `src/`, `chisel3/`, `firrtl/`, `hardfloat/`, `macros/`, `api-config-chipsalliance/`, `DRAMSIM3/`, and the associated build, simulation and test infrastructure.
 
-Start at [`benchmarks/README.md`](benchmarks/README.md).
+Start at [`benchmarks/README.md`](benchmarks/README.md). The core has not yet received the file-by-file license review `benchmarks/` received; see [`NOTICE.md`](NOTICE.md) for what that means in practice.
 
 ## License
 
-**Everything shipped in this repository today is open source.** Intensivate's own work in `benchmarks/` — the harness, the port glue, the workloads, the build and run scripts, and the documentation — is licensed under the **BSD 2-Clause** license and carries `SPDX-License-Identifier: BSD-2-Clause`. The suite also vendors six third-party programs under their own licenses, **including GPL-licensed source**; see [Third-party components](#third-party-components).
+**This repository is mixed-license.** Intensivate's own work in `benchmarks/` — the harness, the port glue, the workloads, the build and run scripts, and the documentation — is licensed under the **BSD 2-Clause** license and carries `SPDX-License-Identifier: BSD-2-Clause`. The suite also vendors six third-party programs under their own licenses, **including GPL-licensed source**; see [Third-party components](#third-party-components).
 
-No file in this repository is currently under the Intensivate Non-Commercial license, and nothing here requires a commercial license.
+A small number of files — 21 as of this release — carry `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0` and are governed by the Intensivate Non-Commercial license described below, not by an OSI-approved open-source license. See [`NOTICE.md`](NOTICE.md) for exactly which files.
 
 ### Third-party components
 
@@ -31,13 +31,13 @@ The BSMBench citation requirement is an affirmative obligation that reaches data
 
 License texts are in [`benchmarks/LICENSES/`](benchmarks/LICENSES/); the attribution inventory is in [`benchmarks/NOTICE.md`](benchmarks/NOTICE.md), the provenance record in [`benchmarks/PROVENANCE.md`](benchmarks/PROVENANCE.md), and the file-by-file position in [`benchmarks/LICENSE-AUDIT.md`](benchmarks/LICENSE-AUDIT.md).
 
-## Licensing of the CPU core (not yet published)
+## Licensing of the CPU core
 
-The files below describe the terms intended for the core sources when they are published. **They govern no file in this repository today.**
+The files below describe the terms that apply to core files carrying the identifier in this section — 21 files as of this release; see [`NOTICE.md`](NOTICE.md) for exactly which ones. The core as a whole has not yet received the file-by-file license review `benchmarks/` received.
 
 ### Non-commercial source license
 
-Core files will be identified by:
+Core files under this license are identified by:
 
 `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`
 

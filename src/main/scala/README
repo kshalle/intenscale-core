@@ -1,7 +1,4 @@
  Documentation about code of Intensivate Rocket Chip
-+
- [Config API](https://docs.google.com/document/d/1Y09ELmsZzsJlpYQNC0FXLQhRcMWIsJWdAW_-CASGHjk/edit#)
-+
- [learning journey advanced examples page](https://github.com/Intensivate/learning-journey/wiki/Advanced-Examples-of-Using-Chisel)
-+
- [Diplomacy](https://docs.google.com/document/d/1yRpGFmGq6Ole3acSNYxflt4tXaB61uw-mrn9__nDi08/edit#)
+
+ Internal design-doc links have been removed from this public repository
+ pending a review of their sharing settings.

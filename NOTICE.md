@@ -12,8 +12,8 @@ As of this release, this repository contains the **Intensivate benchmark suite**
 
 This matters for reading the rest of this notice, and for reading `LICENSE.md`:
 
-- **No file in this repository carries `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`.** The Intensivate Non-Commercial Hardware Source License is reproduced at `LICENSE.md` and `LICENSES/LicenseRef-Intensivate-NC-1.0.txt` because it is the license intended for the core sources once they carry that identifier. **It governs no file shipped today.**
-- **The core has not yet received the file-by-file license review that `benchmarks/` received.** Its third-party components — under UC Berkeley BSD, SiFive, Apache 2.0, MIT and Mulan PSL v2 (XiangShan / Peng Cheng Laboratory; Axelera AI's DiffTest) — ship with their own upstream license texts intact (`LICENSE`, `LICENSE.Apache2`, `LICENSE.Berkeley`, `LICENSE.jtag`, `LICENSE.MulanPSL2`, `LICENSE.SiFive`, and `LICENSES/`), but the core does not yet have a `LICENSE-AUDIT.md`, per-tree `ORIGIN.md` files, or per-file SPDX headers the way `benchmarks/` does. Treat the core's licensing position as provisional pending that review; see "Core third-party components" below for one item that review still needs to resolve.
+- **A small number of files carry `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`.** The Intensivate Non-Commercial Hardware Source License is reproduced at `LICENSE.md` and `LICENSES/LicenseRef-Intensivate-NC-1.0.txt`. As of this release, 21 files carry that identifier and are governed by it: `set_env.sh`, `mkJunit.py`, three files under `vsim/`, and 16 Intensivate-original files under `src/` (in `subsystem/`, `rocket/`, `chisel3_compat/`, and `resources/`). Every other file in this repository is governed by whatever license its own header, its nearest `LICENSE` file, or (under `benchmarks/`) `REUSE.toml` states.
+- **The core has not yet received the file-by-file license review that `benchmarks/` received.** Its third-party components — under UC Berkeley BSD, SiFive, Apache 2.0, MIT and Mulan PSL v2 (XiangShan / Peng Cheng Laboratory; Axelera AI's DiffTest) — ship with their own upstream license texts intact (`LICENSE`, `LICENSE.Apache2`, `LICENSE.Berkeley`, `LICENSE.jtag`, `LICENSE.MulanPSL2`, `LICENSE.SiFive`, and `LICENSES/`), but the core does not yet have a `LICENSE-AUDIT.md`, per-tree `ORIGIN.md` files, or a complete per-file SPDX pass the way `benchmarks/` does. Treat the core's licensing position as provisional pending that review; see "Core third-party components" below for one item that review still needs to resolve.
 - Intensivate's own work in `benchmarks/` — the harness, the port glue, the workloads, the build and run scripts, and the documentation — is licensed under the **BSD 2-Clause** license, not under the Non-Commercial license. Those files carry `SPDX-License-Identifier: BSD-2-Clause`.
 - `COMMERCIAL-LICENSE.md` and `PATENTS.md` likewise describe terms attaching to the core. No commercial license is required for anything in this repository as it currently stands.
 
@@ -36,7 +36,7 @@ This is a source-available non-commercial license. It is not represented as an O
 
 Commercial use requires a separate written commercial license from Intensivate, Inc., except for the limited evaluation permission expressly stated in `LICENSE.md`.
 
-As stated above, no file in this repository currently carries that identifier.
+As stated above, 21 files currently carry that identifier.
 
 ## Scope of the Intensivate License
 
