@@ -29,6 +29,20 @@ $(generated_dir)/$(long_name).behav_srams.v : $(generated_dir)/$(long_name).conf
 	mv -f $@.tmp $@
 
 # Build and install our own Verilator, to work around versionining issues.
+#
+# Known issue building this pinned 4.028 release against a modern bison
+# (confirmed with bison 3.8.2): compiling src/obj_dbg's and src/obj_opt's
+# V3ParseGrammar.cpp fails with "verilog.c:308:10: fatal error: verilog.h:
+# No such file or directory". verilator-4.028's bundled `bisonpre` script
+# renames bison's generated V3ParseBison.c/.h from bison's own internal
+# "verilog.c"/"verilog.h" naming, but misses one literal
+# `#include "verilog.h"` line that a newer bison emits differently than
+# whatever version bisonpre's renaming regex was written against. The
+# actual generated header (V3ParseBison.h) is present and correct; only
+# that one #include is stale. Workaround: once bison has run (once
+# V3ParseBison.h exists in the relevant obj_dbg/obj_opt directory), add a
+# one-line shim there: `echo '#include "V3ParseBison.h"' > verilog.h`,
+# then re-run make. Needed once per obj_dbg and once per obj_opt.
 VERILATOR_VERSION=4.028
 VERILATOR_SRCDIR ?= verilator/src/verilator-$(VERILATOR_VERSION)
 VERILATOR_TARGET := $(abspath verilator/install/bin/verilator)
