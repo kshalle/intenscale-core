@@ -17,7 +17,11 @@ submodule for now (see §2); the Rocket Chip base itself (`src/`) has no
 recorded version at all beyond `build.sbt`'s `1.2-SNAPSHOT`.
 
 Companion documents: [`CORE-PROVENANCE.md`](CORE-PROVENANCE.md) (the matrix in
-one table), and each component's own `ORIGIN.md`.
+one table), and each vendored (non-submodule) component's own `ORIGIN.md`.
+The three components converted to real git submodules (`firrtl`,
+`api-config-chipsalliance`, `torture`) deliberately don't have one — a real
+submodule's working tree should mirror upstream exactly, so their provenance
+lives here and in `CORE-PROVENANCE.md` instead of a file inside them.
 
 ## 1. Vendored upstream components
 

@@ -33,7 +33,11 @@ License texts are in [`benchmarks/LICENSES/`](benchmarks/LICENSES/); the attribu
 
 ## Licensing of the CPU core
 
-The files below describe the terms that apply to core files carrying the identifier in this section — 21 files as of this release; see [`NOTICE.md`](NOTICE.md) for exactly which ones. The core's third-party components are inventoried in [`CORE-LICENSE-AUDIT.md`](CORE-LICENSE-AUDIT.md) and [`CORE-PROVENANCE.md`](CORE-PROVENANCE.md); that audit is less complete than `benchmarks/`'s (no upstream commit is pinned for most components) and lists several open items still needing a decision from engineering or counsel.
+The files below describe the terms that apply to core files carrying the identifier in this section — 21 files as of this release; see [`NOTICE.md`](NOTICE.md) for exactly which ones. The core's third-party components are inventoried in [`CORE-LICENSE-AUDIT.md`](CORE-LICENSE-AUDIT.md) and [`CORE-PROVENANCE.md`](CORE-PROVENANCE.md); that audit is still less complete than `benchmarks/`'s and lists several open items still needing a decision from engineering or counsel.
+
+Three components with no Intensivate content on top of upstream — `firrtl/`, `api-config-chipsalliance/`, `torture/` — are real git submodules pinned at a verified upstream commit (see `.gitmodules`). Four more — `chisel3/`, `hardfloat/`, `DRAMSIM3/`, and `riscv-tests/` — turned out to carry real local modifications on top of their upstream base, so they stay vendored; for the three where that base commit is known (`chisel3`, `hardfloat`, `DRAMSIM3`), the modification itself is extracted into a standalone `INTENSIVATE-*.patch` file in that directory rather than left undocumented inside a permissively-licensed upstream file. `riscv-tests/` has no confirmed base commit and one file with no known upstream origin at all. Full detail is in `CORE-LICENSE-AUDIT.md` §1–2.
+
+A full RTL generation (`emulator/`'s `make debug`, run after the submodule conversion) compiled and elaborated cleanly across all of this — `firrtl.jar` rebuilding from the `firrtl` submodule, and the vendored `chisel3`/`hardfloat`/`src/` trees compiling with only expected deprecation warnings — confirming none of it broke the build.
 
 ### Non-commercial source license
 
