@@ -10,7 +10,9 @@ Start at [`benchmarks/README.md`](benchmarks/README.md). The core has its own fi
 
 ## Building and running the core
 
-All of the build systems below (`emulator/`, `vsim/`, `regression/`) are driven from the top-level `Makefile`; run `make help` for the full target list. They all require a built RISC-V toolchain first:
+All of the build systems below (`emulator/`, `vsim/`, `regression/`) are driven from the top-level `Makefile`; run `make help` for the full target list. `make preflight` checks that the host tools these depend on (git, a C++11 compiler, Java, Python 3, wget, bison/flex, CMake, the `riscv64-unknown-elf-gcc` cross toolchain, and the zlib/libzstd link libraries) are present and prints their versions; every `build`/`debug`/`verilator`/`run*`/`vsim-*`/`regression` target runs it first automatically, so a missing or mismatched tool is reported up front — with what it's needed for — instead of failing deep inside a sub-make.
+
+They all require a built RISC-V toolchain first:
 
 ```sh
 export RISCV=$PWD/riscv-tools   # or: source set_env.sh

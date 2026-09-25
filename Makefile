@@ -32,7 +32,7 @@ doNothing:
 # error out with a pointer back to README.md if it isn't.
 # =====================================================================
 
-.PHONY: help build debug verilator \
+.PHONY: help preflight build debug verilator \
 	run run-debug run-fast \
 	run-asm-tests run-bmark-tests run-torture-tests \
 	vsim-verilog vsim-debug \
@@ -41,6 +41,7 @@ doNothing:
 
 help:
 	@echo "intenscale-core top-level targets:"
+	@echo "  preflight          check that the required host tools (and versions) are present"
 	@echo "  build              build the fast (non-debug) Verilator emulator"
 	@echo "  debug              build the waveform-tracing debug emulator"
 	@echo "  verilator          build/install the pinned Verilator toolchain only"
@@ -56,40 +57,46 @@ help:
 	@echo
 	@echo "See README.md for the RISCV toolchain setup these all depend on."
 
-build:
+# Runs before anything that actually builds or simulates, so a missing/wrong
+# host tool is reported up front with what it's needed for and a pointer to
+# README.md, instead of surfacing as an opaque failure deep in a sub-make.
+preflight:
+	@scripts/preflight.sh
+
+build: preflight
 	$(MAKE) -C emulator all
 
-debug:
+debug: preflight
 	$(MAKE) -C emulator debug
 
-verilator:
+verilator: preflight
 	$(MAKE) -C emulator verilator
 
-run:
+run: preflight
 	$(MAKE) -C emulator run
 
-run-debug:
+run-debug: preflight
 	$(MAKE) -C emulator run-debug
 
-run-fast:
+run-fast: preflight
 	$(MAKE) -C emulator run-fast
 
-run-asm-tests:
+run-asm-tests: preflight
 	$(MAKE) -C emulator run-asm-tests
 
-run-bmark-tests:
+run-bmark-tests: preflight
 	$(MAKE) -C emulator run-bmark-tests
 
-run-torture-tests:
+run-torture-tests: preflight
 	$(MAKE) -C emulator run-torture-tests
 
-vsim-verilog:
+vsim-verilog: preflight
 	$(MAKE) -C vsim verilog
 
-vsim-debug:
+vsim-debug: preflight
 	$(MAKE) -C vsim debug
 
-regression:
+regression: preflight
 	$(MAKE) -C regression regression
 
 clean:
