@@ -1,0 +1,5 @@
+/workspace/DRAMSIM3/build/CMakeFiles/dramsim3.dir
+/workspace/DRAMSIM3/build/CMakeFiles/dramsim3main.dir
+/workspace/DRAMSIM3/build/CMakeFiles/dramsim3test.dir
+/workspace/DRAMSIM3/build/CMakeFiles/edit_cache.dir
+/workspace/DRAMSIM3/build/CMakeFiles/rebuild_cache.dir
