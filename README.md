@@ -10,42 +10,38 @@ several hardware contexts share each pipeline. The repository contains the RTL
 
 This README is a quick start. The details are in:
 
-- [Environment setup guide](https://docs.google.com/document/d/1OlcykUQS1hj4XRypEw9uOgcc1sebWiWdJ8OAlEy2pTQ/edit?tab=t.0): the Docker environment and prerequisites.
+- [Environment setup guide](https://docs.google.com/document/d/1OlcykUQS1hj4XRypEw9uOgcc1sebWiWdJ8OAlEy2pTQ/edit?tab=t.0): what the bootstrap script sets up, and how.
 - [Simulations, benchmarks and RTL guide](https://docs.google.com/document/d/1bM5lpRt2ft-x2dN5SLFLMmIczX7vbF0up7DO86N6FQ4/edit): building and running simulations, running and adding benchmarks, configurations, debugging, and changing the RTL.
 
 ## Quick start
 
-**1. Set up the environment.** Use the Docker image described in the
-[setup guide](https://docs.google.com/document/d/1OlcykUQS1hj4XRypEw9uOgcc1sebWiWdJ8OAlEy2pTQ/edit?tab=t.0),
-which has all the tools preinstalled. Alternatively, on your own Ubuntu machine, build the RISC-V toolchain from
-[rocket-tools](https://github.com/freechipsproject/rocket-tools) into
-`riscv-tools/` and then:
+**1. Set up the environment.** From the repository root, run:
 
 ```sh
-source set_env.sh        # sets RISCV and PATH
-make preflight           # checks the required host tools and their versions
+./intensivate-intenscale-core-bootstrap.sh
 ```
 
-**2. Build DRAMSim3** (once per checkout):
+The script sets up everything: the Docker image with the RISC-V toolchain,
+Verilator and all required tools, and a container with this repository mounted.
+When it finishes, it prints the command to log in to the container. Run that
+command, and run everything below inside the container. The
+[setup guide](https://docs.google.com/document/d/1OlcykUQS1hj4XRypEw9uOgcc1sebWiWdJ8OAlEy2pTQ/edit?tab=t.0)
+explains what the script does, step by step.
 
-```sh
-cd DRAMSIM3 && mkdir -p build && cd build && cmake -DCOSIM=1 .. && make && cd ../..
-```
-
-**3. Build the simulator and run the tests** (`make help` lists every target):
+**2. Build the simulator and run the tests** (`make help` lists every target):
 
 ```sh
 make build                                   # Verilator emulator, Inten1CoreConfig
-make run                                     # ISA tests + benchmarks
 make -C emulator run-asm-tests               # ISA tests only
-make -C emulator run-bmark-tests             # benchmarks only
-make build CONFIG=freechips.rocketchip.system.Inten1RowConfig   # another config
+make -C emulator run-bmark-tests             # toy benchmarks only
+make run                                     # ISA tests + toy benchmarks
+make build CONFIG=freechips.rocketchip.system.Inten1RowConfig   # CONFIG=<Desired Config>
 ```
 
 Each test writes `emulator/output/<test>.riscv.out`, ending with
 `*** PASSED *** Completed after N cycles`.
 
-**4. Run the larger benchmark suite** (six real-program workloads; every hart
+**3. Run the larger benchmark suite** (six real-program workloads; every hart
 runs its own copy, and each result is checked against a reference):
 
 ```sh
@@ -58,7 +54,7 @@ Each run's verdict, with IPC/CPI and wall-clock time, is written to
 [`riscv-tests/spec95-equivalent/README.md`](riscv-tests/spec95-equivalent/README.md)
 covers workload sizes and runtimes.
 
-**5. Debug with waveforms:**
+**4. Debug with waveforms:**
 
 ```sh
 make debug && make -C emulator output/median.riscv.vcd   # open with gtkwave
@@ -80,7 +76,7 @@ DRAMSim3. It gives the same results, faster, but without realistic memory timing
 src/main/scala/        RTL (Chisel): core, caches, multi-context front end, configs (system/Configs.scala)
 emulator/              Verilator build and test targets; results in emulator/output/
 riscv-tests/           ISA tests, benchmarks, and spec95-equivalent/ (the rate-mode benchmark suite)
-benchmarks/            the same benchmark suite as a standalone build for spike / QEMU
+benchmarks/            the same spec95-equivalent benchmark suite as a standalone build for spike / QEMU
 DRAMSIM3/              DRAM timing model
 chisel3/ firrtl/ hardfloat/ ...   toolchain dependencies (vendored or submodules)
 vsim/ regression/ torture/        VCS flow, rocket-chip regression, cache/AMO stress tests
