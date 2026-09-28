@@ -1,0 +1,24 @@
+[MAIN][0]PId =  0 [world_size: 1]
+[MAIN][0]
+[MAIN][0]input file [/work/riscv-tests/spec95-equivalent/benchmarks/baremetal/bsmbench/workload/bsmbench-tiny.input]
+[MAIN][0]output file [/dev/stdout]
+[MAIN][0]Gauge group: SU(2)
+[MAIN][0]Fermion representation: REPR_ADJOINT [dim=3]
+[MAIN][0]global size is 4x4x4x4
+[MAIN][0]proc grid is 1x1x1x1
+[MAIN][0]Fermion boundary conditions: 1.00,0.00,0.00,0.00
+[MAIN][0]Geometry buffers: 0
+[MAIN][0]local size is 4x4x4x4
+[MAIN][0]extended local size is 4x4x4x4
+[BENCH][0]Precision test completed in 200.00 seconds
+[BENCH][0]Precision test passed: delta = 1.612e-07
+[BENCH][0]spinor_field_sqnorm: disabled.
+[BENCH][0]mad: Test disabled.
+[BENCH][0]Dphi: test completed in 800.00 seconds
+[BENCH][0]Dphi: Average total FLOP/s: 0.000e+00
+[TEMP][0]Dphi: total iterations = 7
+[BENCH][0]Dphi performance is 0.00 times that of a Blue Gene/P node card.
+[BENCH][0]All tests completed successfully.
+[BENCH][0]Total average FLOP/s: 0.000e+00
+[BENCH][0]Total average FLOP/s per process: 0.000e+00
+[BENCH][0]Performance is 0.00 times that of a Blue Gene/P node card.

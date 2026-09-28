@@ -115,3 +115,57 @@ run-fast: run-asm-tests-fast run-bmark-tests-fast
 
 .PHONY: run-torture-tests run-torture-tests-debug
 .PHONY: run-torture-tests-fst run-torture-tests-fast
+
+#--------------------------------------------------------------------
+# spec95-equivalent bare-metal benchmarks (riscv-tests/spec95-equivalent/README.md)
+#--------------------------------------------------------------------
+# Every hart runs one complete copy of each benchmark ("rate" mode), so the
+# binaries are built for this config's hart count. Per test, in
+# output/spec95-equivalent/ (<name> = <test>-<workload>-<harts>):
+#   <name>.log        everything the emulator prints (DRAMSim3's messages,
+#                     PASSED/FAILED, the per-hart R_ counter lines, the trace
+#                     with SPEC95EQ_VERBOSE=1), written as the run goes
+#   <name>.build.log  the build's output
+#   <name>.verdict    first line "RESULT: CORRECT" only if the emulator
+#                     passed, every hart finished its copy and every copy's
+#                     output matches the native reference; a "perf:" line
+#                     with IPC/CPI per copy and the throughput IPC, and a
+#                     "time:" line with the wall-clock time and sim speed
+#   <name>/           the run directory: each copy's output files and
+#                     DRAMSim3's statistics (dramsim3epoch.json)
+#
+#   make run-spec95-equivalent-tests SPEC95EQ_WORKLOAD=extra_tiny
+#   make -j6 run-spec95-equivalent-tests CONFIG=freechips.rocketchip.system.Inten1RowConfig
+spec95eq_dir = $(base_dir)/riscv-tests/spec95-equivalent
+SPEC95EQ_WORKLOAD ?= tiny
+SPEC95EQ_TESTS ?= libcint miniweather perl-perl4 bsmbench xlisp gcc-cc1
+SPEC95EQ_NHARTS_Inten1RowConfig = 1
+SPEC95EQ_NHARTS_Inten1CoreConfig = 16
+SPEC95EQ_NHARTS_Inten2CoreConfig = 32
+SPEC95EQ_NHARTS_Inten4CoreConfig = 64
+SPEC95EQ_NHARTS ?= $(or $(SPEC95EQ_NHARTS_$(lastword $(subst ., ,$(CONFIG)))),16)
+SPEC95EQ_EMU ?= $(emu)
+SPEC95EQ_VERBOSE ?= 0
+spec95eq_timeout_cycles ?= 5000000000
+spec95eq_tag = $(SPEC95EQ_WORKLOAD)-$(SPEC95EQ_NHARTS)
+spec95eq_out = $(abspath $(output_dir))/spec95-equivalent
+
+define spec95eq_template
+$(spec95eq_out)/$(1)-$$(spec95eq_tag).verdict: $$(SPEC95EQ_EMU)
+	@mkdir -p $(spec95eq_out)
+	@echo "spec95-equivalent $(1)-$$(spec95eq_tag): building  (log: $(spec95eq_out)/$(1)-$$(spec95eq_tag).build.log)"
+	@$$(MAKE) -s -C $(spec95eq_dir) $(1) WORKLOAD=$$(SPEC95EQ_WORKLOAD) NHARTS=$$(SPEC95EQ_NHARTS) \
+	  > $(spec95eq_out)/$(1)-$$(spec95eq_tag).build.log 2>&1 \
+	  || { echo "spec95-equivalent $(1)-$$(spec95eq_tag): BUILD FAILED, see $(spec95eq_out)/$(1)-$$(spec95eq_tag).build.log"; exit 1; }
+	@echo "spec95-equivalent $(1)-$$(spec95eq_tag): running   (log: $(spec95eq_out)/$(1)-$$(spec95eq_tag).log)"
+	@LOGFILE=$(spec95eq_out)/$(1)-$$(spec95eq_tag).log VERBOSE=$$(SPEC95EQ_VERBOSE) \
+	  $(spec95eq_dir)/scripts/run.sh $(1) $$(SPEC95EQ_WORKLOAD) $$(SPEC95EQ_NHARTS) \
+	  $$(abspath $$(SPEC95EQ_EMU)) $(spec95eq_out)/$(1)-$$(spec95eq_tag) $$(spec95eq_timeout_cycles); \
+	  rc=$$$$?; cp $(spec95eq_out)/$(1)-$$(spec95eq_tag)/$(1).verdict $$@; exit $$$$rc
+endef
+$(foreach t,$(SPEC95EQ_TESTS),$(eval $(call spec95eq_template,$(t))))
+
+run-spec95-equivalent-tests: $(foreach t,$(SPEC95EQ_TESTS),$(spec95eq_out)/$(t)-$(spec95eq_tag).verdict)
+	@echo "--- spec95-equivalent $(spec95eq_tag):"; for f in $^; do head -n1 $$f; grep -h '^perf:\|^time:' $$f | sed 's/^/    /'; done
+
+.PHONY: run-spec95-equivalent-tests

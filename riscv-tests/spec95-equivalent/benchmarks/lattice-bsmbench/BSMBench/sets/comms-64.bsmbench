@@ -1,0 +1,22 @@
+GLB_T = 64
+GLB_X = 32
+GLB_Y = 32
+GLB_Z = 32
+NP_T = 8
+NP_X = 2
+NP_Y = 2
+NP_Z = 2
+
+seed = 12345
+
+//Benchmark parameters
+bench:nfields = 8
+bench:niters = 30
+bench:bg_flops = 28450000000.0
+bench:bg_dphi_flops = 28100000000.0
+bench:reference_unit = 2
+bench:dphi:nflops = 861500864.5
+bench:sqnorm:nflops = 102763008.0
+bench:mad:nflops = 100663296.0
+bench:mass = -1.05
+bench:test_set = 8

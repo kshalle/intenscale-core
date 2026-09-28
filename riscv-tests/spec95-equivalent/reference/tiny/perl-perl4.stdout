@@ -1,0 +1,9 @@
+primes: limit=400 factored=100 count=78 last=397
+primes: factors=239 twins=21
+primes: 25 numbers have 1 prime factors
+primes: 34 numbers have 2 prime factors
+primes: 22 numbers have 3 prime factors
+primes: 12 numbers have 4 prime factors
+primes: 4 numbers have 5 prime factors
+primes: 2 numbers have 6 prime factors
+primes: done

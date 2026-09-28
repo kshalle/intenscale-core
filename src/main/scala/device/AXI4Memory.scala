@@ -168,11 +168,15 @@ class AXI4MemoryImp[T <: Data](outer: AXI4Memory) extends AXI4SlaveModuleImp(out
   val pending_read_req_bits  = RegEnable(in.ar.bits, in.ar.fire)
   val pending_read_req_ready = Wire(Bool())
   val pending_read_need_req = pending_read_req_valid && !pending_read_req_ready
-  val read_req_valid = pending_read_need_req || in.ar.valid
+  val read_meta_enq_ready = VecInit(readMetaQueues.map(_.enq.ready))(in.ar.bits.id)
+  // A new read goes to the external model only if it can also be accepted on AR, i.e. its
+  // ID's queue has room (in.ar.ready below). Otherwise the stalled AR would be sent to DRAMSim3
+  // on every cycle it waits, each one coming back as an extra R burst for that ID -- more
+  // responses than AXI4UserYanker tracked ("Q must be ready faster than the response").
+  val read_req_valid = pending_read_need_req || (in.ar.valid && read_meta_enq_ready)
   val read_req_bits  = Mux(pending_read_need_req, pending_read_req_bits, in.ar.bits)
   pending_read_req_ready := readRequest(read_req_valid, read_req_bits.addr, read_req_bits.id)
 
-  val read_meta_enq_ready = VecInit(readMetaQueues.map(_.enq.ready))(in.ar.bits.id)
   readMetaQueues.zipWithIndex.foreach { case (q, id) =>
     q.enq.valid      := in.ar.fire && read_req_bits.id === id.U
     q.enq.bits.addr  := ramIndex(read_req_bits.addr)

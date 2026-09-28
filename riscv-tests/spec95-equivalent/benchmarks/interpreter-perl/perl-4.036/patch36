@@ -1,0 +1,1067 @@
+System: perl version 4.0
+Patch #: 36
+Priority: highish for some folks
+Subject: fixed various little coredump bugs
+Subject: substitution didn't always invalidate numericity
+Subject: formats now ignore literal text for ~~ loop determination
+Subject: some patches for the big* libraries
+Subject: getcwd should use lstat, not stat
+Subject: timelocal fixed for years >= 2000
+Subject: the taintanyway code wasn't tainting anyway
+Subject: Malformed cmd links core dump apparently fixed
+Subject: worked around certain busted compilers that don't init statics right
+Subject: delete with parens dumped core
+Subject: length returned wrong value on certain semi-magical variables
+Subject: the non-std stdio input code wasn't null-proof
+Subject: fs.t failed because some machines return extra bits in umask
+Subject: now detects ambiguous use of filetest operators as well as unary
+Subject: fixed ambiguity on - within tr///
+Subject: find2perl sometimes didn't insert enough parens
+
+Description:
+	Since Ed Barton sent me a patch for the malignent form of "Malformed
+	cmd links", I finally broke down and made a patch for the various
+	other little things that have been accumulating on version 4.
+
+Fix:	From rn, say "| patch -p -N -d DIR", where DIR is your perl source
+	directory.  Outside of rn, say "cd DIR; patch -p -N <thisarticle".
+	If you don't have the patch program, apply the following by hand,
+	or get patch (version 2.0, latest patchlevel).
+
+	After patching:
+		Configure -d
+		make depend
+		make
+		make test
+		make install
+
+	If patch indicates that patchlevel is the wrong version, you may need
+	to apply one or more previous patches, or the patch may already
+	have been applied.  See the patchlevel.h file to find out what has or
+	has not been applied.  In any event, don't continue with the patch.
+
+	If you are missing previous patches they can be obtained from me:
+
+	Larry Wall
+	lwall@netlabs.com
+
+	If you send a mail message of the following form it will greatly speed
+	processing:
+
+	Subject: Command
+	@SH mailpatch PATH perl 4.0 LIST
+		   ^ note the c
+
+	where PATH is a return path FROM ME TO YOU either in Internet notation,
+	or in bang notation from some well-known host, and LIST is the number
+	of one or more patches you need, separated by spaces, commas, and/or
+	hyphens.  Saying 35- says everything from 35 to the end.
+
+
+Index: patchlevel.h
+Prereq: 35
+1c1
+< #define PATCHLEVEL 35
+---
+> #define PATCHLEVEL 36
+
+Index: lib/bigfloat.pl
+*** lib/bigfloat.pl.old	Fri Feb  5 11:50:04 1993
+--- lib/bigfloat.pl	Fri Feb  5 11:50:04 1993
+***************
+*** 67,73 ****
+  # negation
+  sub main'fneg { #(fnum_str) return fnum_str
+      local($_) = &'fnorm($_[0]);
+!     vec($_,0,8) =^ ord('+') ^ ord('-') unless $_ eq '+0E+0'; # flip sign
+      s/^H/N/;
+      $_;
+  }
+--- 67,73 ----
+  # negation
+  sub main'fneg { #(fnum_str) return fnum_str
+      local($_) = &'fnorm($_[0]);
+!     vec($_,0,8) ^= ord('+') ^ ord('-') unless $_ eq '+0E+0'; # flip sign
+      s/^H/N/;
+      $_;
+  }
+
+Index: lib/bigint.pl
+*** lib/bigint.pl.old	Fri Feb  5 11:50:06 1993
+--- lib/bigint.pl	Fri Feb  5 11:50:06 1993
+***************
+*** 154,160 ****
+      $car = 0;
+      for $x (@x) {
+  	last unless @y || $car;
+! 	$x -= 1e5 if $car = (($x += shift @y + $car) >= 1e5);
+      }
+      for $y (@y) {
+  	last unless $car;
+--- 154,160 ----
+      $car = 0;
+      for $x (@x) {
+  	last unless @y || $car;
+! 	$x -= 1e5 if $car = (($x += shift(@y) + $car) >= 1e5);
+      }
+      for $y (@y) {
+  	last unless $car;
+***************
+*** 169,175 ****
+      $bar = 0;
+      for $sx (@sx) {
+  	last unless @y || $bar;
+! 	$sx += 1e5 if $bar = (($sx -= shift @sy + $bar) < 0);
+      }
+      @sx;
+  }
+--- 169,175 ----
+      $bar = 0;
+      for $sx (@sx) {
+  	last unless @y || $bar;
+! 	$sx += 1e5 if $bar = (($sx -= shift(@sy) + $bar) < 0);
+      }
+      @sx;
+  }
+
+Index: cons.c
+*** cons.c.old	Fri Feb  5 11:49:52 1993
+--- cons.c	Fri Feb  5 11:49:53 1993
+***************
+*** 1,4 ****
+! /* $RCSfile: cons.c,v $$Revision: 4.0.1.3 $$Date: 1992/06/08 12:18:35 $
+   *
+   *    Copyright (c) 1991, Larry Wall
+   *
+--- 1,4 ----
+! /* $RCSfile: cons.c,v $$Revision: 4.0.1.4 $$Date: 1993/02/05 19:30:15 $
+   *
+   *    Copyright (c) 1991, Larry Wall
+   *
+***************
+*** 6,12 ****
+   *    License or the Artistic License, as specified in the README file.
+   *
+   * $Log: cons.c,v $
+!  * Revision 4.0.1.3  1992/06/08  12:18:35  lwall
+   * patch20: removed implicit int declarations on funcions
+   * patch20: deleted some minor memory leaks
+   * patch20: fixed double debug break in foreach with implicit array assignment
+--- 6,15 ----
+   *    License or the Artistic License, as specified in the README file.
+   *
+   * $Log: cons.c,v $
+!  * Revision 4.0.1.4  1993/02/05  19:30:15  lwall
+!  * patch36: fixed various little coredump bugs
+!  *
+!  * Revision 4.0.1.3  92/06/08  12:18:35  lwall
+   * patch20: removed implicit int declarations on funcions
+   * patch20: deleted some minor memory leaks
+   * patch20: fixed double debug break in foreach with implicit array assignment
+***************
+*** 15,21 ****
+   * patch20: debugger sometimes displayed wrong source line
+   * patch20: various error messages have been clarified
+   * patch20: an eval block containing a null block or statement could dump core
+!  *
+   * Revision 4.0.1.2  91/11/05  16:15:13  lwall
+   * patch11: debugger got confused over nested subroutine definitions
+   * patch11: prepared for ctype implementations that don't define isascii()
+--- 18,24 ----
+   * patch20: debugger sometimes displayed wrong source line
+   * patch20: various error messages have been clarified
+   * patch20: an eval block containing a null block or statement could dump core
+!  * 
+   * Revision 4.0.1.2  91/11/05  16:15:13  lwall
+   * patch11: debugger got confused over nested subroutine definitions
+   * patch11: prepared for ctype implementations that don't define isascii()
+***************
+*** 85,90 ****
+--- 88,94 ----
+  	    Nullarg,mycompblock));
+  	saw_return = FALSE;
+  	cmd->c_flags |= CF_TERM;
++ 	cmd->c_head = cmd;
+      }
+      sub->cmd = cmd;
+      if (perldb) {
+***************
+*** 1353,1359 ****
+  
+  		    /* in any event, save the iterator */
+  
+! 		    (void)apush(tosave,cmd->c_short);
+  		}
+  		shouldsave |= tmpsave;
+  	    }
+--- 1357,1364 ----
+  
+  		    /* in any event, save the iterator */
+  
+! 		    if (cmd->c_short)  /* Better safe than sorry */
+! 			(void)apush(tosave,cmd->c_short);
+  		}
+  		shouldsave |= tmpsave;
+  	    }
+***************
+*** 1420,1426 ****
+  	shouldsave = TRUE;
+  	break;
+      }
+!     if (willsave)
+  	(void)apush(tosave,arg->arg_ptr.arg_str);
+      return shouldsave;
+  }
+--- 1425,1431 ----
+  	shouldsave = TRUE;
+  	break;
+      }
+!     if (willsave && arg->arg_ptr.arg_str)
+  	(void)apush(tosave,arg->arg_ptr.arg_str);
+      return shouldsave;
+  }
+
+Index: hints/dec_osf1.sh
+*** hints/dec_osf1.sh.old	Fri Feb  5 11:49:59 1993
+--- hints/dec_osf1.sh	Fri Feb  5 11:50:00 1993
+***************
+*** 0 ****
+--- 1,11 ----
++ d_crypt='undef'             # The function is there, but it is empty
++ d_odbm='undef'              # We don't need both odbm and ndbm
++ gidtype='gid_t'
++ groupstype='int'
++ libpth="$libpth /usr/shlib" # Use the shared libraries if possible
++ libc='/usr/shlib/libc.so'   # The archive version is /lib/libc.a
++ case `uname -m` in
++     mips|alpha)   optimize="$optimize -O2 -Olimit 2900"
++                   ccflags="$ccflags -std1 -D_BSD" ;;
++     *)            ccflags="$ccflags -D_BSD" ;;
++ esac
+
+Index: doarg.c
+*** doarg.c.old	Fri Feb  5 11:49:55 1993
+--- doarg.c	Fri Feb  5 11:49:56 1993
+***************
+*** 1,4 ****
+! /* $RCSfile: doarg.c,v $$Revision: 4.0.1.7 $$Date: 1992/06/11 21:07:11 $
+   *
+   *    Copyright (c) 1991, Larry Wall
+   *
+--- 1,4 ----
+! /* $RCSfile: doarg.c,v $$Revision: 4.0.1.8 $$Date: 1993/02/05 19:32:27 $
+   *
+   *    Copyright (c) 1991, Larry Wall
+   *
+***************
+*** 6,15 ****
+   *    License or the Artistic License, as specified in the README file.
+   *
+   * $Log: doarg.c,v $
+!  * Revision 4.0.1.7  1992/06/11  21:07:11  lwall
+   * patch34: join with null list attempted negative allocation
+   * patch34: sprintf("%6.4s", "abcdefg") didn't print "abcd  "
+!  *
+   * Revision 4.0.1.6  92/06/08  12:34:30  lwall
+   * patch20: removed implicit int declarations on funcions
+   * patch20: pattern modifiers i and o didn't interact right
+--- 6,18 ----
+   *    License or the Artistic License, as specified in the README file.
+   *
+   * $Log: doarg.c,v $
+!  * Revision 4.0.1.8  1993/02/05  19:32:27  lwall
+!  * patch36: substitution didn't always invalidate numericity
+!  *
+!  * Revision 4.0.1.7  92/06/11  21:07:11  lwall
+   * patch34: join with null list attempted negative allocation
+   * patch34: sprintf("%6.4s", "abcdefg") didn't print "abcd  "
+!  * 
+   * Revision 4.0.1.6  92/06/08  12:34:30  lwall
+   * patch20: removed implicit int declarations on funcions
+   * patch20: pattern modifiers i and o didn't interact right
+***************
+*** 208,213 ****
+--- 211,217 ----
+  			STABSET(str);
+  			str_numset(arg->arg_ptr.arg_str, 1.0);
+  			stack->ary_array[++sp] = arg->arg_ptr.arg_str;
++ 			str->str_nok = 0;
+  			return sp;
+  		    }
+  		    /*SUPPRESS 560*/
+***************
+*** 223,228 ****
+--- 227,233 ----
+  			STABSET(str);
+  			str_numset(arg->arg_ptr.arg_str, 1.0);
+  			stack->ary_array[++sp] = arg->arg_ptr.arg_str;
++ 			str->str_nok = 0;
+  			return sp;
+  		    }
+  		    else if (clen) {
+***************
+*** 232,237 ****
+--- 237,243 ----
+  			STABSET(str);
+  			str_numset(arg->arg_ptr.arg_str, 1.0);
+  			stack->ary_array[++sp] = arg->arg_ptr.arg_str;
++ 			str->str_nok = 0;
+  			return sp;
+  		    }
+  		    else {
+***************
+*** 239,244 ****
+--- 245,251 ----
+  			STABSET(str);
+  			str_numset(arg->arg_ptr.arg_str, 1.0);
+  			stack->ary_array[++sp] = arg->arg_ptr.arg_str;
++ 			str->str_nok = 0;
+  			return sp;
+  		    }
+  		    /* NOTREACHED */
+***************
+*** 268,273 ****
+--- 275,281 ----
+  		STABSET(str);
+  		str_numset(arg->arg_ptr.arg_str, (double)iters);
+  		stack->ary_array[++sp] = arg->arg_ptr.arg_str;
++ 		str->str_nok = 0;
+  		return sp;
+  	    }
+  	    str_numset(arg->arg_ptr.arg_str, 0.0);
+***************
+*** 322,327 ****
+--- 330,336 ----
+  	STABSET(str);
+  	str_numset(arg->arg_ptr.arg_str, (double)iters);
+  	stack->ary_array[++sp] = arg->arg_ptr.arg_str;
++ 	str->str_nok = 0;
+  	return sp;
+      }
+      str_numset(arg->arg_ptr.arg_str, 0.0);
+
+Index: x2p/find2perl.SH
+*** x2p/find2perl.SH.old	Fri Feb  5 11:50:32 1993
+--- x2p/find2perl.SH	Fri Feb  5 11:50:33 1993
+***************
+*** 68,78 ****
+  	die "Malformed -perm argument: $onum\n" unless $onum =~ /^-?[0-7]+$/;
+  	if ($onum =~ s/^-//) {
+  	    $onum = '0' . sprintf("%o", oct($onum) & 017777);	# s/b 07777 ?
+! 	    $out .= &tab . "(\$mode & $onum) == $onum";
+  	}
+  	else {
+  	    $onum = '0' . $onum unless $onum =~ /^0/;
+! 	    $out .= &tab . "(\$mode & 0777) == $onum";
+  	}
+      }
+      elsif ($_ eq 'type') {
+--- 68,78 ----
+  	die "Malformed -perm argument: $onum\n" unless $onum =~ /^-?[0-7]+$/;
+  	if ($onum =~ s/^-//) {
+  	    $onum = '0' . sprintf("%o", oct($onum) & 017777);	# s/b 07777 ?
+! 	    $out .= &tab . "((\$mode & $onum) == $onum)";
+  	}
+  	else {
+  	    $onum = '0' . $onum unless $onum =~ /^0/;
+! 	    $out .= &tab . "((\$mode & 0777) == $onum)";
+  	}
+      }
+      elsif ($_ eq 'type') {
+
+Index: form.c
+*** form.c.old	Fri Feb  5 11:49:57 1993
+--- form.c	Fri Feb  5 11:49:58 1993
+***************
+*** 1,4 ****
+! /* $RCSfile: form.c,v $$Revision: 4.0.1.3 $$Date: 1992/06/08 13:21:42 $
+   *
+   *    Copyright (c) 1991, Larry Wall
+   *
+--- 1,4 ----
+! /* $RCSfile: form.c,v $$Revision: 4.0.1.4 $$Date: 1993/02/05 19:34:32 $
+   *
+   *    Copyright (c) 1991, Larry Wall
+   *
+***************
+*** 6,16 ****
+   *    License or the Artistic License, as specified in the README file.
+   *
+   * $Log: form.c,v $
+!  * Revision 4.0.1.3  1992/06/08  13:21:42  lwall
+   * patch20: removed implicit int declarations on funcions
+   * patch20: form feed for formats is now specifiable via $^L
+   * patch20: Perl now distinguishes overlapped copies from non-overlapped
+!  *
+   * Revision 4.0.1.2  91/11/05  17:18:43  lwall
+   * patch11: formats didn't fill their fields as well as they could
+   * patch11: ^ fields chopped hyphens on line break
+--- 6,19 ----
+   *    License or the Artistic License, as specified in the README file.
+   *
+   * $Log: form.c,v $
+!  * Revision 4.0.1.4  1993/02/05  19:34:32  lwall
+!  * patch36: formats now ignore literal text for ~~ loop determination
+!  *
+!  * Revision 4.0.1.3  92/06/08  13:21:42  lwall
+   * patch20: removed implicit int declarations on funcions
+   * patch20: form feed for formats is now specifiable via $^L
+   * patch20: Perl now distinguishes overlapped copies from non-overlapped
+!  * 
+   * Revision 4.0.1.2  91/11/05  17:18:43  lwall
+   * patch11: formats didn't fill their fields as well as they could
+   * patch11: ^ fields chopped hyphens on line break
+***************
+*** 104,109 ****
+--- 107,113 ----
+      CMD mycmd;
+      STR *str;
+      char *chophere;
++     int blank = TRUE;
+  
+      mycmd.c_type = C_NULL;
+      orec->o_lines = 0;
+***************
+*** 114,123 ****
+  	if (s = fcmd->f_pre) {
+  	    while (*s) {
+  		if (*s == '\n') {
+! 		    while (d > orec->o_str && (d[-1] == ' ' || d[-1] == '\t'))
+! 			d--;
+  		    if (fcmd->f_flags & FC_NOBLANK) {
+! 			if (d == orec->o_str || d[-1] == '\n') {
+  			    orec->o_lines--;	/* don't print blank line */
+  			    linebeg = fcmd->f_next;
+  			    break;
+--- 118,134 ----
+  	if (s = fcmd->f_pre) {
+  	    while (*s) {
+  		if (*s == '\n') {
+! 		    t = orec->o_str;
+! 		    if (blank && (fcmd->f_flags & FC_REPEAT)) {
+! 			while (d > t && (d[-1] != '\n'))
+! 			    d--;
+! 		    }
+! 		    else {
+! 			while (d > t && (d[-1] == ' ' || d[-1] == '\t'))
+! 			    d--;
+! 		    }
+  		    if (fcmd->f_flags & FC_NOBLANK) {
+! 			if (blank || d == orec->o_str || d[-1] == '\n') {
+  			    orec->o_lines--;	/* don't print blank line */
+  			    linebeg = fcmd->f_next;
+  			    break;
+***************
+*** 129,134 ****
+--- 140,146 ----
+  		    }
+  		    else
+  			linebeg = fcmd->f_next;
++ 		    blank = TRUE;
+  		}
+  		*d++ = *s++;
+  	    }
+***************
+*** 149,154 ****
+--- 161,168 ----
+  	    while (size && *s && *s != '\n') {
+  		if (*s == '\t')
+  		    *s = ' ';
++ 		else if (*s != ' ')
++ 		    blank = FALSE;
+  		size--;
+  		if (*s && index(chopset,(*d++ = *s++)))
+  		    chophere = s;
+***************
+*** 201,206 ****
+--- 215,222 ----
+  	    while (size && *s && *s != '\n') {
+  		if (*s == '\t')
+  		    *s = ' ';
++ 		else if (*s != ' ')
++ 		    blank = FALSE;
+  		size--;
+  		if (*s && index(chopset,*s++))
+  		    chophere = s;
+***************
+*** 245,250 ****
+--- 261,268 ----
+  	    while (size && *s && *s != '\n') {
+  		if (*s == '\t')
+  		    *s = ' ';
++ 		else if (*s != ' ')
++ 		    blank = FALSE;
+  		size--;
+  		if (*s && index(chopset,*s++))
+  		    chophere = s;
+***************
+*** 318,323 ****
+--- 336,342 ----
+  		}
+  		break;
+  	    }
++ 	    blank = FALSE;
+  	    value = str_gnum(str);
+  	    if (fcmd->f_flags & FC_DP) {
+  		sprintf(d, "%#*.*f", size, fcmd->f_decimals, value);
+
+Index: t/io/fs.t
+Prereq: 4.0
+*** t/io/fs.t.old	Fri Feb  5 11:50:26 1993
+--- t/io/fs.t	Fri Feb  5 11:50:27 1993
+***************
+*** 1,6 ****
+  #!./perl
+  
+! # $Header: fs.t,v 4.0 1991/03/20 01:50:55 lwall Locked $
+  
+  print "1..22\n";
+  
+--- 1,6 ----
+  #!./perl
+  
+! # $RCSfile: fs.t,v $$Revision: 4.0.1.1 $$Date: 1993/02/05 19:44:34 $
+  
+  print "1..22\n";
+  
+***************
+*** 13,19 ****
+  
+  umask(022);
+  
+! if (umask(0) == 022) {print "ok 1\n";} else {print "not ok 1\n";}
+  open(fh,'>x') || die "Can't create x";
+  close(fh);
+  open(fh,'>a') || die "Can't create a";
+--- 13,19 ----
+  
+  umask(022);
+  
+! if ((umask(0)&0777) == 022) {print "ok 1\n";} else {print "not ok 1\n";}
+  open(fh,'>x') || die "Can't create x";
+  close(fh);
+  open(fh,'>a') || die "Can't create a";
+
+Index: lib/getcwd.pl
+*** lib/getcwd.pl.old	Fri Feb  5 11:50:08 1993
+--- lib/getcwd.pl	Fri Feb  5 11:50:08 1993
+***************
+*** 42,50 ****
+  		    closedir(getcwd'PARENT);				#');
+  		    return '';
+  		}
+! 		unless (@tst = stat("$dotdots/$dir"))
+  		{
+! 		    warn "stat($dotdots/$dir): $!";
+  		    closedir(getcwd'PARENT);				#');
+  		    return '';
+  		}
+--- 42,50 ----
+  		    closedir(getcwd'PARENT);				#');
+  		    return '';
+  		}
+! 		unless (@tst = lstat("$dotdots/$dir"))
+  		{
+! 		    warn "lstat($dotdots/$dir): $!";
+  		    closedir(getcwd'PARENT);				#');
+  		    return '';
+  		}
+
+Index: perl.c
+*** perl.c.old	Fri Feb  5 11:50:12 1993
+--- perl.c	Fri Feb  5 11:50:12 1993
+***************
+*** 1,4 ****
+! char rcsid[] = "$RCSfile: perl.c,v $$Revision: 4.0.1.7 $$Date: 1992/06/08 14:50:39 $\nPatch level: ###\n";
+  /*
+   *    Copyright (c) 1991, Larry Wall
+   *
+--- 1,4 ----
+! char rcsid[] = "$RCSfile: perl.c,v $$Revision: 4.0.1.8 $$Date: 1993/02/05 19:39:30 $\nPatch level: ###\n";
+  /*
+   *    Copyright (c) 1991, Larry Wall
+   *
+***************
+*** 6,12 ****
+   *    License or the Artistic License, as specified in the README file.
+   *
+   * $Log: perl.c,v $
+!  * Revision 4.0.1.7  1992/06/08  14:50:39  lwall
+   * patch20: PERLLIB now supports multiple directories
+   * patch20: running taintperl explicitly now does checks even if $< == $>
+   * patch20: -e 'cmd' no longer fails silently if /tmp runs out of space
+--- 6,16 ----
+   *    License or the Artistic License, as specified in the README file.
+   *
+   * $Log: perl.c,v $
+!  * Revision 4.0.1.8  1993/02/05  19:39:30  lwall
+!  * patch36: the taintanyway code wasn't tainting anyway
+!  * patch36: Malformed cmd links core dump apparently fixed
+!  *
+!  * Revision 4.0.1.7  92/06/08  14:50:39  lwall
+   * patch20: PERLLIB now supports multiple directories
+   * patch20: running taintperl explicitly now does checks even if $< == $>
+   * patch20: -e 'cmd' no longer fails silently if /tmp runs out of space
+***************
+*** 16,22 ****
+   * patch20: eval "1 #comment" didn't work
+   * patch20: couldn't require . files
+   * patch20: semantic compilation errors didn't abort execution
+!  *
+   * Revision 4.0.1.6  91/11/11  16:38:45  lwall
+   * patch19: default arg for shift was wrong after first subroutine definition
+   * patch19: op/regexp.t failed from missing arg to bcmp()
+--- 20,26 ----
+   * patch20: eval "1 #comment" didn't work
+   * patch20: couldn't require . files
+   * patch20: semantic compilation errors didn't abort execution
+!  * 
+   * Revision 4.0.1.6  91/11/11  16:38:45  lwall
+   * patch19: default arg for shift was wrong after first subroutine definition
+   * patch19: op/regexp.t failed from missing arg to bcmp()
+***************
+*** 128,134 ****
+  #ifdef TAINT
+  #ifndef DOSUID
+      if (uid == euid && gid == egid)
+! 	taintanyway == TRUE;		/* running taintperl explicitly */
+  #endif
+  #endif
+      (void)sprintf(index(rcsid,'#'), "%d\n", PATCHLEVEL);
+--- 132,138 ----
+  #ifdef TAINT
+  #ifndef DOSUID
+      if (uid == euid && gid == egid)
+! 	taintanyway = TRUE;		/* running taintperl explicitly */
+  #endif
+  #endif
+      (void)sprintf(index(rcsid,'#'), "%d\n", PATCHLEVEL);
+***************
+*** 1168,1173 ****
+--- 1172,1179 ----
+  	    eval_root = myroot;
+  	else if (in_eval != 1 && myroot != last_root)
+  	    cmd_free(myroot);
++ 	    if (eval_root == myroot)
++ 		eval_root = Nullcmd;
+      }
+  
+      perldb = oldperldb;
+
+Index: perl.h
+*** perl.h.old	Fri Feb  5 11:50:14 1993
+--- perl.h	Fri Feb  5 11:50:15 1993
+***************
+*** 1,4 ****
+! /* $RCSfile: perl.h,v $$Revision: 4.0.1.6 $$Date: 1992/06/08 14:55:10 $
+   *
+   *    Copyright (c) 1991, Larry Wall
+   *
+--- 1,4 ----
+! /* $RCSfile: perl.h,v $$Revision: 4.0.1.7 $$Date: 1993/02/05 19:40:30 $
+   *
+   *    Copyright (c) 1991, Larry Wall
+   *
+***************
+*** 6,17 ****
+   *    License or the Artistic License, as specified in the README file.
+   *
+   * $Log: perl.h,v $
+!  * Revision 4.0.1.6  1992/06/08  14:55:10  lwall
+   * patch20: added Atari ST portability
+   * patch20: bcopy() and memcpy() now tested for overlap safety
+   * patch20: Perl now distinguishes overlapped copies from non-overlapped
+   * patch20: removed implicit int declarations on functions
+!  *
+   * Revision 4.0.1.5  91/11/11  16:41:07  lwall
+   * patch19: uts wrongly defines S_ISDIR() et al
+   * patch19: too many preprocessors can't expand a macro right in #if
+--- 6,20 ----
+   *    License or the Artistic License, as specified in the README file.
+   *
+   * $Log: perl.h,v $
+!  * Revision 4.0.1.7  1993/02/05  19:40:30  lwall
+!  * patch36: worked around certain busted compilers that don't init statics right
+!  *
+!  * Revision 4.0.1.6  92/06/08  14:55:10  lwall
+   * patch20: added Atari ST portability
+   * patch20: bcopy() and memcpy() now tested for overlap safety
+   * patch20: Perl now distinguishes overlapped copies from non-overlapped
+   * patch20: removed implicit int declarations on functions
+!  * 
+   * Revision 4.0.1.5  91/11/11  16:41:07  lwall
+   * patch19: uts wrongly defines S_ISDIR() et al
+   * patch19: too many preprocessors can't expand a macro right in #if
+***************
+*** 868,874 ****
+  
+  EXT char *hexdigit INIT("0123456789abcdef0123456789ABCDEFx");
+  EXT char *origfilename;
+! EXT FILE * VOLATILE rsfp;
+  EXT char buf[1024];
+  EXT char *bufptr;
+  EXT char *oldbufptr;
+--- 871,877 ----
+  
+  EXT char *hexdigit INIT("0123456789abcdef0123456789ABCDEFx");
+  EXT char *origfilename;
+! EXT FILE * VOLATILE rsfp INIT(Nullfp);
+  EXT char buf[1024];
+  EXT char *bufptr;
+  EXT char *oldbufptr;
+***************
+*** 952,958 ****
+  EXT struct stat statbuf;
+  EXT struct stat statcache;
+  EXT STAB *statstab INIT(Nullstab);
+! EXT STR *statname;
+  #ifndef MSDOS
+  EXT struct tms timesbuf;
+  #endif
+--- 955,961 ----
+  EXT struct stat statbuf;
+  EXT struct stat statcache;
+  EXT STAB *statstab INIT(Nullstab);
+! EXT STR *statname INIT(Nullstr);
+  #ifndef MSDOS
+  EXT struct tms timesbuf;
+  #endif
+
+Index: perly.y
+*** perly.y.old	Fri Feb  5 11:50:17 1993
+--- perly.y	Fri Feb  5 11:50:17 1993
+***************
+*** 1,4 ****
+! /* $RCSfile: perly.y,v $$Revision: 4.0.1.5 $$Date: 1992/06/11 21:12:50 $
+   *
+   *    Copyright (c) 1991, Larry Wall
+   *
+--- 1,4 ----
+! /* $RCSfile: perly.y,v $$Revision: 4.0.1.6 $$Date: 1993/02/05 19:41:15 $
+   *
+   *    Copyright (c) 1991, Larry Wall
+   *
+***************
+*** 6,14 ****
+   *    License or the Artistic License, as specified in the README file.
+   *
+   * $Log: perly.y,v $
+!  * Revision 4.0.1.5  1992/06/11  21:12:50  lwall
+!  * patch34: expectterm incorrectly set to indicate start of program or block
+   *
+   * Revision 4.0.1.4  92/06/08  17:33:25  lwall
+   * patch20: one of the backdoors to expectterm was on the wrong reduction
+   * 
+--- 6,17 ----
+   *    License or the Artistic License, as specified in the README file.
+   *
+   * $Log: perly.y,v $
+!  * Revision 4.0.1.6  1993/02/05  19:41:15  lwall
+!  * patch36: delete with parens dumped core
+   *
++  * Revision 4.0.1.5  92/06/11  21:12:50  lwall
++  * patch34: expectterm incorrectly set to indicate start of program or block
++  * 
+   * Revision 4.0.1.4  92/06/08  17:33:25  lwall
+   * patch20: one of the backdoors to expectterm was on the wrong reduction
+   * 
+***************
+*** 544,550 ****
+  	|	DELETE '(' REG '{' expr ';' '}' ')'	%prec '('
+  			{ $$ = make_op(O_DELETE, 2,
+  				stab2arg(A_STAB,hadd($3)),
+! 				jmaybe($4),
+  				Nullarg);
+  			    expectterm = FALSE; }
+  	|	ARYLEN	%prec '('
+--- 547,553 ----
+  	|	DELETE '(' REG '{' expr ';' '}' ')'	%prec '('
+  			{ $$ = make_op(O_DELETE, 2,
+  				stab2arg(A_STAB,hadd($3)),
+! 				jmaybe($5),
+  				Nullarg);
+  			    expectterm = FALSE; }
+  	|	ARYLEN	%prec '('
+
+Index: hints/solaris_2_1.sh
+*** hints/solaris_2_1.sh.old	Fri Feb  5 11:50:02 1993
+--- hints/solaris_2_1.sh	Fri Feb  5 11:50:02 1993
+***************
+*** 0 ****
+--- 1,4 ----
++ d_vfork='undef'
++ d_wait4='undef'
++ i_dirent='undef'
++ i_sys_dir='define'
+
+Index: stab.c
+*** stab.c.old	Fri Feb  5 11:50:19 1993
+--- stab.c	Fri Feb  5 11:50:20 1993
+***************
+*** 1,4 ****
+! /* $RCSfile: stab.c,v $$Revision: 4.0.1.4 $$Date: 1992/06/08 15:32:19 $
+   *
+   *    Copyright (c) 1991, Larry Wall
+   *
+--- 1,4 ----
+! /* $RCSfile: stab.c,v $$Revision: 4.0.1.5 $$Date: 1993/02/05 19:42:47 $
+   *
+   *    Copyright (c) 1991, Larry Wall
+   *
+***************
+*** 6,18 ****
+   *    License or the Artistic License, as specified in the README file.
+   *
+   * $Log: stab.c,v $
+!  * Revision 4.0.1.4  1992/06/08  15:32:19  lwall
+   * patch20: fixed confusion between a *var's real name and its effective name
+   * patch20: the debugger now warns you on lines that can't set a breakpoint
+   * patch20: the debugger made perl forget the last pattern used by //
+   * patch20: paragraph mode now skips extra newlines automatically
+   * patch20: ($<,$>) = ... didn't work on some architectures
+!  *
+   * Revision 4.0.1.3  91/11/05  18:35:33  lwall
+   * patch11: length($x) was sometimes wrong for numeric $x
+   * patch11: perl now issues warning if $SIG{'ALARM'} is referenced
+--- 6,21 ----
+   *    License or the Artistic License, as specified in the README file.
+   *
+   * $Log: stab.c,v $
+!  * Revision 4.0.1.5  1993/02/05  19:42:47  lwall
+!  * patch36: length returned wrong value on certain semi-magical variables
+!  *
+!  * Revision 4.0.1.4  92/06/08  15:32:19  lwall
+   * patch20: fixed confusion between a *var's real name and its effective name
+   * patch20: the debugger now warns you on lines that can't set a breakpoint
+   * patch20: the debugger made perl forget the last pattern used by //
+   * patch20: paragraph mode now skips extra newlines automatically
+   * patch20: ($<,$>) = ... didn't work on some architectures
+!  * 
+   * Revision 4.0.1.3  91/11/05  18:35:33  lwall
+   * patch11: length($x) was sometimes wrong for numeric $x
+   * patch11: perl now issues warning if $SIG{'ALARM'} is referenced
+***************
+*** 318,326 ****
+  	return (STRLEN)ofslen;
+      case '\\':
+  	return (STRLEN)orslen;
+-     default:
+- 	return str_len(stab_str(str));
+      }
+  }
+  
+  void
+--- 321,328 ----
+  	return (STRLEN)ofslen;
+      case '\\':
+  	return (STRLEN)orslen;
+      }
++     return str_len(stab_str(str));
+  }
+  
+  void
+
+Index: str.c
+*** str.c.old	Fri Feb  5 11:50:22 1993
+--- str.c	Fri Feb  5 11:50:23 1993
+***************
+*** 1,4 ****
+! /* $RCSfile: str.c,v $$Revision: 4.0.1.6 $$Date: 1992/06/11 21:14:21 $
+   *
+   *    Copyright (c) 1991, Larry Wall
+   *
+--- 1,4 ----
+! /* $RCSfile: str.c,v $$Revision: 4.0.1.7 $$Date: 1993/02/05 19:43:47 $
+   *
+   *    Copyright (c) 1991, Larry Wall
+   *
+***************
+*** 6,14 ****
+   *    License or the Artistic License, as specified in the README file.
+   *
+   * $Log: str.c,v $
+!  * Revision 4.0.1.6  1992/06/11  21:14:21  lwall
+!  * patch34: quotes containing subscripts containing variables didn't parse right
+   *
+   * Revision 4.0.1.5  92/06/08  15:40:43  lwall
+   * patch20: removed implicit int declarations on functions
+   * patch20: Perl now distinguishes overlapped copies from non-overlapped
+--- 6,17 ----
+   *    License or the Artistic License, as specified in the README file.
+   *
+   * $Log: str.c,v $
+!  * Revision 4.0.1.7  1993/02/05  19:43:47  lwall
+!  * patch36: the non-std stdio input code wasn't null-proof
+   *
++  * Revision 4.0.1.6  92/06/11  21:14:21  lwall
++  * patch34: quotes containing subscripts containing variables didn't parse right
++  * 
+   * Revision 4.0.1.5  92/06/08  15:40:43  lwall
+   * patch20: removed implicit int declarations on functions
+   * patch20: Perl now distinguishes overlapped copies from non-overlapped
+***************
+*** 863,873 ****
+  	bp = buf;
+  	while ((i = getc(fp)) != EOF && (*bp++ = i) != newline && bp < bpe) ;
+  
+- 	*bp = '\0';
+  	if (append)
+! 	    str_cat(str, buf);
+  	else
+! 	    str_set(str, buf);
+  	if (i != EOF			/* joy */
+  	    &&
+  	    (i != newline
+--- 866,875 ----
+  	bp = buf;
+  	while ((i = getc(fp)) != EOF && (*bp++ = i) != newline && bp < bpe) ;
+  
+  	if (append)
+! 	    str_ncat(str, buf, bp - buf);
+  	else
+! 	    str_nset(str, buf, bp - buf);
+  	if (i != EOF			/* joy */
+  	    &&
+  	    (i != newline
+
+Index: lib/timelocal.pl
+*** lib/timelocal.pl.old	Fri Feb  5 11:50:09 1993
+--- lib/timelocal.pl	Fri Feb  5 11:50:10 1993
+***************
+*** 36,41 ****
+--- 36,42 ----
+      $MIN = 60 * $SEC;
+      $HR = 60 * $MIN;
+      $DAYS = 24 * $HR;
++     $YearFix = ((gmtime(946684800))[5] == 100) ? 100 : 0;
+  }
+  
+  sub timegm {
+***************
+*** 65,70 ****
+--- 66,72 ----
+      die "Month out of range 0..11 in ctime.pl\n" if $month > 11;
+      $guess = $^T;
+      @g = gmtime($guess);
++     $year += $YearFix if $year < $epoch[5];
+      while ($diff = $year - $g[5]) {
+  	$guess += $diff * (363 * $DAYS);
+  	@g = gmtime($guess);
+
+Index: toke.c
+*** toke.c.old	Fri Feb  5 11:50:29 1993
+--- toke.c	Fri Feb  5 11:50:30 1993
+***************
+*** 1,4 ****
+! /* $RCSfile: toke.c,v $$Revision: 4.0.1.8 $$Date: 1992/06/23 12:33:45 $
+   *
+   *    Copyright (c) 1991, Larry Wall
+   *
+--- 1,4 ----
+! /* $RCSfile: toke.c,v $$Revision: 4.0.1.9 $$Date: 1993/02/05 19:48:43 $
+   *
+   *    Copyright (c) 1991, Larry Wall
+   *
+***************
+*** 6,14 ****
+   *    License or the Artistic License, as specified in the README file.
+   *
+   * $Log: toke.c,v $
+!  * Revision 4.0.1.8  1992/06/23  12:33:45  lwall
+!  * patch35: bad interaction between backslash and hyphen in tr///
+   *
+   * Revision 4.0.1.7  92/06/11  21:16:30  lwall
+   * patch34: expectterm incorrectly set to indicate start of program or block
+   * 
+--- 6,18 ----
+   *    License or the Artistic License, as specified in the README file.
+   *
+   * $Log: toke.c,v $
+!  * Revision 4.0.1.9  1993/02/05  19:48:43  lwall
+!  * patch36: now detects ambiguous use of filetest operators as well as unary
+!  * patch36: fixed ambiguity on - within tr///
+   *
++  * Revision 4.0.1.8  92/06/23  12:33:45  lwall
++  * patch35: bad interaction between backslash and hyphen in tr///
++  * 
+   * Revision 4.0.1.7  92/06/11  21:16:30  lwall
+   * patch34: expectterm incorrectly set to indicate start of program or block
+   * 
+***************
+*** 162,168 ****
+  	return;
+      while (isSPACE(*last_uni))
+  	last_uni++;
+!     for (s = last_uni; isALNUM(*s); s++) ;
+      ch = *s;
+      *s = '\0';
+      warn("Warning: Use of \"%s\" without parens is ambiguous", last_uni);
+--- 166,172 ----
+  	return;
+      while (isSPACE(*last_uni))
+  	last_uni++;
+!     for (s = last_uni; isALNUM(*s) || *s == '-'; s++) ;
+      ch = *s;
+      *s = '\0';
+      warn("Warning: Use of \"%s\" without parens is ambiguous", last_uni);
+***************
+*** 442,447 ****
+--- 446,452 ----
+      case '-':
+  	if (s[1] && isALPHA(s[1]) && !isALPHA(s[2])) {
+  	    s++;
++ 	    last_uni = oldbufptr;
+  	    switch (*s++) {
+  	    case 'r': FTST(O_FTEREAD);
+  	    case 'w': FTST(O_FTEWRITE);
+***************
+*** 2300,2305 ****
+--- 2305,2311 ----
+  	    STR *tmpstr;
+  	    STR *tmpstr2 = Nullstr;
+  	    char *tmps;
++ 	    char *start;
+  	    bool dorange = FALSE;
+  
+  	    CLINE;
+***************
+*** 2397,2403 ****
+  		}
+  		s++;
+  	    }
+! 	    s = d = tmpstr->str_ptr;	/* assuming shrinkage only */
+  	    while (s < send || dorange) {
+  		if (in_what & SCAN_TR) {
+  		    if (dorange) {
+--- 2403,2409 ----
+  		}
+  		s++;
+  	    }
+! 	    s = d = start = tmpstr->str_ptr;	/* assuming shrinkage only */
+  	    while (s < send || dorange) {
+  		if (in_what & SCAN_TR) {
+  		    if (dorange) {
+***************
+*** 2415,2424 ****
+  			max = d[1] & 0377;
+  			for (i = (*d & 0377); i <= max; i++)
+  			    *d++ = i;
+  			dorange = FALSE;
+  			continue;
+  		    }
+! 		    else if (*s == '-' && s+1 < send  && d != tmpstr->str_ptr) {
+  			dorange = TRUE;
+  			s++;
+  		    }
+--- 2421,2431 ----
+  			max = d[1] & 0377;
+  			for (i = (*d & 0377); i <= max; i++)
+  			    *d++ = i;
++ 			start = s;
+  			dorange = FALSE;
+  			continue;
+  		    }
+! 		    else if (*s == '-' && s+1 < send  && s != start) {
+  			dorange = TRUE;
+  			s++;
+  		    }

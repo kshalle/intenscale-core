@@ -512,6 +512,15 @@ int sprintf(char* str, const char* fmt, ...)
   return str - str0;
 }
 
+// memcpy/memset must never be compiled into calls to themselves. GCC >= 10
+// enables -ftree-loop-distribute-patterns at -O2, which recognizes a plain
+// byte-copy/byte-fill loop as a memcpy/memset idiom and replaces it with a
+// call to that libc function -- here, the very function being defined. The
+// result recurses until the stack runs into .text/.data, after which
+// trap_entry itself faults and the hart spins in trap_entry forever.
+#define NO_LIBCALL_IDIOMS __attribute__((optimize("no-tree-loop-distribute-patterns")))
+
+NO_LIBCALL_IDIOMS
 void* memcpy(void* dest, const void* src, size_t len)
 {
   if ((((uintptr_t)dest | (uintptr_t)src | len) & (sizeof(uintptr_t)-1)) == 0) {
@@ -528,9 +537,7 @@ void* memcpy(void* dest, const void* src, size_t len)
   return dest;
 }
 
-// gcc 9.4.0 (ubuntu focal), when passed -O3, copmiles this into
-// something that appears to consume stack space proportional to the
-// size of the mem range being set
+NO_LIBCALL_IDIOMS
 void* memset(void* dest, int byte, size_t len)
 {
   if ((((uintptr_t)dest | len) & (sizeof(uintptr_t)-1)) == 0) {

@@ -1,0 +1,24 @@
+; loading "init.lsp"
+XLISP-PLUS 3.05 contains contributed code by:
+Tom Almy, Mikael Pettersson, Neal Holtz, Johnny Greenblatt, Ken Whedbee,
+Blake McBride, Pete Yadlowsky, Hume Smith, and Richard Zidlicky.
+Portions copyright (c) 1988, Luke Tierney.
+
+Initialization file (init.lsp) loaded.
+(10 6 2)
+4
+60
+1
+tak
+deriv
+deriv-div
+(+ (* 3 x x) (* a x x) (* b x) 5 (/ (* 2 x) (+ x 1)) (* (+ x 1) (- x 2) (+ x 3)))
+iota
+insert
+isort
+churn
+xlisp-bench: tak (10 6 2) = 3
+xlisp-bench: deriv terms = 7
+xlisp-bench: isort head = 0 len = 60
+xlisp-bench: churn = 60
+xlisp-bench: done

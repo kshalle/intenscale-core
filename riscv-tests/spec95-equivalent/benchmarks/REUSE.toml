@@ -1,0 +1,57 @@
+version = 1
+SPDX-PackageName = "intensivate-benchmarks"
+SPDX-PackageDownloadLocation = ""
+
+# Files that cannot carry a comment header, and the vendored upstream trees,
+# are declared here instead of by sprinkling .license sidecars or -- worse --
+# editing upstream files.  Source files we wrote carry SPDX headers directly;
+# see LICENSE-AUDIT.md for the file-by-file position.
+
+# ---------------------------------------------------------------- our own work
+[[annotations]]
+path = ["**.md", "baremetal/selftest/input.txt", "baremetal/bsmbench/workload/*.input", "baremetal/.gitignore", "REUSE.toml"]
+SPDX-FileCopyrightText = "2026 Intensivate, Inc."
+SPDX-License-Identifier = "BSD-2-Clause"
+
+# Generated workload data: produced by our generators, same terms.
+[[annotations]]
+path = ["baremetal/perl-perl4/workload/words-*.txt", "baremetal/gcc-cc1/workload/input-*.i"]
+SPDX-FileCopyrightText = "2026 Intensivate, Inc."
+SPDX-License-Identifier = "BSD-2-Clause"
+
+# ------------------------------------------------------------- vendored upstream
+# Upstream releases, vendored without altering a single file.  Three trees had
+# unused bulk files *removed* to keep the release small (libcint's Rys-root
+# tables; miniWeather's and XLISP-PLUS's documentation binaries) -- each is
+# recorded with checksums in that tree's ORIGIN.md.  No file was edited.  Their
+# own licence files travel with them; these entries let a REUSE run pass
+# without touching a single upstream byte.
+[[annotations]]
+path = "compiler-gcc/gcc-2.5.8/**"
+SPDX-FileCopyrightText = "1987-1994 Free Software Foundation, Inc."
+SPDX-License-Identifier = "GPL-2.0-only"
+
+[[annotations]]
+path = "interpreter-perl/perl-4.036/**"
+SPDX-FileCopyrightText = "1989-1994 Larry Wall"
+SPDX-License-Identifier = "GPL-1.0-or-later OR Artistic-1.0"
+
+[[annotations]]
+path = "interpreter-xlisp/xlisp-plus/**"
+SPDX-FileCopyrightText = "1983-1988 David Michael Betz and XLISP-PLUS contributors"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = "lattice-bsmbench/BSMBench/**"
+SPDX-FileCopyrightText = "2008-2014 Claudio Pica, Agostino Patella, Antonio Rago, Luigi Del Debbio, Biagio Lucini, Edward Bennett"
+SPDX-License-Identifier = "LicenseRef-BSMBench-BSD-3-Clause-plus-citation"
+
+[[annotations]]
+path = "qchem-libcint/libcint/**"
+SPDX-FileCopyrightText = "2013- Qiming Sun"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = "weather-miniweather/miniWeather/**"
+SPDX-FileCopyrightText = "2018 National Center for Computational Sciences, Oak Ridge National Laboratory; 2021 NVIDIA Corporation"
+SPDX-License-Identifier = "BSD-2-Clause"

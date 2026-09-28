@@ -2,6 +2,16 @@
 
 #include "encoding.h"
 
+# Per-hart stack+TLS size. Default matches the original hardcoded value
+# (riscv-tests' own benchmarks are proven to work fine with it); heavier
+# workloads (interpreters, deep recursion, large per-call locals -- see the
+# spec95-equivalent ports) can overflow it, corrupting whatever memory follows the
+# stack region, including other harts' TLS/stacks or nearby heap state.
+# Override via -DHART_STACK_SIZE=<bytes> at compile time.
+#ifndef HART_STACK_SIZE
+#define HART_STACK_SIZE 0x1fe40
+#endif
+
 #if __riscv_xlen == 64
 # define LREG ld
 # define SREG sd
@@ -135,9 +145,9 @@ _start:
 ##  li a1, 1
 ##1:bgeu a0, a1, 1b
 
-  # give each core 64KB of stack + TLS
+  # give each core HART_STACK_SIZE of stack + TLS
   # TODO: As a hack, we shift the stack of each ROW by 448 to make the stacks not aligned.
-  li a2, 0x1fe40
+  li a2, HART_STACK_SIZE
   mul a1, a2, a0
   add tp, tp, a1
   add sp, tp, a2

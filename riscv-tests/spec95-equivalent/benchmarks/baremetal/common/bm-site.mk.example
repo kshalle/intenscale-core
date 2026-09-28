@@ -1,0 +1,31 @@
+# SPDX-FileCopyrightText: 2026 Intensivate, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
+
+# Machine-local paths for the benchmark builds.  Copy to bm-site.mk and edit.
+# Every setting is optional: leave one out and the corresponding tool is taken
+# from PATH.  bm.mk pulls this file in with -include, so a missing bm-site.mk
+# is not an error.
+
+# Bare-metal toolchain: riscv64-unknown-elf-gcc whose newlib ships the HTIF
+# board support package (libgloss_htif.a, htif.specs).  riscv-tools and
+# rocket-tools build it; distribution gcc-riscv64-unknown-elf packages do not
+# ship newlib at all.  Check with: make check-toolchain
+# RISCV_ELF_BIN = $(HOME)/riscv-tools-install/bin
+
+# Linux toolchain: riscv64-unknown-linux-gnu-gcc with a static libc.a.
+# Check with: make BM_ENV=linux check-toolchain
+# RISCV_LINUX_BIN = $(HOME)/riscv64-toolchain/bin
+
+# libmpfr.so.4, which the riscv-tools gcc 9.2.0 binaries need and current
+# distributions no longer ship.  bm.mk finds it automatically in an Ubuntu
+# core snap or /usr/lib; set this only if the host has neither, in which case
+# the bare-metal build otherwise fails with "cc1: error while loading shared
+# libraries: libmpfr.so.4".
+# BM_MPFR4 = $(HOME)/lib/libmpfr.so.4
+
+# Simulators.  spike runs the bare-metal build, qemu-riscv64 the Linux one.
+# SPIKE = spike --isa=rv64imafdc
+# QEMU  = qemu-riscv64
+
+# The rocket-chip Verilator emulator, for RTL runs (see ../RTL-NOTES.md).
+# BM_EMULATOR = /path/to/rocket-chip/emulator/emulator-relaxed-watchdog

@@ -1,0 +1,7 @@
+[libcint] 2 centres, 4 shells, 8 spherical functions
+[libcint] d shells off, cache 2575 doubles, 1 repeats
+[libcint] quartets=256 evaluated=256 values=12288
+[libcint] sum=3.39311911901063e-15
+[libcint] abssum=1.52702573244824e+02
+[libcint] sqsum=5.81639684601666e+01
+[libcint] done

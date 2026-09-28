@@ -348,7 +348,20 @@ done_processing:
   dramsim3_init(dramsim3_ini);
 #endif
 
+#ifdef WITH_DRAMSIM3
+  // init_ram() above has already placed every ELF section into the memory the
+  // DRAMSim3 model reads, so fesvr must not load the program a second time
+  // through the debug module: that path writes 8 bytes per abstract-command
+  // round trip (~1,100 target cycles each) while hart 0 sits in the debug
+  // ROM, which for a multi-hundred-KB image delays the start of the program
+  // by tens to hundreds of millions of cycles. fesvr still reads the ELF for
+  // its symbols (tohost/fromhost) and entry point.
+  dtm = new postload_dtm_t(htif_argc, htif_argv);
+#else
+  // The fixed-latency AXI4RAM model is a plain RTL array that init_ram()'s
+  // host-side copy never reaches, so the image has to go in through fesvr.
   dtm = new dtm_t(htif_argc, htif_argv);
+#endif
 
   signal(SIGTERM, handle_sigterm);
 
@@ -365,7 +378,31 @@ done_processing:
   // clk_1GHz divide down much slower than this raw clock.
   int sync_reset_cycles = 150;
 
+  // Hart bring-up is driven by SimDTM's own dtm_t (see SimDTM.cc's debug_tick,
+  // the only DTM instance actually wired to the RTL -- this file's own `dtm`
+  // has no RTL connection at all) on a separate host pthread, looping
+  // hartsel 0..num_harts-1 over real JTAG/DMI round trips (dtm.cc's reset()).
+  // At full simulation speed that host thread can lose the race against the
+  // target's own execution: a hart that gets its PC redirected early can run
+  // to completion -- and tile->io_success can go true -- before reset() has
+  // gotten through the rest of the hartsels, leaving them stuck in bootrom's
+  // _hang/entry_loop for the whole run despite a "*** PASSED ***" report.
+  // VCD tracing incidentally avoids this by slowing the sim down enough for
+  // the host thread to keep up; this throttles only the early boot window
+  // (not the whole run) to get the same effect without VCD's dump overhead.
+  // Override via BOOT_THROTTLE_CYCLES/BOOT_THROTTLE_USLEEP env vars.
+  static uint64_t boot_throttle_cycles = [](){
+    const char *e = getenv("BOOT_THROTTLE_CYCLES");
+    return e ? strtoull(e, nullptr, 10) : 2000000ULL;
+  }();
+  static useconds_t boot_throttle_usleep = [](){
+    const char *e = getenv("BOOT_THROTTLE_USLEEP");
+    return (useconds_t)(e ? strtoul(e, nullptr, 10) : 20);
+  }();
+
   while (trace_count < max_cycles) {
+    if (trace_count < boot_throttle_cycles && boot_throttle_usleep)
+      usleep(boot_throttle_usleep);
     if (done_reset && (dtm->done() || jtag->done() || tile->io_success))
       break;
 

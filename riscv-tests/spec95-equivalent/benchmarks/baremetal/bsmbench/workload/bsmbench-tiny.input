@@ -1,0 +1,42 @@
+# SPDX-FileCopyrightText: 2026 Intensivate, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
+#
+# BSMBench input for the bare-metal tiny run -- our own parameters.
+#
+# Single process: NP_* = 1 selects upstream's non-MPI geometry, which is what
+# this port builds (upstream's make.sh calls the same configuration NO_MPI).
+#
+# The lattice is far smaller than upstream's own sets (64x32x32x32): those are
+# sized for a supercomputer and would take days in RTL simulation.
+GLB_T = 4
+GLB_X = 4
+GLB_Y = 4
+GLB_Z = 4
+NP_T = 1
+NP_X = 1
+NP_Y = 1
+NP_Z = 1
+
+seed = 12345
+
+# bench:test_set is a bitmask -- 1 PRECISION, 2 SQNORM, 4 MAD, 8 DPHI.
+# 9 runs the Dirac operator (the kernel this benchmark exists to measure) plus
+# the precision test, which is a genuine correctness check on the target: it
+# inverts the operator and reports the residual.
+bench:nfields = 4
+bench:niters = 4
+bench:test_set = 9
+bench:mass = -0.8183
+
+# Reporting-only constants.  Upstream divides these by its own wall-clock
+# measurement to print FLOP/s, and by the Blue Gene/P reference figures to
+# print a ratio.  On this target the clock is synthetic (see BM_CPU_HZ in the
+# Makefile), so both are meaningless: the FLOP counts are left at zero and the
+# reference figures at one, which keeps the arithmetic from producing NaN.
+# Use the harness's "[bm] ... cycles=" line instead.
+bench:bg_flops = 1.0
+bench:bg_dphi_flops = 1.0
+bench:reference_unit = 2
+bench:dphi:nflops = 0.0
+bench:sqnorm:nflops = 0.0
+bench:mad:nflops = 0.0

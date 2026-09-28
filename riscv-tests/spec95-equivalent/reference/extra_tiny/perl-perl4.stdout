@@ -1,0 +1,7 @@
+primes: limit=100 factored=20 count=25 last=97
+primes: factors=36 twins=8
+primes: 8 numbers have 1 prime factors
+primes: 6 numbers have 2 prime factors
+primes: 4 numbers have 3 prime factors
+primes: 1 numbers have 4 prime factors
+primes: done

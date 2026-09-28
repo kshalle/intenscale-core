@@ -1,0 +1,37 @@
+
+MACRO += -DANTIPERIODIC_BC_T
+#MACRO += -DANTIPERIODIC_BC_X
+#MACRO += -DANTIPERIODIC_BC_Y
+#MACRO += -DANTIPERIODIC_BC_Z
+
+MACRO += -DUPDATE_EO
+MACRO += -DNDEBUG
+#MACRO += -DCHECK_SPINOR_MATCHING
+#MACRO += -DMPI_TIMING
+
+
+#Macros
+MACRO += -D$(REPR) -DREPR_NAME=\"$(REPR)\"
+
+#Include
+INCDIR = $(TOPDIR)/Include
+INC = -I $(INCDIR)
+
+GCC = gcc
+CPPFLAGS += $(MACRO)
+CPPFLAGS += $(INC)
+LDFLAGS = -lm
+
+ifeq ($(strip $(CXX)),)
+  CXX = g++
+endif
+
+
+#make related
+#export CFLAGS LDFLAGS CPPFLAGS
+ifndef REPR
+  $(error Error: must specify fermion representation!)
+endif
+
+MAKEFLAGS += -s 
+MAKEFLAGS += -r

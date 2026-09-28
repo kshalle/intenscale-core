@@ -36,7 +36,7 @@ Every benchmark links against the same `riscv-tests/common/crt.S` and
    j _init
    ```
    `nc` is always `1`, regardless of how many harts are actually present. This is
-   an upstream `riscv-tests` placeholder (present verbatim in `i-rocket-chip` too),
+   an upstream `riscv-tests` placeholder,
    not something introduced by this project.
 
 3. `_init` (`syscalls.c`) calls `thread_entry(cid, nc)`. If the benchmark does not
