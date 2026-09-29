@@ -11,7 +11,7 @@ several hardware contexts share each pipeline. The repository contains the RTL
 This README is a quick start. The details are in:
 
 - [Environment setup guide](https://docs.google.com/document/d/1OlcykUQS1hj4XRypEw9uOgcc1sebWiWdJ8OAlEy2pTQ/edit?tab=t.0): what the bootstrap script sets up, and how.
-- [Simulations, benchmarks and RTL guide](https://docs.google.com/document/d/1bM5lpRt2ft-x2dN5SLFLMmIczX7vbF0up7DO86N6FQ4/edit): building and running simulations, running and adding benchmarks, configurations, debugging, and changing the RTL.
+- [Simulations, benchmarks and RTL guide](https://docs.google.com/document/d/1bM5lpRt2ft-x2dN5SLFLMmIczX7vbF0up7DO86N6FQ4/edit?usp=drive_link): building and running simulations, running and adding benchmarks, configurations, debugging, and changing the RTL.
 
 ## Quick start
 
