@@ -31,11 +31,14 @@ explains what the script does, step by step.
 **2. Build the simulator and run the tests** (`make help` lists every target):
 
 ```sh
-make build                                   # Verilator emulator, Inten1CoreConfig
-make -C emulator run-asm-tests               # ISA tests only
-make -C emulator run-bmark-tests             # toy benchmarks only
-make run                                     # ISA tests + toy benchmarks
-make build CONFIG=freechips.rocketchip.system.Inten1RowConfig   # CONFIG=<Desired Config>
+make build                                                                            # Verilator emulator, Inten1CoreConfig
+make -C riscv-tests/isa                                                               # build the ISA tests in riscv-tests/isa directory 
+make -C riscv-tests/benchmarks NHARTS=16                                              # build the toy benchmarks; NHARTS = harts of the config
+                                                                                      # (1Row 1, 1Core 16, 2Core 32, 4Core 64)
+make -C emulator run-asm-tests CONFIG=freechips.rocketchip.system.Inten1CoreConfig    # Runs ISA tests only on 1Core Config
+make -C emulator run-bmark-tests CONFIG=freechips.rocketchip.system.Inten1CoreConfig  # Runs toy benchmarks only on 1Core Config
+make run                                                                              # Runs ISA tests + toy benchmarks on default Config, which is 1Core Config
+make build CONFIG=freechips.rocketchip.system.Inten1RowConfig                         # CONFIG=<Desired Config>
 ```
 
 Each test writes `emulator/output/<test>.riscv.out`, ending with

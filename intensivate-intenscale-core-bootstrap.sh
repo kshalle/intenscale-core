@@ -842,8 +842,6 @@ Next steps for RocketChip (Verilator bare-metal testing):
        docker run -it --rm \\
          -v "$REPO_ROOT":/work \\
          $run_image bash
-  2. Inside the container: cd /work && ./scripts/build-verilator.sh (or your equivalent).
-     Test scripts/vectors live in the repo itself (via git), not in Drive.
 EOF
 }
 

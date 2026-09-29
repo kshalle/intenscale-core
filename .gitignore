@@ -21,5 +21,8 @@ riscv-tests/Makefile
 riscv-tests/config.log
 riscv-tests/config.status
 
+# Docker image and other assets downloaded by the bootstrap script
+/.env-assets/
+
 # DRAMsim3 per-epoch statistics (simulator output, written wherever a run starts)
 dramsim3epoch.json
