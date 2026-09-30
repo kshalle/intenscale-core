@@ -1,7 +1,7 @@
 # intenscale-core
 
 A high-performance, low-power, small-area enterprise-class RISC-V CPU core by
-Intensivate, Inc. It is built on Rocket Chip and adds a multi-context front end:
+Intensivate, Inc. It has a multi-context front end:
 several hardware contexts share each pipeline. The repository contains the RTL
 (Chisel), a Verilator simulation flow with a cycle-accurate DRAM model
 (DRAMSim3), and bare-metal tests and benchmarks.
