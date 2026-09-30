@@ -14,6 +14,28 @@ IntenCore RTL through the same riscv-tests runtime as the benchmarks in
 | `xlisp` | Lisp interpreter: tak, symbolic derivative, sort, list churn | XLISP-PLUS 3.05 |
 | `gcc-cc1` | the C compiler proper, compiling generated C to SPARC assembly | GCC 2.5.8 |
 
+### What each port stands in for
+
+The suite replaces six SPEC CPU95 (CINT95/CFP95) benchmarks, which are
+proprietary and cannot be redistributed, with open-source programs of the same
+kind. The SPEC95 program and version, against ours:
+
+| Port | SPEC95 benchmark replaced | SPEC95 version / description | Our version |
+|---|---|---|---|
+| `gcc-cc1` | 126.gcc (CINT95) | GCC 2.5.3, builds SPARC code | GCC 2.5.8 |
+| `perl-perl4` | 134.perl (CINT95) | Perl interpreter (Unix-isms stripped); anagram and prime-number scripts | Perl 4.036 |
+| `xlisp` | 130.li (CINT95) | XLISP interpreter running the Gabriel benchmarks | XLISP-PLUS 3.05 |
+| `libcint` | 145.fpppp (CFP95) | Fortran; quantum chemistry, from the Gaussian series | libcint (C), two-electron integral derivatives |
+| `bsmbench` | 103.su2cor (CFP95) | Fortran; quantum physics, Monte Carlo | BSMBench (C++), SU(2) lattice gauge theory |
+| `miniweather` | 102.swim (CFP95) | Fortran; shallow-water equations, 1024x1024 grid | miniWeather (C++), 2-D atmospheric dynamics |
+
+SPEC documents an exact version only for gcc; it does not publish the Perl or
+XLISP versions. Source: <https://www.spec.org/cpu95/CINT95/> and
+<https://www.spec.org/cpu95/CFP95/>.
+
+The workloads are not SPEC's inputs: each port has its own input sizes
+(`extra_tiny`, `tiny`, ...), so results are not SPEC95 scores.
+
 Upstream sources are under `benchmarks/` unmodified; everything this port adds
 is in `benchmarks/baremetal/` (per-port glue, see each `PORT-NOTES.md`) and
 `scripts/`. Licences: `benchmarks/LICENSE`, `benchmarks/LICENSES/`,
