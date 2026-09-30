@@ -4,7 +4,7 @@
 #
 # prepare_env.sh
 #
-# Single setup script shared by the "firesim" and "rocketchip" repos.
+# Single setup script shared by the "firesim" and "intenscore" (intenscale-core) repos.
 # It detects which repo it is running in, checks host prerequisites,
 # pulls the Docker image and (for FireSim) an OS disk image from
 # Google Drive with gdown, loads the Docker image, and leaves the
@@ -24,6 +24,8 @@
 #                                               # configured in prepare_env.conf). For local
 #                                               # Dockerfile development -- see the user guide.
 #   ./prepare_env.sh --config=PATH         # use a config file other than ./prepare_env.conf
+#   ./prepare_env.sh --no-login            # intenscale-core: print the docker run command instead of
+#                                          # logging in (and building DRAMSim3) automatically
 #   ./prepare_env.sh -h | --help
 #
 # Place this script at the root of EITHER repo. It works out which
@@ -52,6 +54,8 @@ SKIP_UID_REMAP=false
 SKIP_SUBMODULES=false
 USE_LOCAL_IMAGE=false
 USE_LOCAL_IMAGE_NAME=""
+NO_LOGIN=false
+RUN_IMAGE=""
 OS_IMAGE=""
 
 # Pre-declared as associative BEFORE the config file is sourced. This
@@ -87,8 +91,9 @@ for arg in "$@"; do
     --use-local-image=*) USE_LOCAL_IMAGE=true; USE_LOCAL_IMAGE_NAME="${arg#*=}" ;;
     --os-image=*) OS_IMAGE="${arg#*=}" ;;
     --config=*) CONFIG_FILE="${arg#*=}" ;;
+    --no-login) NO_LOGIN=true ;;
     -h|--help)
-      sed -n '2,34p' "$0"
+      sed -n '2,36p' "$0"
       exit 0
       ;;
     *) warn "Unknown argument: $arg" ;;
@@ -132,14 +137,14 @@ detect_repo_type() {
   if git -C "$REPO_ROOT" remote get-url origin 2>/dev/null | grep -qi "firesim"; then
     echo "firesim"; return
   fi
-  if git -C "$REPO_ROOT" remote get-url origin 2>/dev/null | grep -Ei "rocket-?chip"; then
-    echo "rocketchip"; return
+  if git -C "$REPO_ROOT" remote get-url origin 2>/dev/null | grep -qEi "intenscale-core|intenscore"; then
+    echo "intenscore"; return
   fi
   if [[ -d "$REPO_ROOT/deploy" && -d "$REPO_ROOT/sim" ]]; then
     echo "firesim"; return
   fi
   if [[ -d "$REPO_ROOT/src/main/scala" && -d "$REPO_ROOT/emulator" ]]; then
-    echo "rocketchip"; return
+    echo "intenscore"; return
   fi
 
   echo "unknown"
@@ -150,13 +155,13 @@ REPO_TYPE="$(detect_repo_type)"
 title "Repo detection"
 case "$REPO_TYPE" in
   firesim)     ok "Detected repo: FireSim (FPGA-based RTL testing, tested on U250)" ;;
-  rocketchip)  ok "Detected repo: RocketChip (Verilator bare-metal testing)" ;;
+  intenscore)  ok "Detected repo: intenscale-core (Verilator bare-metal testing)" ;;
   *)
     err "Could not determine repo type."
     echo "  Add a file named .repo-manifest at the repo root containing:"
     echo "    REPO_TYPE=firesim"
     echo "  or"
-    echo "    REPO_TYPE=rocketchip"
+    echo "    REPO_TYPE=intenscore"
     exit 1
     ;;
 esac
@@ -181,8 +186,8 @@ validate_config() {
       errors+=("FIRESIM_DISK_IMAGE_FILEIDS (empty -- no OS disk images configured)")
     fi
   else
-    [[ -z "$ROCKETCHIP_DOCKER_IMAGE_FILEID" || "$ROCKETCHIP_DOCKER_IMAGE_FILEID" == REPLACE_WITH_* ]] && errors+=("ROCKETCHIP_DOCKER_IMAGE_FILEID")
-    for v in ROCKETCHIP_DOCKER_IMAGE_FILE ROCKETCHIP_DOCKER_IMAGE_NAME ROCKETCHIP_MIN_FREE_GB; do
+    [[ -z "$INTENSCORE_DOCKER_IMAGE_FILEID" || "$INTENSCORE_DOCKER_IMAGE_FILEID" == REPLACE_WITH_* ]] && errors+=("INTENSCORE_DOCKER_IMAGE_FILEID")
+    for v in INTENSCORE_DOCKER_IMAGE_FILE INTENSCORE_DOCKER_IMAGE_NAME INTENSCORE_MIN_FREE_GB; do
       [[ -z "${!v}" ]] && errors+=("$v")
     done
   fi
@@ -284,7 +289,7 @@ check_docker_daemon() {
 check_disk_space() {
   title "Disk space"
   local min_gb
-  if [[ "$REPO_TYPE" == "firesim" ]]; then min_gb=$FIRESIM_MIN_FREE_GB; else min_gb=$ROCKETCHIP_MIN_FREE_GB; fi
+  if [[ "$REPO_TYPE" == "firesim" ]]; then min_gb=$FIRESIM_MIN_FREE_GB; else min_gb=$INTENSCORE_MIN_FREE_GB; fi
   local avail_kb avail_gb
   avail_kb=$(df -Pk "$REPO_ROOT" | awk 'NR==2 {print $4}')
   avail_gb=$(( avail_kb / 1024 / 1024 ))
@@ -595,9 +600,9 @@ download_assets() {
       docker_file="$FIRESIM_DOCKER_IMAGE_FILE"
       docker_sha256="${FIRESIM_DOCKER_IMAGE_SHA256:-}"
     else
-      docker_fileid="$ROCKETCHIP_DOCKER_IMAGE_FILEID"
-      docker_file="$ROCKETCHIP_DOCKER_IMAGE_FILE"
-      docker_sha256="${ROCKETCHIP_DOCKER_IMAGE_SHA256:-}"
+      docker_fileid="$INTENSCORE_DOCKER_IMAGE_FILEID"
+      docker_file="$INTENSCORE_DOCKER_IMAGE_FILE"
+      docker_sha256="${INTENSCORE_DOCKER_IMAGE_SHA256:-}"
     fi
     fetch_drive_file "$docker_fileid" "$docker_file" "Docker image" "$docker_sha256"
   fi
@@ -646,7 +651,7 @@ load_docker_image() {
   if [[ "$REPO_TYPE" == "firesim" ]]; then
     filename="$FIRESIM_DOCKER_IMAGE_FILE"
   else
-    filename="$ROCKETCHIP_DOCKER_IMAGE_FILE"
+    filename="$INTENSCORE_DOCKER_IMAGE_FILE"
   fi
   local imgfile="$REPO_ROOT/$ASSET_DIR/$filename"
   if [[ ! -f "$imgfile" ]]; then
@@ -683,7 +688,7 @@ load_docker_image() {
   if [[ "$REPO_TYPE" == "firesim" ]]; then
     configured_name="$FIRESIM_DOCKER_IMAGE_NAME"
   else
-    configured_name="$ROCKETCHIP_DOCKER_IMAGE_NAME"
+    configured_name="$INTENSCORE_DOCKER_IMAGE_NAME"
   fi
 
   LOADED_IMAGE_NAME="$(grep -oE 'Loaded image: .*' "$load_log" | tail -1 | sed 's/^Loaded image: //')"
@@ -696,10 +701,16 @@ load_docker_image() {
     warn "that doesn't exist locally, the next steps will fail."
     LOADED_IMAGE_NAME="$configured_name"
   elif [[ "$LOADED_IMAGE_NAME" != "$configured_name" ]]; then
-    warn "prepare_env.conf says this image should be '$configured_name', but"
-    warn "the downloaded file actually loaded as '$LOADED_IMAGE_NAME'."
-    warn "Using '$LOADED_IMAGE_NAME' for this run so you're not blocked --"
-    warn "please update prepare_env.conf to match so this stops appearing."
+    # The image carries whatever name it was saved under; give it the
+    # configured name so every later step (and the printed docker run
+    # command) uses that.
+    if docker tag "$LOADED_IMAGE_NAME" "$configured_name"; then
+      log "Tagged '$LOADED_IMAGE_NAME' as '$configured_name'."
+      LOADED_IMAGE_NAME="$configured_name"
+    else
+      warn "Couldn't tag '$LOADED_IMAGE_NAME' as '$configured_name';"
+      warn "using '$LOADED_IMAGE_NAME' for this run."
+    fi
   fi
 
   ok "Docker image loaded: $LOADED_IMAGE_NAME"
@@ -712,7 +723,7 @@ if $USE_LOCAL_IMAGE; then
     if [[ "$REPO_TYPE" == "firesim" ]]; then
       target_name="$FIRESIM_DOCKER_IMAGE_NAME"
     else
-      target_name="$ROCKETCHIP_DOCKER_IMAGE_NAME"
+      target_name="$INTENSCORE_DOCKER_IMAGE_NAME"
     fi
   fi
   if ! docker image inspect "$target_name" >/dev/null 2>&1; then
@@ -870,29 +881,72 @@ contact us for details.
 EOF
 }
 
-setup_rocketchip() {
-  title "RocketChip-specific setup"
+setup_intenscore() {
+  title "intenscale-core setup"
 
   local run_image="$LOADED_IMAGE_NAME"
   if ! $SKIP_UID_REMAP; then
     run_image="$(remap_container_user "$LOADED_IMAGE_NAME")"
   fi
 
+  RUN_IMAGE="$run_image"
+
   cat <<EOF
 
-Next steps for RocketChip (Verilator bare-metal testing):
-  1. Start the container with the repo mounted:
+To log in to the container (again) later, run:
        docker run -it --rm \\
          -v "$REPO_ROOT":/work \\
          $run_image bash
 EOF
 }
 
+# intenscale-core: log the user in to the container, building DRAMSim3 the first
+# time (its library is not shipped in the repository), then leave them at a
+# clean shell in /work. The build goes to DRAMSIM3/build/, which DRAMSIM3's
+# .gitignore already excludes.
+login_intenscore() {
+  local inner='
+cd /work || exit 1
+if [ ! -f DRAMSIM3/build/libdramsim3.a ]; then
+  echo "Building DRAMSim3 (first time only, about a minute)..."
+  mkdir -p DRAMSIM3/build
+  if ( cd DRAMSIM3/build && cmake -DCOSIM=1 .. && make -j8 ) > DRAMSIM3/build/bootstrap-build.log 2>&1 \
+     && [ -f DRAMSIM3/build/libdramsim3.a ]; then
+    clear
+  else
+    echo
+    echo "DRAMSim3 build FAILED -- last lines of DRAMSIM3/build/bootstrap-build.log:"
+    tail -20 DRAMSIM3/build/bootstrap-build.log
+    echo
+    echo "Fix the problem above, then run: cd /work/DRAMSIM3/build && cmake -DCOSIM=1 .. && make"
+  fi
+else
+  clear
+fi
+echo "intenscale-core environment ready. See README.md, step 2, to build and run the simulator."
+exec bash'
+  exec docker run -it --rm -v "$REPO_ROOT":/work "$RUN_IMAGE" bash -c "$inner"
+}
+
 if [[ "$REPO_TYPE" == "firesim" ]]; then
   setup_firesim
 else
-  setup_rocketchip
+  setup_intenscore
 fi
 
 title "Done"
 ok "$REPO_TYPE environment is ready."
+
+if [[ "$REPO_TYPE" != "firesim" ]]; then
+  if $NO_LOGIN; then
+    log "--no-login: not logging in. Inside the container, build DRAMSim3 once with:"
+    log "  cd /work/DRAMSIM3 && mkdir -p build && cd build && cmake -DCOSIM=1 .. && make"
+  elif [[ ! -t 0 || ! -t 1 ]]; then
+    warn "Not running in an interactive terminal, so not logging in to the container."
+    log "Run the docker run command above from a terminal; inside it, build DRAMSim3 once with:"
+    log "  cd /work/DRAMSIM3 && mkdir -p build && cd build && cmake -DCOSIM=1 .. && make"
+  else
+    log "Logging you in to the container..."
+    login_intenscore
+  fi
+fi
