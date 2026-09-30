@@ -1,3 +1,5 @@
+/* SPDX-FileCopyrightText: 2026 Intensivate, Inc.
+   SPDX-License-Identifier: BSD-2-Clause */
 /* Partial-link (ld -r) script for one rate copy: gather the copy's static
    constructors into a single .init_array in init-priority order, so
    scripts/build.sh can give each copy its own named constructor table. */

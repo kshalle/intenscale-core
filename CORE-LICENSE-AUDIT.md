@@ -256,3 +256,29 @@ found uniform. A full per-file pass has not been done.
 9. **Root `Makefile`** contains internal CI conventions (Jenkins-style
    branch/workspace variables, a `docker build` step). Not a licensing issue,
    but worth a scope decision on whether it should ship publicly.
+
+## Addendum, 2026-09-29: content added after the first pass
+
+- **`riscv-tests/spec95-equivalent/`**: same vendored trees and licences as
+  `benchmarks/` (see its `LICENSE-AUDIT.md`); our scripts and glue carry
+  `BSD-2-Clause` SPDX headers. `riscv-tests/common/{crt.S,syscalls.c}` are
+  edited upstream riscv-tests files (BSD-3-Clause, "See LICENSE" header kept).
+- **SPEC trademark**: the docs name SPEC CPU95 benchmarks to say what each port
+  is modelled on. `NOTICE.md` and `benchmarks/NOTICE.md` now carry a trademark /
+  non-affiliation statement; no SPEC code, inputs or outputs are included.
+- **`sbt-launch.jar` (root and `hardfloat/`)**: removed from the repository.
+  It is sbt's BSD-3-Clause launcher bundling Apache Ivy, shipped with no
+  notices. The bootstrap script now downloads sbt 1.3.4's launcher from Maven
+  Central and verifies its SHA-256. `hardfloat/sbt-launch.jar` (0.13.0-RC2) was
+  referenced by nothing and is not replaced.
+- **`DRAMSIM3/build/`**: prebuilt binaries and machine-specific CMake output
+  removed (they embedded MIT/BSD/BSL-1.0 third-party code without notices and
+  `/workspace` paths). `emulator/Makefile` builds `libdramsim3.a` with cmake on
+  first use.
+- **`chisel3/INTENSIVATE-REG-INIT.patch`**: local paths removed from the diff
+  header.
+- **SPDX headers** added to the bootstrap script, `prepare_env.conf` (both
+  `LicenseRef-Intensivate-NC-1.0`), and the spec95-equivalent linker scripts and
+  stubs (`BSD-2-Clause`).
+- **Open**: `emulator/Makefile` has no header and its origin (rocket-chip
+  derived, or Intensivate-original) is not recorded; decide its licence.

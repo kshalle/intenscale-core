@@ -1,3 +1,5 @@
+/* SPDX-FileCopyrightText: 2026 Intensivate, Inc.
+   SPDX-License-Identifier: BSD-2-Clause */
 /* Process-control backends newlib's abort()/raise() pull into every rate
    copy. There is no process or signal facility on this target: each fails
    the way the real call would on a host that refused it. Weak, so a port's

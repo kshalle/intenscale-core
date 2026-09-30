@@ -31,6 +31,13 @@ CXXFLAGS += -I$(DRAMSIM3_HOME)/src
 ifneq ($(DRAMSIM3),0)
 LDFLAGS += -L $(DRAMSIM3_HOME)/build -ldramsim3 -Wl,-rpath-link=$(DRAMSIM3_HOME)/build/libdramsim3.so
 CXXFLAGS += -DWITH_DRAMSIM3 -DDRAMSIM3_CONFIG=\\\"$(DRAMSIM3_HOME)/configs/intenscore_DDR4_8Gb_x8_3200_1ch_2ra_16GB.ini\\\" -DDRAMSIM3_OUTDIR=\\\"./\\\"
+
+# The DRAMsim3 library is not checked in; build it with cmake on first use.
+DRAMSIM3_LIB = $(DRAMSIM3_HOME)/build/libdramsim3.a
+$(DRAMSIM3_LIB):
+	cmake -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -S $(DRAMSIM3_HOME) -B $(DRAMSIM3_HOME)/build
+	$(MAKE) -C $(DRAMSIM3_HOME)/build dramsim3
+$(emu) $(emu_debug): $(DRAMSIM3_LIB)
 endif
 
 emu = emulator-$(PROJECT)-$(CONFIG)$(DRAMSIM3_SUFFIX)

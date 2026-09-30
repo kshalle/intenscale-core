@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2016-2026 Intensivate, Inc.
+# SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0
 #
 # prepare_env.sh
 #
@@ -427,6 +429,47 @@ if $SKIP_SUBMODULES; then
 else
   init_submodules
 fi
+
+# -----------------------------------------------------------------------
+# 2c. Download the sbt launcher (not redistributed in this repository)
+# -----------------------------------------------------------------------
+# sbt-launch.jar is sbt's BSD-3-Clause launcher (it bundles Apache Ivy).
+# Makefrag runs it from the repo root. It only bootstraps the sbt version
+# pinned in project/build.properties, so any 1.x launcher works; we pin
+# 1.3.4 (matching project/build.properties) and verify its checksum.
+SBT_LAUNCHER_URL="${SBT_LAUNCHER_URL:-https://repo1.maven.org/maven2/org/scala-sbt/sbt-launch/1.3.4/sbt-launch-1.3.4.jar}"
+SBT_LAUNCHER_SHA256="ca7d842462f70d9e919b7e1fbc50660929b666f09c561401da3b6eedc56a67d3"
+
+download_sbt_launcher() {
+  title "sbt launcher"
+  local dest="$REPO_ROOT/sbt-launch.jar" actual
+  if [[ -f "$dest" ]]; then
+    actual="$(sha256sum "$dest" | awk '{print $1}')"
+    if [[ "$actual" == "$SBT_LAUNCHER_SHA256" ]]; then
+      ok "sbt-launch.jar already present and verified."
+      return
+    fi
+    warn "sbt-launch.jar present but checksum differs -- leaving it alone."
+    return
+  fi
+  log "Downloading $SBT_LAUNCHER_URL"
+  if ! curl -fsSL --retry 3 -o "$dest.part" "$SBT_LAUNCHER_URL"; then
+    rm -f "$dest.part"
+    err "Could not download the sbt launcher."
+    echo "    Fix: check network access, or download sbt-launch.jar yourself"
+    echo "    into $REPO_ROOT and re-run."
+    exit 1
+  fi
+  actual="$(sha256sum "$dest.part" | awk '{print $1}')"
+  if [[ "$actual" != "$SBT_LAUNCHER_SHA256" ]]; then
+    rm -f "$dest.part"
+    err "sbt-launch.jar checksum mismatch (got $actual)."
+    exit 1
+  fi
+  mv "$dest.part" "$dest"
+  ok "sbt-launch.jar downloaded and verified."
+}
+download_sbt_launcher
 
 # -----------------------------------------------------------------------
 # 3. Pull assets from Google Drive (gdown, no auth -- files are shared

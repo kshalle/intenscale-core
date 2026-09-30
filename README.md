@@ -56,9 +56,10 @@ Each run's verdict, with IPC/CPI and wall-clock time, is written to
 `emulator/output/spec95-equivalent/<test>.verdict`.
 [`riscv-tests/spec95-equivalent/README.md`](riscv-tests/spec95-equivalent/README.md)
 covers workload sizes and runtimes.
-The suite is our open-source stand-in for six SPEC CPU95 benchmarks (126.gcc,
-134.perl, 130.li, 145.fpppp, 103.su2cor, 102.swim); the README lists the
-SPEC95 version of each against ours.
+The suite is built from open-source programs of the same kind as six SPEC CPU95
+benchmarks (126.gcc, 134.perl, 130.li, 145.fpppp, 103.su2cor, 102.swim); the
+README lists the SPEC95 version of each against ours. It is not affiliated
+with SPEC and its results are not SPEC results (see `NOTICE.md`).
 
 **4. Debug with waveforms:**
 

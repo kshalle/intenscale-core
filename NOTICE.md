@@ -62,6 +62,8 @@ Patent rights are granted only as expressly stated in the applicable license. No
 
 No trademark, logo, trade-name, or branding rights are granted except as necessary to reproduce legal notices or accurately identify the origin of the materials.
 
+SPEC and the SPEC CPU95 benchmark names (e.g. 126.gcc, 130.li, 134.perl, 145.fpppp, 103.su2cor, 102.swim) are trademarks of the Standard Performance Evaluation Corporation. They are used here only to identify the kind of program each open-source port is modelled on. This project is not affiliated with, sponsored by or endorsed by SPEC, contains no SPEC software, inputs or reference outputs, and its results are not SPEC results and must not be reported or described as SPEC CPU95 results.
+
 ## Third-Party Materials
 
 This product includes software developed by third parties, as set out below. Each component remains subject to its own license. All are vendored under `benchmarks/`, and all license texts are reproduced in `benchmarks/LICENSES/`.

@@ -1,3 +1,5 @@
+/* SPDX-FileCopyrightText: 2026 Intensivate, Inc.
+   SPDX-License-Identifier: BSD-2-Clause */
 /* Minimal newlib syscall-backend stubs needed to link xlisp.riscv under the
  * riscv-tests/benchmarks Makefrag-baremetal + crt.S/test.ld rate-mode
  * recipe. htif_syscalls.c and bm_posix_stubs.c (from

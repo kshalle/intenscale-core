@@ -27,8 +27,8 @@
 #
 # Generated as: diff -u <base's Reg.scala> <vendored's Reg.scala>
 
---- /tmp/claude-1000/-home-alexnovickis-open-source-release-staging-intensivate-github-release/0cdc2ac1-2028-4061-a7cc-4acfbefe6f6d/scratchpad/c3-base/core/src/main/scala/chisel3/Reg.scala	2026-09-24 12:28:22.235836256 -0500
-+++ /home/alexnovickis/open_source_release_staging_intensivate/github_release/intenscale-core/chisel3/core/src/main/scala/chisel3/Reg.scala	2026-08-26 07:12:10.262945089 -0500
+--- a/core/src/main/scala/chisel3/Reg.scala	2026-09-24 12:28:22.235836256 -0500
++++ b/chisel3/core/src/main/scala/chisel3/Reg.scala	2026-08-26 07:12:10.262945089 -0500
 @@ -39,13 +39,16 @@
        requireIsChiselType(t, "reg type")
      }

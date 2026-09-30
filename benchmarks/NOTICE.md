@@ -78,3 +78,7 @@ script in it: the Lisp and Perl programs, the lattice input decks, the
 quantum-chemistry basis and molecule, and the C translation units fed to the
 compiler.  No third-party benchmark suite's sources, inputs, reference outputs
 or run rules appear anywhere in this tree.
+
+## SPEC trademarks
+
+SPEC and the SPEC CPU95 benchmark names (e.g. 126.gcc, 130.li, 134.perl, 145.fpppp, 103.su2cor, 102.swim) are trademarks of the Standard Performance Evaluation Corporation. They are used here only to identify the kind of program each open-source port is modelled on. This project is not affiliated with, sponsored by or endorsed by SPEC, contains no SPEC software, inputs or reference outputs, and its results are not SPEC results and must not be reported or described as SPEC CPU95 results.

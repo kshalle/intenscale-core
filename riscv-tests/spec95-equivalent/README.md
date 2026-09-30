@@ -16,11 +16,11 @@ IntenCore RTL through the same riscv-tests runtime as the benchmarks in
 
 ### What each port stands in for
 
-The suite replaces six SPEC CPU95 (CINT95/CFP95) benchmarks, which are
-proprietary and cannot be redistributed, with open-source programs of the same
-kind. The SPEC95 program and version, against ours:
+SPEC CPU95 (CINT95/CFP95) is proprietary and cannot be redistributed, so this
+suite instead uses open-source programs of the same kind as six of its
+benchmarks. The SPEC95 program and version each port is modelled on, against ours:
 
-| Port | SPEC95 benchmark replaced | SPEC95 version / description | Our version |
+| Port | SPEC95 benchmark modelled on | SPEC95 version / description | Our version |
 |---|---|---|---|
 | `gcc-cc1` | 126.gcc (CINT95) | GCC 2.5.3, builds SPARC code | GCC 2.5.8 |
 | `perl-perl4` | 134.perl (CINT95) | Perl interpreter (Unix-isms stripped); anagram and prime-number scripts | Perl 4.036 |
@@ -34,7 +34,7 @@ XLISP versions. Source: <https://www.spec.org/cpu95/CINT95/> and
 <https://www.spec.org/cpu95/CFP95/>.
 
 The workloads are not SPEC's inputs: each port has its own input sizes
-(`extra_tiny`, `tiny`, ...), so results are not SPEC95 scores.
+(`extra_tiny`, `tiny`, ...), so results are not SPEC95 scores. SPEC and the SPEC CPU95 benchmark names (e.g. 126.gcc, 130.li, 134.perl, 145.fpppp, 103.su2cor, 102.swim) are trademarks of the Standard Performance Evaluation Corporation, used only to identify the kind of program. This suite is not affiliated with or endorsed by SPEC; see `benchmarks/NOTICE.md`.
 
 Upstream sources are under `benchmarks/` unmodified; everything this port adds
 is in `benchmarks/baremetal/` (per-port glue, see each `PORT-NOTES.md`) and
