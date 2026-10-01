@@ -924,8 +924,14 @@ else
   clear
 fi
 echo "intenscale-core environment ready. See README.md, step 2, to build and run the simulator."
+echo
+echo "To log in to this environment again later, run this on your host:"
+echo "  $INTENSCORE_LOGIN_CMD"
+echo
 exec bash'
-  exec docker run -it --rm -v "$REPO_ROOT":/work "$RUN_IMAGE" bash -c "$inner"
+  local login_cmd="docker run -it --rm -v \"$REPO_ROOT\":/work $RUN_IMAGE bash"
+  exec docker run -it --rm -v "$REPO_ROOT":/work -e INTENSCORE_LOGIN_CMD="$login_cmd" \
+       "$RUN_IMAGE" bash -c "$inner"
 }
 
 if [[ "$REPO_TYPE" == "firesim" ]]; then
