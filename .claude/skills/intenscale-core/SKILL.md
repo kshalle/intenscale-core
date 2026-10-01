@@ -43,16 +43,22 @@ src/main/scala/
 riscv-tests/     Bare-metal ISA tests and benchmarks that run against the simulator (Section 6)
   spec95-equivalent/  Six larger rate-mode workloads with their own build/run/verify flow (Section 10)
 emulator/        Verilator build/run flow — build here, outputs land in emulator/output/
-DRAMSIM3/        Git submodule: DRAMSim3, used for cycle-accurate DRAM timing (Section 4.4)
-chisel3/, firrtl/, hardfloat/, macros/, api-config-chipsalliance/
-                 Vendored/submodule dependencies of the Chisel toolchain
-torture/         Cache-coherence / AMO stress-test suite (riscv-torture)
-docs/            Internal release-review notes — not part of the design itself
+DRAMSIM3/        Vendored (not a submodule) DRAMSim3 fork, used for cycle-accurate DRAM timing (Section 4.4);
+                 libdramsim3.a is built by cmake on first use, not checked in
+chisel3/, hardfloat/, macros/
+                 Vendored dependencies of the Chisel toolchain
+firrtl/, api-config-chipsalliance/, torture/
+                 Git submodules (run `git submodule update --init --recursive`);
+                 torture is the cache-coherence / AMO stress-test suite (riscv-torture)
 ```
 
-Multiple licenses apply to different parts of the tree (Apache 2.0 for the project as a whole, plus
-inherited component licenses — Berkeley, SiFive, MulanPSL2, jtag). See `LICENSE*` at the repo root
-and `NOTICE` before reusing code from a specific file.
+**Licensing matters before you reuse or redistribute anything.** Intensivate's own core files carry
+`SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0` (the Intensivate Non-Commercial Hardware
+Source License: source-available, not open source, non-commercial use and evaluation only; commercial use
+needs a separate licence from info@intensivate.com; the core is also covered by patents, see
+`PATENTS.md`). The rest of the tree keeps its upstream licences (Apache-2.0, BSD, MIT, MulanPSL-2.0,
+and GPL in the benchmark suite). Intensivate's benchmark glue is BSD-2-Clause. Read `LICENSE.md` and
+`NOTICE.md`, and check the licence of the specific file, before reusing it.
 
 ## 3. Architecture: how a request flows through the chip
 
@@ -149,7 +155,7 @@ The AXI4 memory backend is selected at build time by the `DRAMSIM3` make variabl
 just a flag:
 
 - **`DRAMSIM3=1` (default).** Every AXI request is handed off via a DPI-C call to DRAMSim3 (the
-  `DRAMSIM3/` submodule), which models real DDR4 timing per request — row activation, CAS latency,
+  vendored `DRAMSIM3/` fork), which models real DDR4 timing per request — row activation, CAS latency,
   precharge, bank/row conflicts — based on the config file at
   `DRAMSIM3/configs/intenscore_DDR4_8Gb_x8_3200_1ch_2ra_16GB.ini`, converted into RTL-visible cycles
   via that file's `cpu_freq`/`dram_freq` ratio. Multiple requests can be genuinely outstanding at
