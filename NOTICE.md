@@ -117,6 +117,36 @@ GCC's runtime library sources (`libgcc1.c`, `libgcc2.c`) are under that same GPL
 
 Those trees are vendored **unmodified**, as upstream releases, and are separate works from Intensivate's BSD 2-Clause harness. Anyone redistributing this repository, or a product derived from it, must satisfy the obligations of those licenses for those trees — including the corresponding-source obligation for any distributed binary built from them.
 
+### Development Docker image
+
+The setup script (`intensivate-intenscale-core-bootstrap.sh`) downloads a prebuilt Docker image containing the build and simulation toolchain. The image is not part of this repository and is not covered by the Intensivate license; it is a collection of third-party software, each part under its own license. It is distributed unmodified from the upstream builds listed below, apart from the configuration Intensivate adds in `/opt/cocotb_tests`, `/opt/entrypoint-link-tests.sh` and `/root/Dockerfile.mounted`.
+
+| | |
+|---|---|
+| Download | Google Drive file ID `18v83VDUYBxx1qXW7w-3OW-VV5pZB-Z7M` (`INTENSCORE_DOCKER_IMAGE_FILEID` in `prepare_env.conf`) |
+| File | `intenscore-docker-image.gz`, 2,044,545,509 bytes |
+| File SHA-256 | `469348af2ac606149893cb789ff224796f0f2e62dd7d938bd6283cffaf45c983` |
+| Loads as | `intensivate/i-rocket-mounted:0.1.0` (tagged `intensivate/intenscore:0.1.0` by the setup script) |
+| Image ID | `sha256:d049ccac5fb7cd778a4711b421025a037d6d623a3c66d972e1e6e076bd095e1c` |
+| Built | 2026-08-13, linux/amd64, base Ubuntu 22.04.5 LTS |
+
+| Component | Version | License | Where |
+|---|---|---|---|
+| Ubuntu 22.04 packages (652, from `archive.ubuntu.com` jammy `main`, `universe`) | as installed | Per package: mostly GPL, LGPL, BSD, MIT, Apache-2.0, BSL-1.0; copyright files in `/usr/share/doc/<package>/copyright` | system |
+| RISC-V GNU toolchain: GCC, binutils, GDB, newlib | GCC 10.2.0, binutils 2.35; built from `riscv-collab/riscv-gnu-toolchain` at its state on 2020-12-01 | GPL-3.0-or-later (GCC with the GCC Runtime Library Exception); newlib under various permissive licenses | `/opt/riscv-native` |
+| Spike (riscv-isa-sim) | v1.1.0 | BSD-3-Clause | `/opt/riscv-native/bin/spike` |
+| Verilator | v4.034 (two builds) | LGPL-3.0-only OR Artistic-2.0 | `/opt/verilator-4.034`, `/opt/verilator-cocotb` |
+| bison | 3.0.4 (Ubuntu `3.0.4.dfsg-1build1`, extracted from the package) | GPL-3.0-or-later with the Bison exception | `/opt/bison-3.0.4` |
+| OpenJDK | 1.8.0_492 (Ubuntu package) | GPL-2.0 with the Classpath Exception | system |
+| sbt, plus about 660 cached build dependency jars | sbt 1.3.4 | Apache-2.0 (sbt); per-jar licenses for the cache (Apache-2.0, BSD, MIT) | `/opt/sbt`, `/home/intens4` |
+| riscv-tests (upstream copy) | `riscv-software-src/riscv-tests` at its state on 2020-12-01 | BSD-3-Clause | `/opt/riscv-upstream-tests-src` |
+| cocotb, cocotb-bus, pytest, pluggy, Pygments, and other Python packages | cocotb 2.0.1 | BSD-3-Clause, MIT, Apache-2.0 OR BSD-2-Clause, BSD-2-Clause, PSF-2.0; **scapy 2.7.0 is GPL-2.0-only** | `/opt/cocotb-venv` |
+| Intensivate repository `riscv-tests` copy | this repository | BSD-3-Clause (upstream) with Intensivate changes | `/opt/riscv-org-tests` |
+
+**GPL source.** The image contains binaries of GPL and LGPL software (the toolchain, bison, OpenJDK, scapy, and Ubuntu's GPL packages). Source for the Ubuntu packages is available from the Ubuntu archive for the versions installed. Source for the toolchain is the `riscv-collab/riscv-gnu-toolchain` repository and its submodules; the exact commits used are being recorded (the image was built against a date, not a commit). To request the corresponding source for anything in this image, write to **info@intensivate.com**. Anyone who redistributes the image must meet these source obligations themselves.
+
+**Open items** (also in `CORE-LICENSE-AUDIT.md`): exact toolchain commit pins; license texts for the source-built tools inside the image (none are installed under `/opt/riscv-native` today); a published package manifest; whether scapy can be removed; licenses for three Python packages whose metadata is blank (`cocotb-bus`, `exceptiongroup`, `setuptools`).
+
 ### Citation requirement (BSMBench)
 
 Clause 3 of BSMBench's license is an affirmative obligation, not a notice-retention term. Any publication in any form derived from the use of that software, or of any modification of it, must refer explicitly to the original BSMBench package, including its official URL, and cite the two papers listed in `benchmarks/NOTICE.md`.

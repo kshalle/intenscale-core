@@ -282,3 +282,14 @@ found uniform. A full per-file pass has not been done.
   stubs (`BSD-2-Clause`).
 - **Open**: `emulator/Makefile` has no header and its origin (rocket-chip
   derived, or Intensivate-original) is not recorded; decide its licence.
+
+## Addendum, 2026-10-02: development Docker image
+
+The bootstrap script downloads a prebuilt Docker image (details and exact
+identifiers in `NOTICE.md`, "Development Docker image"). Inspected by loading
+the image: no proprietary EDA tools, no SPEC material, no leaked paths or
+secrets. Open GPL items: toolchain pinned by date not commit; no license texts
+for source-built tools under `/opt/riscv-native` (or for Verilator); no
+published source offer or package manifest beyond the `NOTICE.md` text;
+scapy (GPL-2.0-only) in the cocotb venv; three Python packages with blank
+license metadata.
