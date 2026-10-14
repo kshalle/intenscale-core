@@ -40,7 +40,7 @@ Most files carry both the SiFive and Berkeley pointer together.
 
 ## A distinct component lives inside this tree: XiangShan / DiffTest
 
-11 files are not Rocket Chip at all — they carry a **Mulan PSL v2** header
+12 files are not Rocket Chip at all — they carry a **Mulan PSL v2** header
 naming the Institute of Computing Technology (Chinese Academy of Sciences),
 Peng Cheng Laboratory, and (for two files) Axelera AI:
 
@@ -68,10 +68,10 @@ recorded to clone against. What can be said from reading the tree itself:
   Intensivate-original cache implementation. Fully documented, including the
   exact adaptations made, in `src/main/scala/cache/cache_update.md` (pre-existing,
   not written for this audit).
-- 21 files across `subsystem/`, `rocket/`, `chisel3_compat/`, and
+- 16 files across `subsystem/`, `rocket/`, `chisel3_compat/`, and
   `resources/` are Intensivate-original, correctly headered with
   `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`. Listed in full in
-  `CORE-LICENSE-AUDIT.md` §3.
+  `CORE-LICENSE-AUDIT.md` §4.
 - Four files (`rocket/{Consts,instrUnit,NBDcache,pipeUnit}.scala`) and
   `system/IntenScaleChip.scala` are flagged as possibly modified or
   possibly-Intensivate-original without a header stating so. **Unresolved —
@@ -92,6 +92,15 @@ recorded to clone against. What can be said from reading the tree itself:
   are byte-identical; `EICG_wrapper.v`, `dm_registers.scala`,
   `ClockDomain.scala` and `TestClockSource.scala` differ (Intensivate edits or
   an older upstream base; `EICG_wrapper.v` has 2024 Intensivate commits).
+- Three files (`formal/FormalUtils.scala`, `prci/ResetWrangler.scala`,
+  `regmapper/DescribedReg.scala`) carry the generic pointer
+  `// See LICENSE for license details.` (also used by upstream). The root
+  `LICENSE` is Apache-2.0, so it resolves to Apache-2.0.
+- `subsystem/BaseSubsystem.scala` and `tile/RocketTile.scala` contain
+  Intensivate-specific edits (a comment on multiple L2 caches; the
+  `MemPerfMon` device) but keep only the stock SiFive/Berkeley pointer, per
+  the rule to keep an edited upstream file's original header. Locally modified
+  upstream files.
 
 ## Notes for future audit work
 

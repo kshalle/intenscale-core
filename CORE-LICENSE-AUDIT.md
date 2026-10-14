@@ -123,7 +123,7 @@ first.
 distinct, separately licensed component adapted from the XiangShan/DiffTest
 project, plus a contribution credited to a third company.
 
-**11 files carry a Mulan PSL v2 header** (quoted in full in one representative
+**12 files carry a Mulan PSL v2 header** (quoted in full in one representative
 file):
 
 ```
@@ -176,22 +176,26 @@ scratch if more Rocket Chip source is ever added.
 
 ## 4. Files Intensivate wrote (carry `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`)
 
-21 files, all `SPDX-FileCopyrightText: Intensivate, Inc.` / `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`:
+27 files, all `SPDX-FileCopyrightText: Intensivate, Inc.` / `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`:
 
 | Group | Files |
 |---|---|
-| Root build scripts | `set_env.sh`, `mkJunit.py` |
+| Root build scripts and config | `set_env.sh`, `mkJunit.py`, `prepare_env.conf`, `intensivate-intenscale-core-bootstrap.sh`, `scripts/preflight.sh` |
 | Simulation scripts | `vsim/{testNc.do,testNcWave.do,dumpSaif.do}` |
+| Patches against vendored trees | `DRAMSIM3/INTENSIVATE-LPDDR5.patch`, `chisel3/INTENSIVATE-REG-INIT.patch`, `hardfloat/INTENSIVATE-FPU-EXTENSIONS.patch` |
 | RTL — subsystem | `src/main/scala/subsystem/{TLCacheCork,L2Macro,L1L2CacheWiring,L2BaseTile,PcieResetSync,ClockRouting,ConfigsPrint}.scala` |
 | RTL — rocket | `src/main/scala/rocket/{regfset,csrUnit,Buses,ctxtUnit}.scala` |
 | RTL — compat | `src/main/scala/chisel3_compat/InlineCompat.scala` |
 | RTL — resources | `src/main/resources/csrc/config.h`, `src/main/resources/vsrc/{MemoryRequestHelper,MemRWHelper,MemoryResponseHelper}.v` |
 
-This is the complete list as of this audit; `NOTICE.md` and `README.md` are
-kept in sync with this count. §2's four components add real but
-*unheadered* Intensivate content on top of this — not counted here since
-they don't carry the SPDX identifier, but tracked via their own `ORIGIN.md`
-and `INTENSIVATE-*.patch` files instead.
+This is the complete list as of 2026-10-14 (the first pass counted 21; the
+bootstrap script, `prepare_env.conf`, `scripts/preflight.sh` and the three
+`INTENSIVATE-*.patch` files were added or labelled later); `NOTICE.md` and
+`README.md` are kept in sync with this count. The patch files modify Apache-2.0
+or BSD upstream code but are themselves labelled non-commercial; whether that
+labelling is intended is an open question for IP counsel (§6). §2's four
+components add real but *unheadered* Intensivate content on top of this, which
+is tracked via their own `ORIGIN.md` files.
 
 ### Undisclosed-modification flag (within `src/` itself)
 
@@ -310,3 +314,11 @@ license metadata.
   (2018-09-25). Still not a verified snapshot of the tree.
 - Not done: the other ~395 `src/` files without an SPDX line were assumed to
   use the upstream `See LICENSE.*` pointer; not re-verified per file.
+
+Header verification, 2026-10-14: all 413 files under `src/` and `macros/` were
+classified by header. 292 SiFive pointer, 43 SiFive and Berkeley, 13 Berkeley,
+6 jtag, 12 Mulan, 16 Intensivate SPDX, 20 full SiFive Apache-2.0 notice
+(`cache/`), 3 generic `See LICENSE` pointer, and 8 with none (the seven files
+listed in the addendum above plus the `src/main/scala/README` doc stub). No
+file lacks an applicable licence statement beyond those. Counts corrected:
+Intensivate SPDX 21 to 27 repo-wide, Mulan 11 to 12.

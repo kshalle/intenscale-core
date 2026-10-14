@@ -12,7 +12,7 @@ As of this release, this repository contains the **Intensivate benchmark suite**
 
 This matters for reading the rest of this notice, and for reading `LICENSE.md`:
 
-- **A small number of files carry `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`.** The Intensivate Non-Commercial Hardware Source License is reproduced at `LICENSE.md` and `LICENSES/LicenseRef-Intensivate-NC-1.0.txt`. As of this release, 21 files carry that identifier and are governed by it: `set_env.sh`, `mkJunit.py`, three files under `vsim/`, and 16 Intensivate-original files under `src/` (in `subsystem/`, `rocket/`, `chisel3_compat/`, and `resources/`). Every other file in this repository is governed by whatever license its own header, its nearest `LICENSE` file, or (under `benchmarks/`) `REUSE.toml` states.
+- **A small number of files carry `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`.** The Intensivate Non-Commercial Hardware Source License is reproduced at `LICENSE.md` and `LICENSES/LicenseRef-Intensivate-NC-1.0.txt`. As of this release, 27 files carry that identifier and are governed by it: `set_env.sh`, `mkJunit.py`, `prepare_env.conf`, `intensivate-intenscale-core-bootstrap.sh`, `scripts/preflight.sh`, three files under `vsim/`, the three `INTENSIVATE-*.patch` files (`DRAMSIM3/`, `chisel3/`, `hardfloat/`), and 16 Intensivate-original files under `src/` (in `subsystem/`, `rocket/`, `chisel3_compat/`, and `resources/`). Every other file in this repository is governed by whatever license its own header, its nearest `LICENSE` file, or (under `benchmarks/`) `REUSE.toml` states.
 - **The core has a first-pass license audit, in [`CORE-LICENSE-AUDIT.md`](CORE-LICENSE-AUDIT.md) and [`CORE-PROVENANCE.md`](CORE-PROVENANCE.md), with per-component `ORIGIN.md` files for `src/`, `chisel3/`, `firrtl/`, `hardfloat/`, `api-config-chipsalliance/`, `DRAMSIM3/`, `riscv-tests/`, and `torture/`.** It is less complete than `benchmarks/`'s audit: no byte-for-byte upstream diff was performed, and almost none of the core's components have a recorded upstream commit or tag. `CORE-LICENSE-AUDIT.md` §5 lists the open items still needing a decision from engineering or counsel, including an undisclosed-modification question on four `rocket/` files, a missing external `difftest` dependency, and the GPL-2 patches in `patches/`. Treat the core's licensing position as provisional pending those items.
 - Intensivate's own work in `benchmarks/` — the harness, the port glue, the workloads, the build and run scripts, and the documentation — is licensed under the **BSD 2-Clause** license, not under the Non-Commercial license. Those files carry `SPDX-License-Identifier: BSD-2-Clause`.
 - `COMMERCIAL-LICENSE.md` and `PATENTS.md` likewise describe terms attaching to the core. No commercial license is required for anything in this repository as it currently stands.
@@ -36,7 +36,7 @@ This is a source-available non-commercial license. It is not represented as an O
 
 Commercial use requires a separate written commercial license from Intensivate, Inc., except for the limited evaluation permission expressly stated in `LICENSE.md`.
 
-As stated above, 21 files currently carry that identifier.
+As stated above, 27 files currently carry that identifier.
 
 ## Scope of the Intensivate License
 
@@ -88,7 +88,7 @@ Full detail, evidence, and open items are in [`CORE-LICENSE-AUDIT.md`](CORE-LICE
 | Rocket Chip | SiFive, Inc.; The Regents of the University of California | Apache-2.0 (`LICENSE.SiFive`) and BSD-3-Clause (`LICENSE.Berkeley`), per file | `src/`, `macros/` |
 | rocket-chip-inclusive-cache | SiFive, Inc. | Same as Rocket Chip | `src/main/scala/cache/` |
 | chisel-jtag | The Regents of the University of California | `LicenseRef-chisel-jtag` (BSD-3-Clause-style) | `src/main/scala/jtag/` |
-| XiangShan / DiffTest | Institute of Computing Technology, CAS; Peng Cheng Laboratory; Axelera AI | Mulan PSL v2 | 11 files under `src/main/scala/{device,util,common}` and `src/main/resources/csrc/` |
+| XiangShan / DiffTest | Institute of Computing Technology, CAS; Peng Cheng Laboratory; Axelera AI | Mulan PSL v2 | 12 files under `src/main/scala/{device,util,common}` and `src/main/resources/csrc/` |
 | chisel3 | The Regents of the University of California | BSD-3-Clause | `chisel3/` |
 | firrtl | The Regents of the University of California | BSD-3-Clause | `firrtl/` |
 | hardfloat | The Regents of the University of California | BSD-3-Clause | `hardfloat/` |
