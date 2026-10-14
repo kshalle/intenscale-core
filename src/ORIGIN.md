@@ -12,7 +12,14 @@ Rocket Chip (`freechips.rocketchip.*` packages under `src/main/scala/`,
 - URL: `https://github.com/chipsalliance/rocket-chip` (named directly in
   `build.sbt`'s `pomExtra`)
 - Version: `1.2-SNAPSHOT` (`build.sbt`)
-- Commit: **not recorded**
+- Commit: **not recorded**. Best available fork point: upstream `50bb13d78`
+  ("Merge pull request #1643 from freechipsproject/update-run-recipes",
+  2018-09-25), the merge base between Intensivate's `i-rocket-chip` history
+  and `chipsalliance/rocket-chip`. The core has diverged heavily since (it
+  uses later chisel3 and has 2020-2024 local edits), so this is the point
+  where the histories split, not a snapshot the tree matches. `i-rocket-chip`
+  history before 2018-11-15 ("Added branch master from IntenCoreN_chip") is
+  not available.
 - Retrieved: unknown
 
 ## Licence
@@ -69,6 +76,22 @@ recorded to clone against. What can be said from reading the tree itself:
   `system/IntenScaleChip.scala` are flagged as possibly modified or
   possibly-Intensivate-original without a header stating so. **Unresolved —
   see `CORE-LICENSE-AUDIT.md` §5 item 2.**
+
+- `bootrom/{bootrom.S,linker.ld,Makefile}` come from upstream Rocket Chip.
+  `linker.ld` and `Makefile` are unchanged. `bootrom.S` is modified
+  (`DRAM_BASE` 0x20000000 instead of 0x80000000, plus `li a2, 0xfff` /
+  `csrw 0xf, a2`). `bootrom.img` is no longer tracked: the committed copy did
+  not match `bootrom.S`; it is built by `bootrom/Makefile` (invoked from
+  `Makefrag`).
+- Seven files carry no licence header, upstream or here, and therefore fall
+  under Rocket Chip's repository-level licences (Apache-2.0 / BSD-3-Clause):
+  `resources/csrc/verilator.h`, `resources/vsrc/EICG_wrapper.v`,
+  `devices/debug/{DebugRomContents,abstract_commands,dm_registers}.scala`,
+  `prci/{ClockDomain,TestClockSource}.scala`. Compared with a current upstream
+  clone: `verilator.h`, `DebugRomContents.scala` and `abstract_commands.scala`
+  are byte-identical; `EICG_wrapper.v`, `dm_registers.scala`,
+  `ClockDomain.scala` and `TestClockSource.scala` differ (Intensivate edits or
+  an older upstream base; `EICG_wrapper.v` has 2024 Intensivate commits).
 
 ## Notes for future audit work
 

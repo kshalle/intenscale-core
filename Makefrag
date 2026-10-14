@@ -86,6 +86,10 @@ timeout_cycles = 100000000
 
 bootrom_img = $(base_dir)/bootrom/bootrom.img
 
+# Built from bootrom/bootrom.S (needs riscv64-unknown-elf-gcc); not tracked in git.
+$(bootrom_img): $(base_dir)/bootrom/bootrom.S $(base_dir)/bootrom/linker.ld
+	$(MAKE) -C $(base_dir)/bootrom
+
 #--------------------------------------------------------------------
 # Build Tests
 #--------------------------------------------------------------------

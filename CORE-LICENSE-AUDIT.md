@@ -293,3 +293,20 @@ for source-built tools under `/opt/riscv-native` (or for Verilator); no
 published source offer or package manifest beyond the `NOTICE.md` text;
 scapy (GPL-2.0-only) in the cocotb venv; three Python packages with blank
 license metadata.
+
+## Addendum, 2026-10-14: path leaks, bootrom image, headerless files, base commit
+
+- Removed two local paths (a build-user home directory in `NOTICE.md`, and a scratchpad directory
+  in `benchmarks/baremetal/RTL-NOTES.md`; the probe sources it named
+  are not in the repo).
+- `bootrom/bootrom.img` was a tracked generated binary and did not match
+  `bootrom/bootrom.S` (rebuilt with `riscv64-unknown-elf-gcc`: different
+  bytes). It is now untracked, ignored, and built via `Makefrag`.
+  `bootrom.S` is a modified upstream file (see `src/ORIGIN.md`).
+- Seven `src/` files have no per-file licence header, upstream or here. They
+  are Rocket Chip files covered by its repository-level licences; four differ
+  from current upstream (list in `src/ORIGIN.md`). Not Intensivate-original.
+- Rocket Chip fork point recorded in `src/ORIGIN.md`: upstream `50bb13d78`
+  (2018-09-25). Still not a verified snapshot of the tree.
+- Not done: the other ~395 `src/` files without an SPDX line were assumed to
+  use the upstream `See LICENSE.*` pointer; not re-verified per file.

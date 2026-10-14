@@ -138,7 +138,7 @@ The setup script (`intensivate-intenscale-core-bootstrap.sh`) downloads a prebui
 | Verilator | v4.034 (two builds) | LGPL-3.0-only OR Artistic-2.0 | `/opt/verilator-4.034`, `/opt/verilator-cocotb` |
 | bison | 3.0.4 (Ubuntu `3.0.4.dfsg-1build1`, extracted from the package) | GPL-3.0-or-later with the Bison exception | `/opt/bison-3.0.4` |
 | OpenJDK | 1.8.0_492 (Ubuntu package) | GPL-2.0 with the Classpath Exception | system |
-| sbt, plus about 660 cached build dependency jars | sbt 1.3.4 | Apache-2.0 (sbt); per-jar licenses for the cache (Apache-2.0, BSD, MIT) | `/opt/sbt`, `/home/intens4` |
+| sbt, plus about 660 cached build dependency jars | sbt 1.3.4 | Apache-2.0 (sbt); per-jar licenses for the cache (Apache-2.0, BSD, MIT) | `/opt/sbt`, build user's home directory (sbt/ivy cache) |
 | riscv-tests (upstream copy) | `riscv-software-src/riscv-tests` at its state on 2020-12-01 | BSD-3-Clause | `/opt/riscv-upstream-tests-src` |
 | cocotb, cocotb-bus, pytest, pluggy, Pygments, and other Python packages | cocotb 2.0.1 | BSD-3-Clause, MIT, Apache-2.0 OR BSD-2-Clause, BSD-2-Clause, PSF-2.0; **scapy 2.7.0 is GPL-2.0-only** | `/opt/cocotb-venv` |
 | Intensivate repository `riscv-tests` copy | this repository | BSD-3-Clause (upstream) with Intensivate changes | `/opt/riscv-org-tests` |

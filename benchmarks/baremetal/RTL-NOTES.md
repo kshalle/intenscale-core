@@ -206,7 +206,7 @@ syscall proxy.  `median.riscv` dies on the MSHR watchdog described below;
 these ports lose their output.  Both are programs that use HTIF for I/O.
 
 To reproduce, the three probes are in
-`/tmp/.../scratchpad/htiftest/` (`htifmin.c`, `buftest2.c`, `buftest3.c`) --
+`htifmin.c`, `buftest2.c` and `buftest3.c` (not included in this repository) --
 each prints correctly under spike, so any difference is the platform.
 
 ## The MSHR watchdog, and the patched emulator
