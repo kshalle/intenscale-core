@@ -23,6 +23,13 @@ Do **not** submit substantial source-code, Chisel, RTL, generated RTL, testbench
 
 A pull request may be reviewed for discussion purposes, but Intensivate may decline to merge it until the required contributor agreement, copyright license or assignment, and patent license have been completed.
 
+## Which Files This Applies To
+
+Only some files in this repository are Intensivate's own. The rules above apply to files that carry `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0` (see `NOTICE.md` for the list).
+
+- **Third-party and vendored files** (for example Rocket Chip, Chisel, hardfloat, DRAMsim3, `riscv-tests`, and the programs under `benchmarks/`) keep their upstream licenses. Intensivate does not maintain them. Please send changes to the upstream project.
+- **Files under `benchmarks/` that Intensivate wrote** are BSD-2-Clause, not the non-commercial license. Please contact Intensivate before submitting substantial work there.
+
 ## Why This Is Required
 
 The repository is dual licensed:
@@ -47,7 +54,7 @@ Before merging an external implementation contribution, Intensivate should obtai
 
 ## Small Corrections
 
-Intensivate may choose to accept very small, non-substantive corrections without a separate contributor agreement where counsel determines that doing so is appropriate.
+Intensivate may accept small corrections without a separate contributor agreement. A small correction is limited to spelling, grammar, whitespace, and comment or documentation fixes that change no code, RTL, configuration or hardware behavior. Intensivate's maintainers decide whether a change qualifies; if in doubt, ask first at **info@intensivate.com**. An accepted small correction is taken under the license of the file it corrects.
 
 ## License of Existing Repository Materials
 

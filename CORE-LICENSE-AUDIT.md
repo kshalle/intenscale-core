@@ -372,3 +372,11 @@ Counsel-style review found the following, and these changes were made:
   which is self-contained; the core does not use them. Not verified: the
   patches carry no per-file SPDX tag, and whether each project is
   GPL-2.0-only or GPL-2.0-or-later (QEMU is mostly the latter) was not checked.
+- **Contribution policy tightened.** `CONTRIBUTING.md` now says which files the
+  contributor-agreement rule covers (the Intensivate NC files), sends changes
+  to third-party and vendored files upstream, and defines "small corrections"
+  in place of the reference to counsel. The pull request template carries a
+  notice and a terms checklist; upstream boilerplate was removed from both
+  templates. Still open: there is no contributor agreement text yet (an
+  outline for drafting is in `license-package-internal/`), and nothing blocks
+  merging a pull request without one.

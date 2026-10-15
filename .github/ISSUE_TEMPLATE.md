@@ -1,6 +1,5 @@
 <!-- THIS REPOSITORY'S ISSUES ARE RESERVED FOR FEATURE REQUESTS AND BUG REPORTS. -->
-<!-- For support questions related to Rocket Chip, please use [Stack Overflow [rocket-chip]](https://stackoverflow.com/questions/tagged/rocket-chip). -->
-<!-- For support questions related to Chisel, please use [Stack Overflow [chisel]](https://stackoverflow.com/questions/tagged/chisel). -->
+<!-- Please do not attach substantial code or RTL to an issue; see CONTRIBUTING.md. -->
 <!-- Please select the item best describing the issue in each category and delete the other items. -->
 
 <!-- choose all that apply -->
