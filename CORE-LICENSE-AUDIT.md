@@ -176,11 +176,11 @@ scratch if more Rocket Chip source is ever added.
 
 ## 4. Files Intensivate wrote (carry `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`)
 
-24 files, all `SPDX-FileCopyrightText: Intensivate, Inc.` / `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`:
+25 files, all `SPDX-FileCopyrightText: Intensivate, Inc.` / `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`:
 
 | Group | Files |
 |---|---|
-| Root build scripts and config | `set_env.sh`, `mkJunit.py`, `prepare_env.conf`, `intensivate-intenscale-core-bootstrap.sh`, `scripts/preflight.sh` |
+| Root build scripts and config | `set_env.sh`, `mkJunit.py`, `Makefile`, `prepare_env.conf`, `intensivate-intenscale-core-bootstrap.sh`, `scripts/preflight.sh` |
 | Simulation scripts | `vsim/{testNc.do,testNcWave.do,dumpSaif.do}` |
 | RTL — subsystem | `src/main/scala/subsystem/{TLCacheCork,L2Macro,L1L2CacheWiring,L2BaseTile,PcieResetSync,ClockRouting,ConfigsPrint}.scala` |
 | RTL — rocket | `src/main/scala/rocket/{regfset,csrUnit,Buses,ctxtUnit}.scala` |
@@ -421,3 +421,10 @@ Counsel-style review found the following, and these changes were made:
   root Apache-2.0 `LICENSE`; that is an open decision. Still open: the two
   unresolved patch targets, the base commits for all six patches, and the
   Rocket Chip repo-level license ambiguity for headerless files.
+- **Root `Makefile` labelled.** It carries the Intensivate NC header (SPDX
+  `LicenseRef-Intensivate-NC-1.0`, same wording as `scripts/preflight.sh`). It
+  had no header, so the repository's default root `LICENSE` (Apache-2.0)
+  applied to it as published since 2026-08-20; the label does not change terms
+  for copies already obtained. Intensivate NC file count is now 25. Not
+  decided: whether the Jenkins/Docker copy targets in the same file should
+  stay in the public repository (§6 item 9).

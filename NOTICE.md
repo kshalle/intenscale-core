@@ -12,7 +12,7 @@ As of this release, this repository contains the **Intensivate benchmark suite**
 
 This matters for reading the rest of this notice, and for reading `LICENSE.md`:
 
-- **A small number of files carry `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`.** The Intensivate Non-Commercial Hardware Source License is reproduced at `LICENSE.md` and `LICENSES/LicenseRef-Intensivate-NC-1.0.txt`. As of this release, 24 files carry that identifier and are governed by it: `set_env.sh`, `mkJunit.py`, `prepare_env.conf`, `intensivate-intenscale-core-bootstrap.sh`, `scripts/preflight.sh`, three files under `vsim/`, and 16 Intensivate-original files under `src/` (in `subsystem/`, `rocket/`, `chisel3_compat/`, and `resources/`). Every other file in this repository is governed by whatever license its own header, its nearest `LICENSE` file, or (under `benchmarks/`) `REUSE.toml` states.
+- **A small number of files carry `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`.** The Intensivate Non-Commercial Hardware Source License is reproduced at `LICENSE.md` and `LICENSES/LicenseRef-Intensivate-NC-1.0.txt`. As of this release, 25 files carry that identifier and are governed by it: `set_env.sh`, `mkJunit.py`, the root `Makefile`, `prepare_env.conf`, `intensivate-intenscale-core-bootstrap.sh`, `scripts/preflight.sh`, three files under `vsim/`, and 16 Intensivate-original files under `src/` (in `subsystem/`, `rocket/`, `chisel3_compat/`, and `resources/`). Every other file in this repository is governed by whatever license its own header, its nearest `LICENSE` file, or (under `benchmarks/`) `REUSE.toml` states.
 - **The core has a first-pass license audit, in [`CORE-LICENSE-AUDIT.md`](CORE-LICENSE-AUDIT.md) and [`CORE-PROVENANCE.md`](CORE-PROVENANCE.md), with per-component `ORIGIN.md` files for `src/`, `chisel3/`, `firrtl/`, `hardfloat/`, `api-config-chipsalliance/`, `DRAMSIM3/`, `riscv-tests/`, and `torture/`.** It is less complete than `benchmarks/`'s audit: no byte-for-byte upstream diff was performed, and almost none of the core's components have a recorded upstream commit or tag. `CORE-LICENSE-AUDIT.md` §5 lists the open items still needing a decision from engineering or counsel, including an undisclosed-modification question on four `rocket/` files, a missing external `difftest` dependency, and the GPL-2 patches in `patches/`. Treat the core's licensing position as provisional pending those items.
 - Intensivate's own work in `benchmarks/` — the harness, the port glue, the workloads, the build and run scripts, and the documentation — is licensed under the **BSD 2-Clause** license, not under the Non-Commercial license. Those files carry `SPDX-License-Identifier: BSD-2-Clause`.
 - `COMMERCIAL-LICENSE.md` and `PATENTS.md` likewise describe terms attaching to the core: commercial use of the core requires a separate commercial license. Third-party components and the `benchmarks/` keep the licenses stated for them.
@@ -36,7 +36,7 @@ This is a source-available non-commercial license. It is not represented as an O
 
 Commercial use requires a separate written commercial license from Intensivate, Inc., except for the limited evaluation permission expressly stated in `LICENSE.md`.
 
-As stated above, 24 files currently carry that identifier.
+As stated above, 25 files currently carry that identifier.
 
 ## Scope of the Intensivate License
 

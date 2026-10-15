@@ -92,7 +92,7 @@ vsim/ regression/ torture/        VCS flow, rocket-chip regression, cache/AMO st
 ## License
 
 This repository is mixed-license:
-- Intensivate's own core files (24 as of this release; [`NOTICE.md`](NOTICE.md)
+- Intensivate's own core files (25 as of this release; [`NOTICE.md`](NOTICE.md)
   lists them) carry `LicenseRef-Intensivate-NC-1.0`, the Intensivate
   Non-Commercial Hardware Source License. It is source-available and is not an
   OSI-approved open-source license.

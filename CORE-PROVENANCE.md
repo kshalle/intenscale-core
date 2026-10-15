@@ -82,11 +82,12 @@ checked against a base tree.
   `vsim/Makefile`, `emulator/Makefile` and `bootrom/bootrom.S`. Measured
   against the fork point: `Makefrag` 58 changed lines, `vsim/Makefile` 89,
   `emulator/Makefile` 129.
-- **Intensivate-original, no header:** the root `Makefile` (a CI and Docker
-  copy convention; upstream's root `Makefile` is unrelated). Because it has no
-  SPDX tag it falls under the root `LICENSE`, which is Apache-2.0. Whether it
-  should carry a header or leave the public repository is a decision for
-  whoever owns it (`CORE-LICENSE-AUDIT.md` §6 item 9).
+- **Intensivate-original:** the root `Makefile` (a CI and Docker copy
+  convention plus the local build driver; upstream's root `Makefile` is
+  unrelated). It now carries `LicenseRef-Intensivate-NC-1.0`; before that it had
+  no tag and defaulted to the root `LICENSE`, which is Apache-2.0. Whether the
+  CI portion should ship publicly is still open (`CORE-LICENSE-AUDIT.md` §6
+  item 9).
 
 ## Other root files
 
