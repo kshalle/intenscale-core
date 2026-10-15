@@ -48,6 +48,58 @@ regression. There was no comparative selection process to record.
 ordinary unified diffs with no wholesale copy of upstream source found in
 either. See `CORE-LICENSE-AUDIT.md` §5 item 1 for the open legal question.
 
+## Other patches in `patches/`
+
+Six more patches are diffs against third-party projects. No script, Makefile
+or document in this repository applies or references them, and no base commit
+is recorded for any of them. None carries an SPDX tag, so each stays under its
+target project's license. The license column is read from the `LICENSE` file on
+the target's default branch on 2026-10-14, not at the commit the patch was made
+against; for the first four rows that is not a check against this tree.
+
+| Patch | Target | Added lines | Target license (as fetched) |
+|---|---|---|---|
+| `aws-fpga.patch` | `aws/aws-fpga`, `hdk_setup.sh` | 2 | Apache-2.0 (Amazon.com, Inc. or its affiliates). The file also says the repo includes other Apache-2.0 packages. |
+| `firesim-software.patch` | `firesim/firesim` (`firesim-software`) | 11 | BSD-3-Clause (The Regents of the University of California). The patch also records `-dirty` pointers for the `riscv-linux` and `riscv-pk` submodules, which are build-environment artifacts, plus two kernel `linux-config` files. |
+| `pk.patch` | `riscv-software-src/riscv-pk` | 14 | BSD-3-Clause (The Regents of the University of California) |
+| `testchipip.patch` | `ucb-bar/testchipip` | 128 | BSD-3-Clause (The Regents of the University of California) |
+| `icenet.patch` | IceNet NIC (Chisel; imports `testchipip` and Rocket Chip) | 38 | **Not verified.** The repository could not be located at the paths tried. Likely UC Berkeley BSD-3-Clause, unconfirmed. |
+| `icenet-driver.patch` | IceNet Linux network driver (`icenet.c`) | 4 | **Not verified.** The code is Linux kernel driver code (`net_device`, `spin_lock_irqsave`), so GPL-2.0 is likely, unconfirmed. |
+
+The local `rocket-tools/riscv-pk` checkout is empty, so `pk.patch` could not be
+checked against a base tree.
+
+## Files outside `src/` that come from Rocket Chip
+
+- **Identical to a version in upstream Rocket Chip history, no per-file header
+  (12 files):** `scripts/{Makefile,RocketSim.py,RocketSim32.py,RocketSim64.py,
+  check_cache_trace.py,check_comparator_trace.py,toaxe.py,tracegen+check.sh,
+  tracegen.py,tracestats.py}`, `regression/Makefile` and `project/plugins.sbt`.
+  They fall under Rocket Chip's repository-level licenses (Apache-2.0 via
+  `LICENSE.SiFive`, BSD-3-Clause via `LICENSE.Berkeley`); upstream does not say
+  which applies to these headerless files.
+- **Modified from upstream, now carrying a change notice:** `Makefrag`,
+  `vsim/Makefile`, `emulator/Makefile` and `bootrom/bootrom.S`. Measured
+  against the fork point: `Makefrag` 58 changed lines, `vsim/Makefile` 89,
+  `emulator/Makefile` 129.
+- **Intensivate-original, no header:** the root `Makefile` (a CI and Docker
+  copy convention; upstream's root `Makefile` is unrelated). Because it has no
+  SPDX tag it falls under the root `LICENSE`, which is Apache-2.0. Whether it
+  should carry a header or leave the public repository is a decision for
+  whoever owns it (`CORE-LICENSE-AUDIT.md` §6 item 9).
+
+## Other root files
+
+- `.claude/skills/intenscale-core/SKILL.md`: Intensivate documentation. Its
+  licensing paragraph matches `LICENSE.md` (non-commercial, patents, not open
+  source). No SPDX tag.
+- `LICENSE.Apache2`: byte-identical to `LICENSES/Apache-2.0.txt`; it is the file
+  that the SiFive-headed cache sources name.
+- `.gitmodules`: configuration for the three submodules; no license needed.
+- `riscv-tools.hash`: one commit hash read by `regression/Makefile`.
+- `.repo-menifest`: one line, `REPO_TYPE=intenscore`, an internal marker
+  referenced by nothing in this repository.
+
 ## What full pinning required, and what it found
 
 Cloning each relevant upstream repository and diffing candidate commits

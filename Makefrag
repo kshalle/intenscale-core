@@ -1,3 +1,4 @@
+# Modified by Intensivate, Inc. from the upstream Rocket Chip file.
 # check RISCV environment variable
 ifndef RISCV
 $(error Please set environment variable RISCV. Please take a look at README)

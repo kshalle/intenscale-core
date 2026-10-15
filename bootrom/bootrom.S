@@ -1,3 +1,4 @@
+/* Modified by Intensivate, Inc. from the upstream Rocket Chip file. */
 #define DRAM_BASE 0x20000000
 
 .section .text.start, "ax", @progbits

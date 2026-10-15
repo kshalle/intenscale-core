@@ -407,3 +407,17 @@ Counsel-style review found the following, and these changes were made:
   excluded because it comes from a different upstream (see
   `cache_update.md`); the 4 files that differ from upstream but carry no
   header at all (listed earlier in this audit) were included.
+- **Audit gaps 1 to 3 closed (patches, headerless files, minor files).** Details
+  are in `CORE-PROVENANCE.md`. The six remaining `patches/` files were
+  identified and four target licenses read (aws-fpga Apache-2.0; firesim,
+  riscv-pk and testchipip BSD-3-Clause). `icenet.patch` and
+  `icenet-driver.patch` are unresolved because the upstream repositories could
+  not be located. The license read is of each project's default branch today,
+  not the commit each patch was made against. Twelve headerless files outside
+  `src/` are identical to Rocket Chip; four modified ones (`Makefrag`,
+  `vsim/Makefile`, `emulator/Makefile`, `bootrom/bootrom.S`) received change
+  notices (comment-only; the `bootrom.img` rebuild was checked unchanged). The
+  root `Makefile` is Intensivate-original with no header and so defaults to the
+  root Apache-2.0 `LICENSE`; that is an open decision. Still open: the two
+  unresolved patch targets, the base commits for all six patches, and the
+  Rocket Chip repo-level license ambiguity for headerless files.

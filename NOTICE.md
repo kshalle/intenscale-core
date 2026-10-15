@@ -111,7 +111,9 @@ Full detail, evidence, and open items are in [`CORE-LICENSE-AUDIT.md`](CORE-LICE
 lives in the `torture` submodule and is not redistributed by this repository
 itself. `patches/linux.patch` and `patches/qemu.patch` are changes to GPL-2.0
 projects and remain under those projects' own licenses (GPL-2.0; text at
-`LICENSES/GPL-2.0-only.txt`).
+`LICENSES/GPL-2.0-only.txt`). The six other files in `patches/` are changes to
+third-party projects and likewise remain under those projects' licenses; see
+`CORE-PROVENANCE.md`.
 
 ### GPL material is present
 

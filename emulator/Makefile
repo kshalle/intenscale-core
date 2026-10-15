@@ -1,3 +1,4 @@
+# Modified by Intensivate, Inc. from the upstream Rocket Chip file.
 default: all
 
 base_dir = $(abspath ..)
