@@ -390,3 +390,20 @@ Counsel-style review found the following, and these changes were made:
   change terms for copies already obtained, and whether a reservation of this
   kind holds against Apache-2.0 section 3 for files that carry Intensivate's
   modifications has not been confirmed by a patent attorney.
+- **Change notices on the remaining modified Rocket Chip files (78 files).**
+  Method: a file counts as unmodified if its exact content appears anywhere in
+  the full upstream `chipsalliance/rocket-chip` history. 279 files matched and
+  were left alone. 78 did not (none differs by whitespace only), so each got a
+  one-line notice: 72 say "Modified by Intensivate, Inc. from the upstream
+  Rocket Chip file", and 6 (`rocket/{Div,MulH,MulL}.scala`,
+  `diplomaticobjectmodel/logicaltree/{LogicalTrees,RocketLogicalTreeNode}.scala`,
+  `subsystem/BankedL2Params.scala`) say "Derived from Rocket Chip and modified
+  by Intensivate, Inc.; no unmodified upstream file exists at this path"
+  because no file at that path exists upstream. Together with the earlier 7,
+  this covers every `src/` and `macros/` file with an upstream license pointer
+  whose content is not upstream's. Limits: the notice states that the file
+  differs from upstream, not who wrote the difference; a file taken from a
+  fork other than Rocket Chip would be mislabelled; `src/main/scala/cache/` was
+  excluded because it comes from a different upstream (see
+  `cache_update.md`); the 4 files that differ from upstream but carry no
+  header at all (listed earlier in this audit) were included.

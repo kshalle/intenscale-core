@@ -1,3 +1,4 @@
+// Modified by Intensivate, Inc. from the upstream Rocket Chip file.
 /* verilator lint_off UNOPTFLAT */
 
 module EICG_wrapper(

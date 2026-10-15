@@ -1,4 +1,5 @@
 // See LICENSE.SiFive for license details.
+// Modified by Intensivate, Inc. from the upstream Rocket Chip file.
 //VCS coverage exclude_file
 `ifndef RESET_DELAY
  `define RESET_DELAY 777.7

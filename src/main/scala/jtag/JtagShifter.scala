@@ -1,4 +1,5 @@
 // See LICENSE.jtag for license details.
+// Modified by Intensivate, Inc. from the upstream Rocket Chip file.
 
 package freechips.rocketchip.jtag
 

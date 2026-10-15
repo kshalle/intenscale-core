@@ -1,4 +1,5 @@
 // See LICENSE.SiFive for license details.
+// Derived from Rocket Chip and modified by Intensivate, Inc.; no unmodified upstream file exists at this path.
 
 package freechips.rocketchip.subsystem
 
