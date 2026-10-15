@@ -72,10 +72,15 @@ recorded to clone against. What can be said from reading the tree itself:
   `resources/` are Intensivate-original, correctly headered with
   `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`. Listed in full in
   `CORE-LICENSE-AUDIT.md` §4.
-- Four files (`rocket/{Consts,instrUnit,NBDcache,pipeUnit}.scala`) and
-  `system/IntenScaleChip.scala` are flagged as possibly modified or
-  possibly-Intensivate-original without a header stating so. **Unresolved —
-  see `CORE-LICENSE-AUDIT.md` §5 item 2.**
+- Five files are modified or renamed Rocket Chip files and keep their upstream
+  license pointers. `rocket/Consts.scala` and `rocket/NBDcache.scala` are
+  modified in place. `rocket/pipeUnit.scala` derives from
+  `rocket/RocketCore.scala`, `rocket/instrUnit.scala` from
+  `rocket/Frontend.scala`, and `system/IntenScaleChip.scala` from
+  `system/ExampleRocketSystem.scala` (renamed, with local changes). Each now
+  carries a derivation notice. They are not Intensivate-original and carry no
+  Intensivate license identifier. Whether to put Intensivate's own changes in
+  them under a separate license is a decision not yet made.
 
 - `bootrom/{bootrom.S,linker.ld,Makefile}` come from upstream Rocket Chip.
   `linker.ld` and `Makefile` are unchanged. `bootrom.S` is modified

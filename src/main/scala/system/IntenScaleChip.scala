@@ -1,4 +1,5 @@
 // See LICENSE.SiFive for license details.
+// Derived from Rocket Chip's system/ExampleRocketSystem.scala; renamed and modified by Intensivate, Inc.
 
 package freechips.rocketchip.system
 

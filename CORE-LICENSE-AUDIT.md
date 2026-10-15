@@ -349,10 +349,19 @@ Counsel-style review found the following, and these changes were made:
   `RocketTile`, `rocket/Consts` and `rocket/NBDcache`. Other modified upstream
   files (for example the ones listed in `src/ORIGIN.md`) have not been given
   notices; a full pass is open.
-- **Still open:** `rocket/instrUnit`, `rocket/pipeUnit` and
-  `system/IntenScaleChip` do not exist in upstream, so they are
-  Intensivate-original, yet carry no Intensivate header. Engineering to confirm
-  authorship and choose the correct header. Also open: a contributor-agreement
+- **Correction (2026-10-14, later):** the previous bullet here said
+  `rocket/instrUnit`, `rocket/pipeUnit` and `system/IntenScaleChip` were
+  Intensivate-original because their filenames are absent from upstream. That
+  was wrong. Comparing with the Rocket Chip fork point shows they are renamed
+  derivatives: `pipeUnit` of `RocketCore.scala` (it keeps `ImmGen`,
+  `ImmGenRVC` and `RocketCustomCSRs`; about 94 of 859 distinct lines are
+  verbatim), `instrUnit` of `Frontend.scala` (24 of 140), and `IntenScaleChip`
+  of `ExampleRocketSystem.scala` (class names unchanged). Their SiFive and
+  Berkeley pointers are correct and stay. Derivation notices were added to each
+  file, and no Intensivate license identifier was added. §4's
+  "Undisclosed-modification flag" and the open item in §6 are resolved as to
+  provenance; whether Intensivate's own changes in those files should carry a
+  separate license is an open decision. Also open: a contributor-agreement
   check.
 - **License texts added** to `LICENSES/`: `GPL-2.0-only.txt` (for
   `patches/linux.patch` and `patches/qemu.patch`; copied from

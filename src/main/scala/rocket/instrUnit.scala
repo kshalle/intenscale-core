@@ -1,5 +1,6 @@
 // See LICENSE.Berkeley for license details.
 // See LICENSE.SiFive for license details.
+// Derived from Rocket Chip's rocket/Frontend.scala; renamed and modified by Intensivate, Inc.
 
 package freechips.rocketchip.rocket
 
