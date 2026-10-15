@@ -352,6 +352,14 @@ Counsel-style review found the following, and these changes were made:
 - **Still open:** `rocket/instrUnit`, `rocket/pipeUnit` and
   `system/IntenScaleChip` do not exist in upstream, so they are
   Intensivate-original, yet carry no Intensivate header. Engineering to confirm
-  authorship and choose the correct header. Also open: license texts for
-  GPL-2.0, CDDL-1.0, BSD-2-Clause and Artistic, and a contributor-agreement
+  authorship and choose the correct header. Also open: a contributor-agreement
   check.
+- **License texts added** to `LICENSES/`: `GPL-2.0-only.txt` (for
+  `patches/linux.patch` and `patches/qemu.patch`; copied from
+  `benchmarks/LICENSES/`) and `CDDL-1.0.txt` (for `javax.mail`, whose jar lives
+  in the `torture` submodule; text from the SPDX license list as reproduced in
+  the Linux kernel's `LICENSES/dual/CDDL-1.0`, front matter removed). BSD-2-Clause,
+  Artistic-1.0 and GPL-1.0-or-later remain only under `benchmarks/LICENSES/`,
+  which is self-contained; the core does not use them. Not verified: the
+  patches carry no per-file SPDX tag, and whether each project is
+  GPL-2.0-only or GPL-2.0-or-later (QEMU is mostly the latter) was not checked.

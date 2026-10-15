@@ -107,9 +107,11 @@ Full detail, evidence, and open items are in [`CORE-LICENSE-AUDIT.md`](CORE-LICE
 | javax.mail | Oracle/Sun | CDDL 1.0 | `torture/overnight/lib/mail.jar` |
 
 `javax.mail`, used only by an offline test-reporting script, is licensed under
-**CDDL 1.0** — a license family not otherwise represented in this repository
-and for which no license text is currently reproduced under `LICENSES/`.
-Flagged in `CORE-LICENSE-AUDIT.md` §5 for resolution.
+**CDDL 1.0** — the license text is reproduced at `LICENSES/CDDL-1.0.txt`. The jar
+lives in the `torture` submodule and is not redistributed by this repository
+itself. `patches/linux.patch` and `patches/qemu.patch` are changes to GPL-2.0
+projects and remain under those projects' own licenses (GPL-2.0; text at
+`LICENSES/GPL-2.0-only.txt`).
 
 ### GPL material is present
 
