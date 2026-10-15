@@ -176,24 +176,23 @@ scratch if more Rocket Chip source is ever added.
 
 ## 4. Files Intensivate wrote (carry `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`)
 
-27 files, all `SPDX-FileCopyrightText: Intensivate, Inc.` / `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`:
+24 files, all `SPDX-FileCopyrightText: Intensivate, Inc.` / `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`:
 
 | Group | Files |
 |---|---|
 | Root build scripts and config | `set_env.sh`, `mkJunit.py`, `prepare_env.conf`, `intensivate-intenscale-core-bootstrap.sh`, `scripts/preflight.sh` |
 | Simulation scripts | `vsim/{testNc.do,testNcWave.do,dumpSaif.do}` |
-| Patches against vendored trees | `DRAMSIM3/INTENSIVATE-LPDDR5.patch`, `chisel3/INTENSIVATE-REG-INIT.patch`, `hardfloat/INTENSIVATE-FPU-EXTENSIONS.patch` |
 | RTL — subsystem | `src/main/scala/subsystem/{TLCacheCork,L2Macro,L1L2CacheWiring,L2BaseTile,PcieResetSync,ClockRouting,ConfigsPrint}.scala` |
 | RTL — rocket | `src/main/scala/rocket/{regfset,csrUnit,Buses,ctxtUnit}.scala` |
 | RTL — compat | `src/main/scala/chisel3_compat/InlineCompat.scala` |
 | RTL — resources | `src/main/resources/csrc/config.h`, `src/main/resources/vsrc/{MemoryRequestHelper,MemRWHelper,MemoryResponseHelper}.v` |
 
 This is the complete list as of 2026-10-14 (the first pass counted 21; the
-bootstrap script, `prepare_env.conf`, `scripts/preflight.sh` and the three
-`INTENSIVATE-*.patch` files were added or labelled later); `NOTICE.md` and
-`README.md` are kept in sync with this count. The patch files modify Apache-2.0
-or BSD upstream code but are themselves labelled non-commercial; whether that
-labelling is intended is an open question for IP counsel (§6). §2's four
+bootstrap script, `prepare_env.conf` and `scripts/preflight.sh` were added or
+labelled later); `NOTICE.md` and
+`README.md` are kept in sync with this count. The three `INTENSIVATE-*.patch` files
+are not in this count: they were relabelled on 2026-10-14 to their base
+trees' licenses (MIT, BSD-3-Clause), see the addendum at the end. §2's four
 components add real but *unheadered* Intensivate content on top of this, which
 is tracked via their own `ORIGIN.md` files.
 
@@ -322,3 +321,37 @@ classified by header. 292 SiFive pointer, 43 SiFive and Berkeley, 13 Berkeley,
 listed in the addendum above plus the `src/main/scala/README` doc stub). No
 file lacks an applicable licence statement beyond those. Counts corrected:
 Intensivate SPDX 21 to 27 repo-wide, Mulan 11 to 12.
+
+## Addendum, 2026-10-14 (second): IP review follow-ups
+
+Counsel-style review found the following, and these changes were made:
+
+- **Patch files relabelled.** `DRAMSIM3/INTENSIVATE-LPDDR5.patch` is now `MIT`;
+  `chisel3/INTENSIVATE-REG-INIT.patch` and
+  `hardfloat/INTENSIVATE-FPU-EXTENSIONS.patch` are `BSD-3-Clause`, matching the
+  trees they describe. Reasons: the modified files in the tree carry only the
+  upstream license pointer, so a second, restrictive label on the same content
+  was ambiguous; the hardfloat base is not confirmed exact and the delta
+  includes code copied from Rocket Chip and a port of Berkeley code, so the
+  deltas are not wholly Intensivate-original; the chisel3 delta is 5 lines.
+  Intensivate's copyright line is kept. `LICENSES/MIT.txt` added. Intensivate
+  NC file count is now 24.
+- **`NOTICE.md` corrected.** It said no commercial license is required for
+  anything in the repository, contradicting `README.md` and
+  `COMMERCIAL-LICENSE.md`. It now says commercial use of the core requires a
+  separate license.
+- **Patent reservation added** to `NOTICE.md` and `PATENTS.md`: upstream-licensed
+  files, including those with Intensivate modifications, are not a grant under
+  Intensivate's patents.
+- **Change notices** ("Modified by Intensivate, Inc.", for Apache-2.0 §4(b) where
+  the file carries the SiFive pointer) added to the four files confirmed
+  modified against the Rocket Chip fork point (`50bb13d78`): `BaseSubsystem`,
+  `RocketTile`, `rocket/Consts` and `rocket/NBDcache`. Other modified upstream
+  files (for example the ones listed in `src/ORIGIN.md`) have not been given
+  notices; a full pass is open.
+- **Still open:** `rocket/instrUnit`, `rocket/pipeUnit` and
+  `system/IntenScaleChip` do not exist in upstream, so they are
+  Intensivate-original, yet carry no Intensivate header. Engineering to confirm
+  authorship and choose the correct header. Also open: license texts for
+  GPL-2.0, CDDL-1.0, BSD-2-Clause and Artistic, and a contributor-agreement
+  check.

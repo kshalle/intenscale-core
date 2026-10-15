@@ -1,7 +1,8 @@
 # SPDX-FileCopyrightText: 2016-2026 Intensivate, Inc.
-# SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0
+# SPDX-License-Identifier: MIT
 #
-# Intensivate's modifications to DRAMSim3, extracted for licensing clarity.
+# Intensivate's modifications to DRAMSim3, extracted for review.
+# Licensed under the same MIT license as the base tree (see DRAMSIM3/LICENSE).
 #
 # Base: https://github.com/OpenXiangShan/DRAMsim3.git, branch cosim-kmh,
 # commit 1d2a9bf ("Merge pull request #3 from OpenXiangShan/fix-clock").
@@ -9,9 +10,8 @@
 # DRAMSIM3/ORIGIN.md.
 #
 # Not applied by patching at build time; already present directly in
-# DRAMSIM3/src/ and DRAMSIM3/scripts/. This file documents and licenses
-# the delta on its own terms, separate from the MIT base it sits on top
-# of. Not reverted from the live tree because emulator/Makefile actively
+# DRAMSIM3/src/ and DRAMSIM3/scripts/. This file documents
+# the delta. Not reverted from the live tree because emulator/Makefile actively
 # builds against configs/intenscore_DDR4_8Gb_x8_3200_1ch_2ra_16GB.ini,
 # which this patch adds -- reverting the live files without a verified
 # rebuild would risk silently breaking the build.

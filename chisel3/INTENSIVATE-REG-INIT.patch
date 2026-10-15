@@ -1,7 +1,9 @@
 # SPDX-FileCopyrightText: 2016-2026 Intensivate, Inc.
-# SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0
+# SPDX-License-Identifier: BSD-3-Clause
 #
-# Intensivate's modification to chisel3, extracted for licensing clarity.
+# Intensivate's modification to chisel3, extracted for review.
+# Licensed under the same BSD-3-Clause license as the base tree (see
+# chisel3/src/LICENSE.txt).
 #
 # Base: https://github.com/chipsalliance/chisel.git, commit
 # 9f620e06bacc2882068adfd4972ec2e9a87ea723. Verified exact for every

@@ -1,7 +1,9 @@
 # SPDX-FileCopyrightText: 2016-2026 Intensivate, Inc.
-# SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0
+# SPDX-License-Identifier: BSD-3-Clause
 #
-# Intensivate's modifications to hardfloat, extracted for licensing clarity.
+# Intensivate's modifications to hardfloat, extracted for review.
+# Licensed under the same BSD-3-Clause license as the base tree (see
+# hardfloat/LICENSE).
 #
 # Base: https://github.com/ucb-bar/berkeley-hardfloat.git, tag
 # v1.3-20200227-SNAPSHOT (commit 26dfe5b). This is the closest verified
@@ -9,8 +11,7 @@
 #
 # These changes are NOT applied by patching the base at build time; they
 # are already present directly in hardfloat/src/main/scala/. This file
-# documents and licenses the delta on its own terms, separate from the
-# BSD-3-Clause base it sits on top of. It is not reverted from the live
+# documents the delta. It is not reverted from the live
 # tree because src/main/scala/tile/FPU.scala actively depends on
 # hardfloat.FMA, which this patch adds -- reverting the live files
 # without a verified rebuild would risk silently breaking the build.

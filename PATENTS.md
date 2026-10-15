@@ -4,7 +4,7 @@ Copyright © 2016-2026 Intensivate, Inc.
 
 Certain technology implemented by the Intensivate CPU Core and related materials is covered by issued patents and pending patent applications owned or controlled by Intensivate, Inc.
 
-This notice is provided for identification and licensing information. The patent license granted for permitted non-commercial and evaluation uses is defined by the **Intensivate Non-Commercial Hardware Source License v1.0** in `LICENSE.md`. Commercial patent rights require a separate written commercial license.
+This notice is provided for identification and licensing information. The patent license granted for permitted non-commercial and evaluation uses is defined by the **Intensivate Non-Commercial Hardware Source License v1.0** in `LICENSE.md`. Commercial patent rights require a separate written commercial license. Nothing in the licenses of third-party or upstream files in this repository is a grant by Intensivate of rights under these patents, and including Intensivate's modifications in a file that carries an upstream license pointer is not such a grant.
 
 The list below may be updated as applications publish, patents issue, continuations are filed, or legal status changes. The scope of any patent right is determined by the applicable patent claims and law, not by this summary.
 

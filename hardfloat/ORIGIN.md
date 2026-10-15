@@ -47,8 +47,8 @@ engineering work, not novel proprietary algorithm content as originally
 feared when this was first flagged.
 
 The full diff is extracted to `INTENSIVATE-FPU-EXTENSIONS.patch` in this
-directory, with `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`, for
-licensing clarity.
+directory, with `SPDX-License-Identifier: BSD-3-Clause` (the base tree's own license; no
+separate Intensivate license applies to it), for review.
 
 **Not reverted from the live tree.** `src/main/scala/tile/FPU.scala` actively
 instantiates `hardfloat.FMA` (`val fpm = Module(new hardfloat.FMA(sigWidth))`)

@@ -52,8 +52,8 @@ microarchitecture. Still real, undisclosed content sitting inside
 permissively-licensed (MIT) files with no Intensivate notice.
 
 The full diff is extracted to `INTENSIVATE-LPDDR5.patch` in this directory,
-with `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`, for licensing
-clarity.
+with `SPDX-License-Identifier: MIT` (the base tree's own license; no
+separate Intensivate license applies to it), for review.
 
 **Not reverted from the live tree.** `emulator/Makefile` actively builds
 against `configs/intenscore_DDR4_8Gb_x8_3200_1ch_2ra_16GB.ini`

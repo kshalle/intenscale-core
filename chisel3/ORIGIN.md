@@ -32,8 +32,9 @@ this same file, still reads *"Construct a `Reg` from a type template with no
 initialization value (reset is ignored)"* — which this change makes false.
 
 The full diff is extracted to `INTENSIVATE-REG-INIT.patch` in this directory,
-with `SPDX-License-Identifier: LicenseRef-Intensivate-NC-1.0`, for licensing
-clarity and so it can be reviewed independently of the base.
+with `SPDX-License-Identifier: BSD-3-Clause` (the base tree's own license; no
+separate Intensivate license applies to it), for review, and so it can be
+reviewed independently of the base.
 
 **Not reverted from the live tree.** Nothing in this repo lets this audit
 verify a rebuild is safe after removing the change, so the file was left as
