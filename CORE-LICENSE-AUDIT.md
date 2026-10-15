@@ -380,3 +380,13 @@ Counsel-style review found the following, and these changes were made:
   templates. Still open: there is no contributor agreement text yet (an
   outline for drafting is in `license-package-internal/`), and nothing blocks
   merging a pull request without one.
+- **`NOTICE.md` scope wording resolved.** It said Intensivate modifications
+  inside third-party files "are contributed under that file's existing
+  license", which conflicted with the patent reservation in the Patents
+  section. It now limits that to copyright and says the existing license is not
+  a grant under Intensivate's patents. The reservation was chosen over the
+  alternative (accepting permissive licensing of those modifications and moving
+  patented logic into separate Intensivate files). Limits: the wording cannot
+  change terms for copies already obtained, and whether a reservation of this
+  kind holds against Apache-2.0 section 3 for files that carry Intensivate's
+  modifications has not been confirmed by a patent attorney.

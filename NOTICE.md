@@ -45,7 +45,7 @@ This repository is **mixed-license**. The Intensivate Non-Commercial license app
 It does **not** apply to:
 
 - Third-party files, which remain under the licenses granted by their own copyright holders.
-- Intensivate modifications made *inside* a third-party file. Those modifications are contributed under that file's existing license.
+- Intensivate modifications made *inside* a third-party file. For copyright, those modified files are distributed under that file's existing license. That license is not a grant under Intensivate's patents: the only Intensivate patent license is the one in `LICENSE.md`, which covers the Licensed Materials only (see "Patents" below).
 - Intensivate-original files that carry a different SPDX identifier. All of Intensivate's work under `benchmarks/` is in this category: it is BSD 2-Clause by deliberate choice.
 
 Where a file carries no `SPDX-License-Identifier`, the license stated in its own header, in the nearest `LICENSE` file of the component that contains it, or in `benchmarks/REUSE.toml` governs. Absence of a header is not a grant under the Intensivate license.
